@@ -149,6 +149,18 @@
 #define MPU6050_ACC_SCALE			2048
 #endif
 
+typedef struct{
+	I2C_Communicator Communicator;	
+	
+	uint8_t GyroRes;
+	uint8_t GyroScale;
+	uint8_t AccRes;
+	uint8_t AccScale;
+	uint8_t GyroTest;
+	uint8_t AccTest;
+} MPU_Init_TypeDef;
+
+void MPU_DefaultSettings(void);
 void MPU_Init(void);
 void MPU_Read_ACC(double* ACC_X, double* ACC_Y, double* ACC_Z);
 void MPU_Read_GYRO(double* GYRO_X, double* GYRO_Y, double* GYRO_Z);

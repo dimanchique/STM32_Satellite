@@ -68,12 +68,14 @@ enum AdxlBitNum{
 D0,D1,D2,D3,D4,D5,D6,D7
 };
 
-typedef struct ADXL_Init_TypeDef{
+typedef struct{
+	I2C_Communicator Communicator;	
+	
 	uint8_t Datarate;
 	uint8_t DataFormat;
 	uint8_t Power;
 } ADXL_Init_TypeDef;
 //------------------------------------------------
-void ADXL_Init(ADXL_Init_TypeDef *ADXL345);
-void ADXL_DefaultInit(void);
+void ADXL_Init(void);
+void ADXL_DefaultSettings(void);
 void ADXL_Read(double* x, double* y, double* z);
