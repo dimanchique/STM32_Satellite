@@ -1,13 +1,21 @@
 #include "I2C_Process.h"
 
-HAL_StatusTypeDef I2CBus_Ready = HAL_OK;
+I2C_BusTypeDef I2C_Bus;
 uint8_t AddressList[10] = {0};
 
+//------------------------------------------------
+void I2C_Init(void)
+{
+	I2C_Bus.I2C_Instance = hi2c1;
+	I2C_Bus.Status = HAL_OK;
+}
 //------------------------------------------------
 void I2C_Scan(){
 	uint8_t n = 0;
 	for(uint8_t address = 1; address<128; address++){
-		if (HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(address<<1), 4, 50) == HAL_OK){
+		I2C_Bus.Status = HAL_I2C_IsDeviceReady(&I2C_Bus.I2C_Instance, (uint16_t)(address<<1), 4, 50);
+		if(I2C_Bus.Status == HAL_OK)
+		{
 			AddressList[n] = address;
 			n++;
 		}
@@ -48,7 +56,7 @@ void I2C_WriteByte(uint8_t DeviceAddress, uint8_t RegisterAddress, uint8_t Value
 }
 //------------------------------------------------
 void I2C_ReadData8(uint8_t DeviceAddress, uint8_t RegisterAddress, uint8_t *Value){
-  	I2CBus_Ready = HAL_I2C_Mem_Read(&hi2c1, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, &Value, 1, 0x10000);
+  	I2CBus_Ready = HAL_I2C_Mem_Read(&hi2c1, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, Value, 1, 0x10000);
   	if(I2CBus_Ready != HAL_OK) Error();
 }
 //------------------------------------------------
