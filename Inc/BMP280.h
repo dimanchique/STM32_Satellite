@@ -87,10 +87,17 @@ typedef struct{
 	uint8_t Pressure_Oversampling;
 	uint8_t StandbyTime;
 	uint8_t Power;	
+	
+	struct BMP_Data{
+		float pressure;
+		float temperature;
+		float altitude;
+		float mmHg;
+	}Data;
 } BMP280_Init_TypeDef;
 //------------------------------------------------
 void BMP_Init(void);
 void BMP_DefaultSettings(void);
 void BMP_SoftReset(void);
 uint8_t BMP_Status(void);
-void BMP_GetAllData(float* temperature, float* pressure, float* altitude, float* mmHg);
+void BMP_ReadData(void);

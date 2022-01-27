@@ -73,11 +73,11 @@ void MPU_Init(){
 		I2C_WriteByte(MPU6050.Communicator, MPU6050_PWR_MGMT_1, MPU6050_RESET);
 		I2C_WriteByte(MPU6050.Communicator, MPU6050_ACCEL_CONFIG, MPU6050.AccRes|MPU6050.AccTest);
 		I2C_WriteByte(MPU6050.Communicator, MPU6050_GYRO_CONFIG, MPU6050.GyroRes|MPU6050.GyroTest);
-		//Calibrate();
+		Calibrate();
 	}
 }
 
-void MPU_Read_ACC(double* ACC_X, double* ACC_Y, double* ACC_Z){
+void MPU_Read_ACC(void){
 	CheckDeviceState(&MPU6050.Communicator);
 	if (MPU6050.Communicator.Status != HAL_ERROR){
 		I2C_ReadDataU16(MPU6050.Communicator, MPU6050_GYRO_X, &RecAccX);
@@ -86,18 +86,18 @@ void MPU_Read_ACC(double* ACC_X, double* ACC_Y, double* ACC_Z){
 		RecAccY = ((uint16_t)(RecAccY<<8))|((uint16_t)(RecAccY>>8));
 		I2C_ReadDataU16(MPU6050.Communicator, MPU6050_GYRO_Z, &RecAccZ);
 		RecAccZ = ((uint16_t)(RecAccZ<<8))|((uint16_t)(RecAccZ>>8));
-		*ACC_X = RecAccX/MPU6050_ACC_SCALE - GYRO_ERROR_X;
-		*ACC_Y = RecAccY/MPU6050_ACC_SCALE - GYRO_ERROR_Y;
-		*ACC_Z = RecAccZ/MPU6050_ACC_SCALE - GYRO_ERROR_Z;
+		MPU6050.Data.X_Acceleration = RecAccX/MPU6050_ACC_SCALE - GYRO_ERROR_X;
+		MPU6050.Data.Y_Acceleration = RecAccY/MPU6050_ACC_SCALE - GYRO_ERROR_Y;
+		MPU6050.Data.Z_Acceleration = RecAccZ/MPU6050_ACC_SCALE - GYRO_ERROR_Z;
 	}
 	else{		
-		*ACC_X = 0;
-		*ACC_Y = 0;
-		*ACC_Z = 0;
+		MPU6050.Data.X_Acceleration = 0;
+		MPU6050.Data.Y_Acceleration = 0;
+		MPU6050.Data.Z_Acceleration = 0;
 	}
 }
 
-void MPU_Read_GYRO(double* GYRO_X, double* GYRO_Y, double* GYRO_Z){
+void MPU_Read_GYRO(void){
 	CheckDeviceState(&MPU6050.Communicator);
 	if (MPU6050.Communicator.Status != HAL_ERROR){
 		I2C_ReadDataU16(MPU6050.Communicator, MPU6050_GYRO_X, &RecGyroX);
@@ -106,24 +106,24 @@ void MPU_Read_GYRO(double* GYRO_X, double* GYRO_Y, double* GYRO_Z){
 		RecGyroY = ((uint16_t)(RecGyroY<<8))|((uint16_t)(RecGyroY>>8));
 		I2C_ReadDataU16(MPU6050.Communicator, MPU6050_GYRO_Z, &RecGyroZ);
 		RecGyroZ = ((uint16_t)(RecGyroZ<<8))|((uint16_t)(RecGyroZ>>8));
-		*GYRO_X = RecGyroX/MPU6050_GYRO_SCALE - GYRO_ERROR_X;
-		*GYRO_Y = RecGyroY/MPU6050_GYRO_SCALE - GYRO_ERROR_Y;
-		*GYRO_Z = RecGyroZ/MPU6050_GYRO_SCALE - GYRO_ERROR_Z;
+		MPU6050.Data.X_Gyro = RecGyroX/MPU6050_GYRO_SCALE - GYRO_ERROR_X;
+		MPU6050.Data.Y_Gyro = RecGyroY/MPU6050_GYRO_SCALE - GYRO_ERROR_Y;
+		MPU6050.Data.Z_Gyro = RecGyroZ/MPU6050_GYRO_SCALE - GYRO_ERROR_Z;
 	}
 	else{
-		*GYRO_X = 0;
-		*GYRO_Y = 0;
-		*GYRO_Z = 0;
+		MPU6050.Data.X_Gyro = 0;
+		MPU6050.Data.Y_Gyro = 0;
+		MPU6050.Data.Z_Gyro = 0;
 	}
 }
 
-void MPU_Read_TEMP(double* temp){
+void MPU_Read_TEMP(void){
 	CheckDeviceState(&MPU6050.Communicator);
 	if (MPU6050.Communicator.Status != HAL_ERROR){
 		I2C_ReadDataS16(MPU6050.Communicator, MPU6050_TEMP, &RecTemp);
 		RecTemp = ((int16_t)(RecTemp<<8))|((int16_t)(RecTemp>>8));
-		*temp = RecTemp/340 + 36.53;
+		MPU6050.Data.Temperature = RecTemp/340 + 36.53;
 	}
 	else
-		*temp = 0;
+		MPU6050.Data.Temperature = 0;
 }

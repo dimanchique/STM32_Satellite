@@ -158,10 +158,20 @@ typedef struct{
 	uint8_t AccScale;
 	uint8_t GyroTest;
 	uint8_t AccTest;
+	
+	struct MPU_Data{
+		double X_Acceleration;
+		double Y_Acceleration;
+		double Z_Acceleration;
+		double X_Gyro;
+		double Y_Gyro;
+		double Z_Gyro;
+		double Temperature;
+	}Data;
 } MPU_Init_TypeDef;
 
 void MPU_DefaultSettings(void);
 void MPU_Init(void);
-void MPU_Read_ACC(double* ACC_X, double* ACC_Y, double* ACC_Z);
-void MPU_Read_GYRO(double* GYRO_X, double* GYRO_Y, double* GYRO_Z);
-void MPU_Read_TEMP(double* temp);
+void MPU_Read_ACC(void);
+void MPU_Read_GYRO(void);
+void MPU_Read_TEMP(void);

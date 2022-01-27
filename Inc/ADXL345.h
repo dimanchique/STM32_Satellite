@@ -74,8 +74,14 @@ typedef struct{
 	uint8_t Datarate;
 	uint8_t DataFormat;
 	uint8_t Power;
+	
+	struct ADXL_Data{
+		double x;
+		double y;
+		double z;
+	}Data;
 } ADXL_Init_TypeDef;
 //------------------------------------------------
 void ADXL_Init(void);
 void ADXL_DefaultSettings(void);
-void ADXL_Read(double* x, double* y, double* z);
+void ADXL_ReadData(void);

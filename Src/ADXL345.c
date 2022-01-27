@@ -4,14 +4,13 @@ ADXL_Init_TypeDef ADXL345 = {0};
 
 //------------------------------------------------
 static void ADXL_InitialCallibrate(void){
-	double x, y, z;
-	ADXL_Read(&x, &y, &z);
-	x*=ADXL345_ACC_SCALE;
-	y*=ADXL345_ACC_SCALE; 
-	z*=ADXL345_ACC_SCALE;
-	I2C_WriteByte(ADXL345.Communicator, ADXL345_OFSX, (uint8_t)((x-ADXL345_ACC_SCALE)/4));
-	I2C_WriteByte(ADXL345.Communicator, ADXL345_OFSY, (uint8_t)((y-ADXL345_ACC_SCALE)/4));
-	I2C_WriteByte(ADXL345.Communicator, ADXL345_OFSZ, (uint8_t)((z-ADXL345_ACC_SCALE)/4));
+	ADXL_ReadData();
+	ADXL345.Data.x*=ADXL345_ACC_SCALE;
+	ADXL345.Data.y*=ADXL345_ACC_SCALE; 
+	ADXL345.Data.z*=ADXL345_ACC_SCALE;
+	I2C_WriteByte(ADXL345.Communicator, ADXL345_OFSX, (uint8_t)((ADXL345.Data.x-ADXL345_ACC_SCALE)/4));
+	I2C_WriteByte(ADXL345.Communicator, ADXL345_OFSY, (uint8_t)((ADXL345.Data.y-ADXL345_ACC_SCALE)/4));
+	I2C_WriteByte(ADXL345.Communicator, ADXL345_OFSZ, (uint8_t)((ADXL345.Data.z-ADXL345_ACC_SCALE)/4));
 }
 //------------------------------------------------
 void ADXL_DefaultSettings(){
@@ -43,7 +42,7 @@ void ADXL_Init(){
 	}
 }
 //------------------------------------------------
-void ADXL_Read(double *x, double *y, double *z){
+void ADXL_ReadData(){
 	if (ADXL345.Communicator.Status != HAL_ERROR)
 		CheckDeviceState(&ADXL345.Communicator);
 	
@@ -54,14 +53,14 @@ void ADXL_Read(double *x, double *y, double *z){
 		xx = (int16_t)((data[1]<<8)|data[0]);
 		yy = (int16_t)((data[3]<<8)|data[2]);
 		zz = (int16_t)((data[5]<<8)|data[4]);
-		*x = (double)(xx/ADXL345_ACC_SCALE); 
-		*y = (double)(yy/ADXL345_ACC_SCALE); 
-		*z = (double)(zz/ADXL345_ACC_SCALE); 
+		ADXL345.Data.x = (double)(xx/ADXL345_ACC_SCALE); 
+		ADXL345.Data.y = (double)(yy/ADXL345_ACC_SCALE); 
+		ADXL345.Data.z = (double)(zz/ADXL345_ACC_SCALE); 
 	}
 	else{
-		*x = 0;
-		*y = 0;
-		*z = 0;
+		ADXL345.Data.x = 0;
+		ADXL345.Data.y = 0;
+		ADXL345.Data.z = 0;
 	}
 }
 //------------------------------------------------

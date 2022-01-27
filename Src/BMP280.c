@@ -5,12 +5,11 @@ static float base_hhMg;
 static int32_t temper_int;
 //------------------------------------------------
 static void Calibrate(void){
-	float temp, press, alt, mmHg;
-	BMP_GetAllData(&temp, &press, &alt, &mmHg);
-	base_hhMg = press * 0.000750061683f;
+	BMP_ReadData();
+	base_hhMg = BMP280.Data.pressure * 0.000750061683f;
 }
 //------------------------------------------------
-static void BMP_GetTemperature(float* temperature){
+static void BMP_GetTemperature(){
 	float temper_float = 0.0f;
 	uint32_t temper_raw;
 	int32_t val1, val2;
@@ -22,14 +21,14 @@ static void BMP_GetTemperature(float* temperature){
 	temper_int = val1 + val2;
 	temper_float = ((temper_int * 5 + 128) >> 8);
 	temper_float /= 100.0f;
-	*temperature = temper_float;
+	BMP280.Data.temperature = temper_float;
 }
 //------------------------------------------------
-static float BMP_GetPressureAndTemperature(float* temperature){
+static float BMP_GetPressureAndTemperature(){
   float press_float = 0.0f;
 	uint32_t press_raw, pres_int;
 	int64_t val1, val2, p;
-	BMP_GetTemperature(temperature);
+	BMP_GetTemperature();
 	while(BMP_Status() & BMP280_IS_UPDATING);
 	I2C_ReadDataBE_U24(BMP280.Communicator, BMP280_PRESSURE_REGISTER, &press_raw);
 	press_raw >>= 4;
@@ -101,19 +100,19 @@ void BMP_Init(void){
 	}
 }
 //------------------------------------------------
-void BMP_GetAllData(float* temperature, float* pressure, float* altitude, float* mmHg){
+void BMP_ReadData(){
 	if (BMP280.Communicator.Status != HAL_ERROR)
 		CheckDeviceState(&BMP280.Communicator);
 	if (BMP280.Communicator.Status != HAL_ERROR){
-		*pressure = BMP_GetPressureAndTemperature(temperature);
-		*mmHg = *pressure * 0.000750061683f;
-		*pressure/=10.0f;
-		*altitude = (base_hhMg - *mmHg) * 10.5f;
+		BMP280.Data.pressure = BMP_GetPressureAndTemperature();
+		BMP280.Data.mmHg = BMP280.Data.pressure * 0.000750061683f;
+		BMP280.Data.pressure/=10.0f;
+		BMP280.Data.altitude = (base_hhMg - BMP280.Data.mmHg) * 10.5f;
 	}
 	else{
-		*pressure = 0;
-		*mmHg = 0;
-		*altitude = 0;
+		BMP280.Data.pressure = 0;
+		BMP280.Data.mmHg = 0;
+		BMP280.Data.altitude = 0;
 	}
 }
 //------------------------------------------------
