@@ -8,15 +8,15 @@ void I2C_Init(void)
 {
 	I2C_Bus.I2C_Instance = hi2c1;
 	I2C_Bus.Status = HAL_OK;
+	I2C_Bus.Devices = 0;
 }
 //------------------------------------------------
 void I2C_Scan(){
 	uint8_t n = 0;
-	HAL_StatusTypeDef temp_device_status;
 	for(uint8_t address = 8; address<128; address++){
-		temp_device_status = HAL_I2C_IsDeviceReady(&I2C_Bus.I2C_Instance, (uint16_t)(address<<1), 4, 50);
-		if(temp_device_status == HAL_OK){
+		if(HAL_I2C_IsDeviceReady(&I2C_Bus.I2C_Instance, (uint16_t)(address<<1), 4, 50) == HAL_OK){
 			AddressList[n] = address;
+			I2C_Bus.Devices++;
 			n++;
 		}
 	}	

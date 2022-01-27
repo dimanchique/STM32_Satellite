@@ -74,7 +74,7 @@ void BMP_DefaultSettings(){
 	BMP280.Communicator.FactAddress = BMP280_ADDRESS>>1;
 	BMP280.Communicator.Device_ID = BMP280_ID;
 	BMP280.Communicator.ID_Register = BMP280_ID_REGISTER;
-	BMP280.Communicator.Status = HAL_OK;
+	CheckDeviceState(&BMP280.Communicator);
 	//Setup Section
 	BMP280.Power = BMP280_NORMALMODE;														//Measure Continuously
 	BMP280.StandbyTime = BMP280_STANDBYTIME2;										//Measure every 125ms

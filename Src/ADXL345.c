@@ -20,7 +20,7 @@ void ADXL_DefaultSettings(){
 	ADXL345.Communicator.FactAddress = ADXL345_ADDRESS>>1;
 	ADXL345.Communicator.Device_ID = ADXL345_ID;
 	ADXL345.Communicator.ID_Register = ADXL345_ID_REGISTER;
-	ADXL345.Communicator.Status = HAL_OK;
+	CheckDeviceState(&ADXL345.Communicator);
 	//Setup Section	
 	ADXL345.Datarate = ADXL345_DATARATE;
 	ADXL345.DataFormat = ADXL345_ACC_RESOLUTION;

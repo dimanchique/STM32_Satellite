@@ -12,6 +12,7 @@ extern I2C_HandleTypeDef hi2c1;
 typedef struct{
 	I2C_HandleTypeDef I2C_Instance;
 	HAL_StatusTypeDef Status;
+	uint8_t Devices;
 } I2C_BusStruct;
 ////Devices List Struct////
 typedef struct{

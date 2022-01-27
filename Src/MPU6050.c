@@ -54,7 +54,7 @@ void MPU_DefaultSettings(){
 	MPU6050.Communicator.FactAddress = MPU6050_ADDRESS>>1;
 	MPU6050.Communicator.Device_ID = MPU6050_ID;
 	MPU6050.Communicator.ID_Register = MPU6050_ID_REGISTER;
-	MPU6050.Communicator.Status = HAL_OK;
+	CheckDeviceState(&MPU6050.Communicator);
 	//Setup Section	
 	MPU6050.GyroRes = MPU6050_GYRO_RESOLUTION;
 	MPU6050.GyroScale = MPU6050_GYRO_RESOLUTION;
