@@ -32,13 +32,7 @@ static void UnMountSystem(){
 static void CreateInitialLog(){
 	Logger.Status = f_open(&SDFile, Logger.Filename, FA_CREATE_ALWAYS | FA_WRITE);
 	Logger.File_Opened = 1;	
-	strcpy(Logger.Message, "Initial log generated. FatFS working properly. "); 	
-	char i2c_message[50];
-	if (I2C_Bus.Status == HAL_OK)
-		sprintf(i2c_message, "I2C Bus Status: HAL_OK; Connected devices: %d;", I2C_Bus.Devices);
-	else
-		strcpy(i2c_message, "I2C Bus Status: HAL_ERROR");
-	strcat(Logger.Message, i2c_message);
+	sprintf(Logger.Message, "Initial log generated. %s is working properly.", Logger.CurentInstance);
 	Logger.Write_Status = f_write(&SDFile, Logger.Message, strlen((char *)Logger.Message), (void *)&byteswritten);
 	Logger.Status = f_close(&SDFile);
 	Logger.File_Opened = 0;
@@ -53,6 +47,7 @@ void InitSDSystem(){
 void InitSD(){	
 	Logger.Disk_Mounted = 0;
 	Logger.File_Opened = 0;
+	strcpy(Logger.CurentInstance, "FatFS");
 	strcpy(Logger.Filename, DEFAULT_FILENAME);	
 	MountSystem();
 	if (Logger.Disk_Mounted){
