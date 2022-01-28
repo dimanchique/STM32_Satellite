@@ -15,14 +15,14 @@ void NRF_DefaultInit(){
 		NRF_Module.DataRate = NRF_1MBPS;
 		NRF_Module.AcknowledgeEnable = 0;
 		NRF_Module.AcknowledgePayload = 0;
-		NRF_Module.Pipe = 0xE8E8F0F0E2LL;
+		NRF_Module.Pipe = PIPE1;
 		NRF_Module.Channel = 19;
 		NRF_Module.AddressWidth = 5;
-		NRF_Module.PayloadSize = 6;
+		NRF_Module.PayloadSize = 32;
 		NRF_Module.TX_Delay = 0;
 		NRF_Module.is_P_Variant = 0;
 		
-		NRF_Init(&NRF_Module);
+		NRF_Init();
 
 		if(NRF_Ready != HAL_ERROR){
 			setAutoAck(NRF_Module.AcknowledgeEnable);
@@ -31,7 +31,7 @@ void NRF_DefaultInit(){
 		}
 }
 //------------------------------------------------
-void NRF_Init(NRF_Init_TypeDef *NRF_Module){
+void NRF_Init(){
 	uint8_t setup = 0;
 
 	ce(LOW);
@@ -39,11 +39,12 @@ void NRF_Init(NRF_Init_TypeDef *NRF_Module){
 	HAL_Delay(5);
 
 	write_register(NRF_CONFIG, 0x0C);
-	setRetries(NRF_Module->RetryDelay, NRF_Module->Retries);
-	setPALevel(NRF_Module->PowerLevel);
-	if(setDataRate(NRF_Module)) NRF_Module->is_P_Variant = 1;
+	setRetries(NRF_Module.RetryDelay, NRF_Module.Retries);
+	setPALevel(NRF_Module.PowerLevel);
+	if(setDataRate(&NRF_Module))
+		NRF_Module.is_P_Variant = 1;
 	setup = read_register(NRF_RF_SETUP);
-	setDataRate(NRF_Module);
+	setDataRate(&NRF_Module);
 	toggle_features();
 	write_register(NRF_FEATURE, 0);
 	write_register(NRF_DYNPD, 0);
