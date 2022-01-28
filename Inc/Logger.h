@@ -12,6 +12,7 @@
 typedef struct{
 	char Filename[20];
 	char Message[100];
+	char CurrentInstance[15];
 	FRESULT Status;
 	uint8_t Disk_Mounted;
 	uint8_t File_Opened;
