@@ -1,4 +1,5 @@
 #include "I2C_Process.h"
+#include "Logger.h"
 //------------------------------------------------
 /* Device Info */
 #define ADXL345_ADDRESS 						0x53<<1

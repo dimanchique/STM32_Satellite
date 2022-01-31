@@ -1,4 +1,6 @@
 #include "stm32h7xx_hal.h"
+#include "stdio.h"
+#include "string.h"
 
 extern I2C_HandleTypeDef hi2c1;
 
@@ -11,36 +13,41 @@ extern I2C_HandleTypeDef hi2c1;
 ////I2C Bus Struct////
 typedef struct{
 	I2C_HandleTypeDef I2C_Instance;
-	HAL_StatusTypeDef Status;
+	HAL_StatusTypeDef OperationResult;
+	uint8_t Scanned;
 	uint8_t Devices;
 } I2C_BusStruct;
 ////Devices List Struct////
 typedef struct{
 	char* Name;	
+	uint8_t State;
+	char* WarningLevel;
 	uint8_t CommAddress;
 	uint8_t FactAddress;
 	uint8_t Device_ID;
 	uint8_t ID_Register;
-	HAL_StatusTypeDef Status;
+	HAL_StatusTypeDef ConnectionStatus;
 } I2C_Communicator;
+
+enum ConnectionStatus{NotInitialized, Initialized, InitializationError, Working, ConnectionLost, WritingError, WritingSuccess, ReadingError, ReadingSuccess, ID_Check_Error};
+enum Operation{Reading, Writing};
+
 #define STRUCTS_DEFINED
 #endif
 /* Function Prototypes */
-////I2C Tool////
+////Service////
 void I2C_Init(void);
-////Devices Tools////
+////Tools////
 void I2C_Scan(void);
 uint8_t DeviceFound(I2C_Communicator Communicator);
 void Verify_Device(I2C_Communicator *Communicator);
 void CheckDeviceState(I2C_Communicator *Communicator);
-////Write Functions////
-void I2C_WriteByte(I2C_Communicator Communicator, uint8_t RegisterAddress, uint8_t Value);
-////Read Functions////
-void I2C_ReadData8(I2C_Communicator Communicator, uint8_t RegisterAddress, uint8_t *Value);
-void I2C_ReadDataU16(I2C_Communicator Communicator, uint8_t RegisterAddress, uint16_t *Value);
-void I2C_ReadDataS16(I2C_Communicator Communicator, uint8_t RegisterAddress, int16_t *Value);
-void I2C_ReadReg_U24(I2C_Communicator Communicator, uint8_t RegisterAddress, uint32_t *Value);
-void I2C_ReadDataBE_U24(I2C_Communicator Communicator, uint8_t RegisterAddress, uint32_t *Value);
-void I2C_ReadData48(I2C_Communicator Communicator, uint8_t RegisterAddress, uint8_t* Value);
-////Utils Functions////
-void Error(void);
+////Write////
+void I2C_WriteByte(I2C_Communicator *Communicator, uint8_t RegisterAddress, uint8_t Value);
+////Read////
+void I2C_ReadData8(I2C_Communicator *Communicator, uint8_t RegisterAddress, uint8_t *Value);
+void I2C_ReadDataU16(I2C_Communicator *Communicator, uint8_t RegisterAddress, uint16_t *Value);
+void I2C_ReadDataS16(I2C_Communicator *Communicator, uint8_t RegisterAddress, int16_t *Value);
+void I2C_ReadReg_U24(I2C_Communicator *Communicator, uint8_t RegisterAddress, uint32_t *Value);
+void I2C_ReadDataBE_U24(I2C_Communicator *Communicator, uint8_t RegisterAddress, uint32_t *Value);
+void I2C_ReadData48(I2C_Communicator *Communicator, uint8_t RegisterAddress, uint8_t* Value);

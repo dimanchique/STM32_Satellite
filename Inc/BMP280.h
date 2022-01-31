@@ -1,4 +1,5 @@
 #include "I2C_Process.h"
+#include "Logger.h"
 //------------------------------------------------
 /* Device Info */
 #define BMP280_ADDRESS 											0x76<<1
