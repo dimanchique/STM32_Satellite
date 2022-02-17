@@ -127,8 +127,11 @@ void setAutoAck(uint8_t enable){
 }
 //------------------------------------------------
 void openWritingPipe(NRF_Init_TypeDef *NRF_Module){
-	write_buff_register(NRF_RX_ADDR_P0, (uint8_t*)NRF_Module->Pipe, NRF_Module->AddressWidth);
-	write_buff_register(NRF_TX_ADDR, (uint8_t*)NRF_Module->Pipe, NRF_Module->AddressWidth);
+	//uint64_t pipe = NRF_Module->Pipe;
+	//uint8_t AddressWidth = NRF_Module->AddressWidth;
+	//uint8_t PayloadSize = NRF_Module->PayloadSize;
+	write_buff_register(NRF_RX_ADDR_P0, (uint8_t*)&NRF_Module->Pipe, NRF_Module->AddressWidth);
+	write_buff_register(NRF_TX_ADDR, (uint8_t*)&NRF_Module->Pipe, NRF_Module->AddressWidth);
 	write_register(NRF_RX_PW_P0, NRF_Module->PayloadSize);
 }
 //------------------------------------------------

@@ -56,15 +56,8 @@
 #define BMP280_IS_UPDATING									0x01 //BMP280 updating
 
 #define SEALEVELPRESSURE_PA 								1013250
-//------------------------------------------------
-typedef struct{
-	uint8_t FilterCoefficient;
-	uint8_t TemperatureBMP280_OVERSAMPLING;
-	uint8_t PressureBMP280_OVERSAMPLING;
-	uint8_t StandbyTime;
-	uint8_t Power;
-} BMP280_Init_TypeDef;
-//------------------------------------------------
+
+//---BMP280 Calibration Data Struct---//
 typedef struct{
   uint16_t dig_T1;
   int16_t dig_T2;
@@ -85,9 +78,28 @@ typedef struct{
   int16_t dig_H5;
   int8_t dig_H6;
 } BMP280_CalibData;
-//------------------------------------------------
-void BMP_Init(BMP280_Init_TypeDef *BMP280);
-void BMP_DefaultInit(void);
-void BMP_SoftReset(void);
-uint8_t BMP_Status(void);
-void BMP_GetAllData(float* temperature, float* pressure, float* altitude, float* mmHg);
+
+//---BMP280 Device Struct---//
+typedef struct{
+	I2C_DeviceStruct Communicator;	
+	BMP280_CalibData Coefficients;
+	
+	uint8_t FilterCoefficient;
+	uint8_t Temperature_Oversampling;
+	uint8_t Pressure_Oversampling;
+	uint8_t StandbyTime;
+	uint8_t Power;	
+	
+	struct BMP_Data{
+		double pressure;
+		double temperature;
+		double altitude;
+		double mmHg;
+	}Data;	
+	char DataRepr[50];
+} BMP280_TypeDef;
+
+//---Function Prototypes---//
+void BMP_Init(void);
+void BMP_DefaultSettings(void);
+void BMP_ReadData(void);

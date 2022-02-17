@@ -1,91 +1,130 @@
 #include "I2C_Process.h"
-
-HAL_StatusTypeDef I2CBus_Ready = HAL_OK;
-uint8_t AddressList[10] = {0};
-
+#include "Logger.h"
+//------------------------------------------------
+static I2C_BusStruct I2C_Bus = {0};
+//------------------------------------------------
+void I2C_Init(void){
+	I2C_Bus.I2C_Instance = hi2c1;
+	I2C_Bus.OperationResult = HAL_OK;
+	I2C_Bus.Scanned = 0;
+	I2C_Bus.Devices = 0;
+	LogI2C(I2C_Bus);
+}
 //------------------------------------------------
 void I2C_Scan(){
 	uint8_t n = 0;
-	for(uint8_t address = 1; address<128; address++){
-		if (HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(address<<1), 4, 50) == HAL_OK){
-			AddressList[n] = address;
+	for(uint8_t address = 8; address<128; address++){
+		if(HAL_I2C_IsDeviceReady(&I2C_Bus.I2C_Instance, (uint16_t)(address<<1), 4, 50) == HAL_OK){
+			I2C_Bus.AddressList[n] = address;
+			I2C_Bus.Devices++;
 			n++;
 		}
-	}	
+	}
+	I2C_Bus.Scanned = 1;
+	LogI2C(I2C_Bus);
 }
 //------------------------------------------------
-uint8_t DeviceFound(uint8_t Address){
-	for (uint8_t i = 0; i<sizeof(AddressList); i++)
+void CheckDeviceState(I2C_DeviceStruct *Communicator){
+	Communicator->ConnectionStatus = HAL_I2C_IsDeviceReady(&I2C_Bus.I2C_Instance, Communicator->CommAddress, 4, 50);
+	
+	if (Communicator->State == NotInitialized)
 	{
-		if (AddressList[i]==Address>>1)
-			return 1;
+		if (Communicator->ConnectionStatus == HAL_OK) Communicator->State = Initialized;
+		else Communicator->State = InitializationError;	
 	}
-	return 0;
+	else if (Communicator->State == Initialized || Communicator->State == Working)
+	{
+		if (Communicator->ConnectionStatus == HAL_OK) Communicator->State = Working;
+		else Communicator->State = ConnectionLost;
+	}
+	else if (Communicator->ConnectionStatus == HAL_OK) Communicator->State = Working; //connection restored?
 }
 //------------------------------------------------
-void CheckDeviceState(uint8_t DeviceAddress, HAL_StatusTypeDef *status){
-	*status = HAL_I2C_IsDeviceReady(&hi2c1, DeviceAddress, 4, 50);
-}
-//------------------------------------------------
-void Verify_Device(uint8_t DeviceAddress, uint8_t ID_Address, uint8_t DeviceID, HAL_StatusTypeDef *status){
+void Verify_Device(I2C_DeviceStruct *Communicator){
 	uint8_t RecievedID;
-	if (HAL_I2C_Mem_Read(&hi2c1, DeviceAddress, ID_Address, 1, &RecievedID, 1, 0x10000) != HAL_OK){
-		I2CBus_Ready = HAL_ERROR;
+	I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, Communicator->CommAddress, Communicator->ID_Register, 1, &RecievedID, 1, 0x10000);
+	if (I2C_Bus.OperationResult== HAL_OK){
+		if (RecievedID == Communicator->Device_ID){
+			Communicator->ConnectionStatus = HAL_OK;
+			Communicator->State = Working;
+		}
+		else{
+			Communicator->ConnectionStatus = HAL_ERROR;
+			Communicator->State = ID_Check_Error;
+		}
 	}
+}
+//------------------------------------------------
+static void I2C_Report(I2C_DeviceStruct *Communicator, uint8_t Operation, uint8_t BlockSize){
+	if(I2C_Bus.OperationResult != HAL_OK){
+		if (Operation==Writing) Communicator->State = WritingError;
+		else Communicator->State = ReadingError;
+		Communicator->ConnectionStatus = HAL_ERROR;
+	}		
 	else{
-		if (RecievedID == DeviceID)
-			*status = HAL_OK;
-		else
-			*status = HAL_ERROR;
-	}
-	if ((I2CBus_Ready || *status) == HAL_ERROR)
-		Error();
+		if (Operation==Writing) Communicator->State = WritingSuccess;
+		else Communicator->State = ReadingSuccess;
+		Communicator->ConnectionStatus = HAL_OK;
+	}		
+	LogI2C_Operation(*Communicator, Operation, BlockSize);
 }
 //------------------------------------------------
-void I2C_WriteByte(uint8_t DeviceAddress, uint8_t RegisterAddress, uint8_t Value){
-	I2CBus_Ready = HAL_I2C_Mem_Write(&hi2c1, DeviceAddress, (uint16_t)RegisterAddress, I2C_MEMADD_SIZE_8BIT, &Value, 1, 0x10000);
-  	if(I2CBus_Ready != HAL_OK) Error();
+void I2C_WriteByte(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t Value){
+	I2C_Bus.OperationResult = HAL_I2C_Mem_Write(&I2C_Bus.I2C_Instance, Communicator->CommAddress, (uint16_t)RegisterAddress, I2C_MEMADD_SIZE_8BIT, &Value, 1, 0x10000);
+  #ifdef DEBUG	
+	I2C_Report(Communicator, Writing, 8);
+	#endif
 }
 //------------------------------------------------
-void I2C_ReadData8(uint8_t DeviceAddress, uint8_t RegisterAddress, uint8_t *Value){
-  	I2CBus_Ready = HAL_I2C_Mem_Read(&hi2c1, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, &Value, 1, 0x10000);
-  	if(I2CBus_Ready != HAL_OK) Error();
+void I2C_ReadData8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value){
+  I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, Communicator->CommAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, Value, 1, 0x10000);
+	#ifdef DEBUG	
+	I2C_Report(Communicator, Reading, 8);
+	#endif
 }
 //------------------------------------------------
 static void I2C_ReadData16(uint8_t DeviceAddress, uint8_t RegisterAddress, uint16_t *Value){
-  	I2CBus_Ready = HAL_I2C_Mem_Read(&hi2c1, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 2, 0x10000);
-  	if(I2CBus_Ready != HAL_OK) Error();
+  I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 2, 0x10000);
 }
 //------------------------------------------------
-void I2C_ReadDataU16(uint8_t DeviceAddress, uint8_t RegisterAddress, uint16_t *Value){
-  	I2C_ReadData16(DeviceAddress, RegisterAddress, Value);
+void I2C_ReadDataU16(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint16_t *Value){
+  I2C_ReadData16(Communicator->CommAddress, RegisterAddress, Value);
+	#ifdef DEBUG
+	I2C_Report(Communicator, Reading, 16);
+	#endif
 }
 //------------------------------------------------
-void I2C_ReadDataS16(uint8_t DeviceAddress, uint8_t RegisterAddress, int16_t *Value){
-  	I2C_ReadData16(DeviceAddress, RegisterAddress, (uint16_t*)Value);
+void I2C_ReadDataS16(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, int16_t *Value){
+  I2C_ReadData16(Communicator->CommAddress, RegisterAddress, (uint16_t*)Value);
+	#ifdef DEBUG
+	I2C_Report(Communicator, Reading, 16);
+	#endif
 }
 //------------------------------------------------
 static void I2C_ReadData24(uint8_t DeviceAddress, uint8_t RegisterAddress, uint32_t *Value){
-  	I2CBus_Ready = HAL_I2C_Mem_Read(&hi2c1, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 3, 0x10000);
-  	if(I2CBus_Ready != HAL_OK) Error();
+  I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 3, 0x10000);
 }
 //------------------------------------------------
-void I2C_ReadDataBE_U24(uint8_t DeviceAddress, uint8_t RegisterAddress, uint32_t *Value){
-  	I2C_ReadData24(DeviceAddress,RegisterAddress,Value);
-  	*(uint32_t *) Value = be24toword(*(uint32_t *) Value) & 0x00FFFFFF;
+void I2C_ReadDataBE_U24(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint32_t *Value){
+  I2C_ReadData24(Communicator->CommAddress, RegisterAddress, Value);
+  *(uint32_t *) Value = be24toword(*(uint32_t *) Value) & 0x00FFFFFF;
+	#ifdef DEBUG
+	I2C_Report(Communicator, Reading, 24);
+	#endif
 }
 //------------------------------------------------
-void I2C_ReadReg_U24(uint8_t DeviceAddress, uint8_t RegisterAddress, uint32_t *Value){
-  	I2C_ReadData24(DeviceAddress, RegisterAddress,Value);
-  	*(uint32_t *) Value &= 0x00FFFFFF;
+void I2C_ReadReg_U24(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint32_t *Value){
+  I2C_ReadData24(Communicator->CommAddress, RegisterAddress,Value);
+  *(uint32_t *) Value &= 0x00FFFFFF;
+	#ifdef DEBUG
+	I2C_Report(Communicator, Reading, 24);
+	#endif
 }
 //------------------------------------------------
-void I2C_ReadData48(uint8_t DeviceAddress, uint8_t RegisterAddress, uint8_t *Value){
-  	I2CBus_Ready = HAL_I2C_Mem_Read(&hi2c1, DeviceAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 2, 0x10000);
-  	if(I2CBus_Ready != HAL_OK) Error();
-}
-//------------------------------------------------
-void Error(){
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+void I2C_ReadData48(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value){
+  I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, Communicator->CommAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 6, 0x10000);
+	#ifdef DEBUG
+  I2C_Report(Communicator, Reading, 48);
+	#endif
 }
 //------------------------------------------------

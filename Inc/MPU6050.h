@@ -1,3 +1,4 @@
+#pragma once
 #include "I2C_Process.h"
 //------------------------------------------------
 /* Device Info */
@@ -149,7 +150,28 @@
 #define MPU6050_ACC_SCALE			2048
 #endif
 
+typedef struct{
+	I2C_DeviceStruct Communicator;	
+	
+	uint8_t GyroRes;
+	uint8_t GyroScale;
+	uint8_t AccRes;
+	uint8_t AccScale;
+	uint8_t GyroTest;
+	uint8_t AccTest;
+	
+	struct MPU_Data{
+		double X_Acceleration;
+		double Y_Acceleration;
+		double Z_Acceleration;
+		double X_Gyro;
+		double Y_Gyro;
+		double Z_Gyro;
+		double Temperature;
+	}Data;
+	char DataRepr[50];
+} MPU_TypeDef;
+
+void MPU_DefaultSettings(void);
 void MPU_Init(void);
-void MPU_Read_ACC(double* ACC_X, double* ACC_Y, double* ACC_Z);
-void MPU_Read_GYRO(double* GYRO_X, double* GYRO_Y, double* GYRO_Z);
-void MPU_Read_TEMP(double* temp);
+void MPU_ReadData(void);
