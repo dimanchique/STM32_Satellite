@@ -1,5 +1,10 @@
 #include "Logger.h"
 
+#include "BMP280.h"
+#include "ADXL345.h"
+#include "MPU6050.h"
+#include "NEO7M.h"
+
 SD_HandleTypeDef hsd1;
 DiskWriter Logger = {0};
 
@@ -7,6 +12,10 @@ static uint32_t byteswritten;
 static const char LOG_LEVEL[][10] = {"LOG LEVEL", "[LOG]", "[DATA]", "[WARNING]"};
 
 extern I2C_BusStruct I2C_Bus;
+extern BMP280_TypeDef BMP280;
+extern ADXL_TypeDef ADXL345;
+extern MPU_TypeDef MPU6050;
+extern GPS_TypeDef NEO7M;
 
 static void MX_SDMMC1_SD_Init(void)
 {
@@ -51,7 +60,7 @@ static void UnMountDisk(){
 	Logger.Disk_Mounted = 0;
 }
 
-void LogI2C_Operation(I2C_Communicator Instance, uint8_t Operation, uint8_t BlockSize){
+void LogI2C_Operation(I2C_DeviceStruct Instance, uint8_t Operation, uint8_t BlockSize){
 	strcpy(Logger.CurrentInstance, Instance.Name);
 	char operation_type[10];
 	char log_type[10];
@@ -71,7 +80,7 @@ void LogI2C(I2C_BusStruct Instance){
 	WriteLog();
 }
 
-void LogState(I2C_Communicator Instance){
+void LogState(I2C_DeviceStruct Instance){
 	
 	char log_level[15];
 	char log_status[30];
@@ -127,13 +136,8 @@ void LogState(I2C_Communicator Instance){
 			break;
 		}			
 	}
-	
-	strcpy(Logger.Message, log_level);
-	strcat(Logger.Message, " Instance: ");
-	strcat(Logger.Message, Logger.CurrentInstance);
-	strcat(Logger.Message, ", Instance Message:");
-	strcat(Logger.Message, log_status);
-	strcat(Logger.Message, "\n");
+
+    sprintf(Logger.Message, "%s Instance: %s, Instance Message: %s\n", log_level, Logger.CurrentInstance, log_status);
 	WriteLog();
 }
 
@@ -159,4 +163,8 @@ void InitSDSystem(){
 	MountDisk();
 	if (Logger.Disk_Mounted)
 		CreateInitialLog();
+}
+
+void ForceDataLogging(){
+	sprintf(Logger.Message, "%s%s%s%s", NEO7M.PayloadMessage, BMP280.DataRepr, ADXL345.DataRepr, MPU6050.DataRepr);
 }

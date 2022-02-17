@@ -1,87 +1,151 @@
 #include "NEO7M.h"
-HAL_StatusTypeDef NEO7M_Ready = HAL_ERROR;
-
-static uint16_t FindMatch(char *RecievedData, char* Word){
-	uint16_t Start = 0, Pointer = 0, NumOfMatches = 0;
-
-	while (Start<strlen(RecievedData)){
-		if (RecievedData[Start]==Word[NumOfMatches]){
-			if (NumOfMatches==0)	Pointer = Start;
-			NumOfMatches++;
-		}
-		else NumOfMatches = 0;
-		if (NumOfMatches==strlen(Word)) break;
-		Start++;
-	}
-	return Pointer;
+#include "Logger.h"
+//------------------------------------------------
+extern UART_HandleTypeDef huart1;
+volatile uint8_t ReceptionEnd;
+static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
+static uint8_t hh, mm, ss;
+GPS_TypeDef NEO7M = {0};
+//------------------------------------------------
+static uint8_t IsValid(char *packet)
+{
+  char *missings = strstr(packet, ",,,");
+	return missings==NULL;
 }
-
-static uint16_t FindPacket(char *RecievedData, uint16_t Start, uint8_t PacketNum, uint16_t* PacketLength){
-	uint8_t Entrances = 0;
-	for (uint16_t position = Start; position<strlen(RecievedData); position++)
-	{
-		if (RecievedData[position]==',') Entrances++;
-		if (Entrances == PacketNum){
-			for (uint16_t length = position + 1; length<strlen(RecievedData); length++){
-				if (RecievedData[length]==','){
-					*PacketLength = length - position - 1;
-					if (length - position - 1==0) NEO7M_Ready = HAL_ERROR;
-					else NEO7M_Ready = HAL_OK;
+//------------------------------------------------
+static void ConvertTime(GPSProtocol *GPSProtocol){
+	hh = (uint16_t)(GPSProtocol->RawTime)/10000;
+	if(hh >= 21) hh = hh - 21; //convert from UTC to UTC+3
+	mm = (uint8_t)(GPSProtocol->RawTime)/100%100;
+	ss = (uint8_t)(GPSProtocol->RawTime)%100;
+	sprintf(GPSProtocol->TimeRepr, "%i:%i:%i", hh, mm, ss);
+}
+//------------------------------------------------
+static void ConvertData(GPSProtocol *GPSProtocol)
+{
+	GPSProtocol->LatitudeDegrees = (float)((int)(GPSProtocol->RawLatitude/100)+((GPSProtocol->RawLatitude/100-(int)(GPSProtocol->RawLatitude/100))*100/60));
+	GPSProtocol->LongitudeDegrees = (float)((int)(GPSProtocol->RawLongitude/100)+((GPSProtocol->RawLongitude/100-(int)(GPSProtocol->RawLongitude/100))*100/60));
+	ConvertTime(GPSProtocol);
+}
+//------------------------------------------------
+static void GenerateDataRepresentation(){
+	if (NEO7M.GPGGA.IsValid){
+		sprintf(NEO7M.PayloadMessage,
+						"[%s], Lat:%f%c, Long:%f%c, Altitude:%f%c, Source:%s|",
+						NEO7M.GPGGA.TimeRepr,
+						NEO7M.GPGGA.LatitudeDegrees,
+						NEO7M.GPGGA.LatitudeDirection,
+						NEO7M.GPGGA.LongitudeDegrees,
+						NEO7M.GPGGA.LongitudeDirection,
+						NEO7M.GPGGA.Extras.Altitude,
+						NEO7M.GPGGA.Extras.AltitudeUnits,
+						Keys[0]);
+	}
+	else if (NEO7M.GPRMC.IsValid){
+		sprintf(NEO7M.PayloadMessage,
+						"[%s], Lat:%f%c, Long:%f%c, Speed:%f, Source:%s|",
+						NEO7M.GPRMC.TimeRepr,
+						NEO7M.GPRMC.LatitudeDegrees,
+						NEO7M.GPRMC.LatitudeDirection,
+						NEO7M.GPRMC.LongitudeDegrees,
+						NEO7M.GPRMC.LongitudeDirection,
+						NEO7M.GPGGA.Extras.SpeedInKnots,
+						Keys[1]);
+	}
+	else if (NEO7M.GPGLL.IsValid){
+		sprintf(NEO7M.PayloadMessage,
+						"[%s], Lat:%f%c, Long:%f%c, Source:%s|",
+						NEO7M.GPGLL.TimeRepr,
+						NEO7M.GPGLL.LatitudeDegrees,
+						NEO7M.GPGLL.LatitudeDirection,
+						NEO7M.GPGLL.LongitudeDegrees,
+						NEO7M.GPGLL.LongitudeDirection,
+						Keys[2]);
+	}
+	else strcpy(NEO7M.PayloadMessage, "GPS UNAVAILABLE|");
+}
+//------------------------------------------------
+static void ParceGPGGA(char *packet){
+	NEO7M.GPGGA.IsValid = IsValid(packet);
+	if (NEO7M.GPGGA.IsValid){
+		sscanf(packet,
+					 "%5s,%f,%f,%c,%f,%c,%d,%d,%f,%f,%c",
+					 NEO7M.GPGGA.PacketName,
+					 &NEO7M.GPGGA.RawTime,
+					 &NEO7M.GPGGA.RawLatitude,
+					 &NEO7M.GPGGA.LatitudeDirection,
+					 &NEO7M.GPGGA.RawLongitude,
+					 &NEO7M.GPGGA.LongitudeDirection,
+					 &NEO7M.SkipInt,
+					 &NEO7M.SkipInt,
+					 &NEO7M.SkipFloat,
+					 &NEO7M.GPGGA.Extras.Altitude,
+					 &NEO7M.GPGGA.Extras.AltitudeUnits);
+		ConvertData(&NEO7M.GPGGA);
+	}
+}
+//------------------------------------------------
+static void ParceGPRMC(char *packet){
+	NEO7M.GPRMC.IsValid = IsValid(packet);
+	if (NEO7M.GPRMC.IsValid){
+		sscanf(packet,
+					 "%5s,%f,%c,%f,%c,%f,%c,%f",
+					 NEO7M.GPRMC.PacketName,
+					 &NEO7M.GPRMC.RawTime,
+					 &NEO7M.SkipChar,
+					 &NEO7M.GPRMC.RawLatitude,
+					 &NEO7M.GPRMC.LatitudeDirection,
+					 &NEO7M.GPRMC.RawLongitude,
+					 &NEO7M.GPRMC.LongitudeDirection,
+					 &NEO7M.GPRMC.Extras.SpeedInKnots);
+		ConvertData(&NEO7M.GPRMC);
+	}
+}
+//------------------------------------------------
+static void ParceGPGLL(char *packet){
+	NEO7M.GPGLL.IsValid = IsValid(packet);
+	if (NEO7M.GPGLL.IsValid){
+		sscanf(packet,
+					 "%5s,%f,%c,%f,%c,%f",
+					 NEO7M.GPGLL.PacketName,
+					 &NEO7M.GPGLL.RawLatitude,
+					 &NEO7M.GPGLL.LatitudeDirection,
+					 &NEO7M.GPGLL.RawLongitude,
+					 &NEO7M.GPGLL.LongitudeDirection,
+					 &NEO7M.GPGLL.RawTime);
+		ConvertData(&NEO7M.GPGLL);
+	}
+}
+//------------------------------------------------
+static void ProcessResponce(){
+	char *token, *packet;
+	for (int i = 0; i < 3; i++){
+		strcpy(NEO7M.TempMessage, NEO7M.Message);
+		token = strstr(NEO7M.TempMessage, Keys[i]);
+		if(token){
+			packet = strtok(token, "$");
+			switch (i){
+				case 0:
+					ParceGPGGA(packet);
 					break;
-				}			
+				case 1:
+					ParceGPRMC(packet);
+					break;
+				case 2:
+					ParceGPGLL(packet);
+					break;
+				default:
+					break;
 			}
-			return position + 1;	
-		}			
+		}
 	}
-	return 0;
+	GenerateDataRepresentation();
 }
-
-void RecieveData(char *RecievedData){
+//------------------------------------------------
+void NEO7M_ReadData(){
 	ReceptionEnd = 0;
-	HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)RecievedData, GPS_DATA_SIZE);
+	HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE);
 	while (ReceptionEnd==0);
+	ProcessResponce();
 }
-
-void ReadTime(char *RecievedData, char* Time){	
-	uint16_t Packet = FindMatch(RecievedData, GPGGA);
-	uint16_t PacketLength = 0;
-	uint8_t temp = 0;
-	Packet = FindPacket(RecievedData, Packet, GPS_TimePacket, &PacketLength);
-	if (((uint8_t)RecievedData[Packet])>=48){
-		for(uint8_t i = 0; i<3; i++){
-			temp = ((uint8_t)RecievedData[Packet + i*2]-48)*10 + ((uint8_t)RecievedData[Packet + i*2 + 1]-48);
-			if (i==0){
-				temp+=3;
-				if (temp>=24) temp = temp - 24;
-			}
-			Time[i*2] = (temp/10)+48;
-			Time[i*2+1] = (temp%10)+48;
-		}
-	}
-}
-
-void ReadGPSData(char *RecievedData, double* Latitude, double* Longitude, double* Altitude){
-	uint32_t Position[2];
-	uint16_t Packet = 0, PacketLength = 0;
-	char *stop, TempAltitude[15] = {0};
-	
-	uint16_t Pointer = FindMatch(RecievedData, GPGGA);
-	Packet = FindPacket(RecievedData, Pointer, GPS_LatitudePacket, &PacketLength);	
-	if (NEO7M_Ready==HAL_OK){
-		Position[0] = ((uint8_t)RecievedData[Packet]-48)*1000 + ((uint8_t)RecievedData[Packet+1]-48)*100 + ((uint8_t)RecievedData[Packet+2]-48)*10 + ((uint8_t)RecievedData[Packet+3]-48);
-		Packet += 5;
-		Position[1] = ((uint8_t)RecievedData[Packet]-48)*10000 + ((uint8_t)RecievedData[Packet+1]-48)*1000 + ((uint8_t)RecievedData[Packet+2]-48)*100 + ((uint8_t)RecievedData[Packet+3]-48)*10 + ((uint8_t)RecievedData[Packet+4]-48);
-		*Latitude = (uint8_t)(Position[0]/100) + (Position[0]%100 + Position[1]/100000.0)/60.0;
-		Packet = FindPacket(RecievedData, Pointer, GPS_LongitudePacket, &PacketLength);	
-		Position[0] = ((uint8_t)RecievedData[Packet]-48)*10000 + ((uint8_t)RecievedData[Packet+1]-48)*1000 + ((uint8_t)RecievedData[Packet+2]-48)*100 + ((uint8_t)RecievedData[Packet+3]-48)*10 + ((uint8_t)RecievedData[Packet+4]-48);
-		Packet += 6;
-		Position[1] = ((uint8_t)RecievedData[Packet]-48)*10000 + ((uint8_t)RecievedData[Packet+1]-48)*1000 + ((uint8_t)RecievedData[Packet+2]-48)*100 + ((uint8_t)RecievedData[Packet+3]-48)*10 + ((uint8_t)RecievedData[Packet+4]-48);
-		*Longitude = (uint8_t)(Position[0]/100) + (Position[0]%100 + Position[1]/100000.0)/60.0;
-		Packet = FindPacket(RecievedData, Pointer, GPS_AltitudePacket, &PacketLength);	
-		
-		for (uint16_t index = Packet; index-Packet < PacketLength; index++){
-			TempAltitude[index-Packet] = RecievedData[index];
-		}
-		*Altitude = strtod(TempAltitude, &stop);
-	}
-}
+//------------------------------------------------

@@ -1,21 +1,41 @@
+#pragma once
 #include "stm32h7xx_hal.h"
 #include "string.h"
 #include "stdlib.h"
 
-#define GPS_DATA_SIZE							600
+#define GPS_DATA_SIZE							500
+#define GPS_PAYLOAD_SIZE					100
 
-#define GPS_TimePacket								1
-#define GPS_LatitudePacket						2
-#define GPS_LongitudePacket						4
-#define GPS_NumOfSatsPacket						7
-#define GPS_AltitudePacket						9
-#define GPS_AltitudeUnitsPacket				10
+typedef struct{
+  float Altitude;
+  char AltitudeUnits;
+  float SpeedInKnots;
+} ExtraData;
 
-static char GPGGA[] = {'$','G','P','G','G','A'};
+typedef struct{
+  char PacketName[5];
+  int IsValid;
+  float RawTime;
+  char TimeRepr[8];
+  float RawLatitude;
+  char LatitudeDirection;
+  float RawLongitude;
+  char LongitudeDirection;
+  float LongitudeDegrees;
+  float LatitudeDegrees;
+  ExtraData Extras;
+} GPSProtocol;
 
-extern UART_HandleTypeDef huart1;
-extern uint8_t ReceptionEnd;
+typedef struct{
+  char Message[GPS_DATA_SIZE];
+	char TempMessage[GPS_DATA_SIZE];
+	char PayloadMessage[GPS_PAYLOAD_SIZE];
+  GPSProtocol GPGGA;
+  GPSProtocol GPGLL;
+  GPSProtocol GPRMC;
+  float SkipFloat;
+  int SkipInt;
+  char SkipChar;
+} GPS_TypeDef;
 
-void RecieveData(char *RecievedData);
-void ReadTime(char *RecievedData, char* Time);
-void ReadGPSData(char *RecievedData, double* Latitude, double* Longitude, double* Altitude);
+void NEO7M_ReadData(void);

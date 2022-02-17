@@ -1,5 +1,5 @@
+#pragma once
 #include "I2C_Process.h"
-#include "Logger.h"
 //------------------------------------------------
 /* Device Info */
 #define ADXL345_ADDRESS 						0x53<<1
@@ -46,31 +46,27 @@
 #endif
 
 #ifdef ADXL345_2g
-#define ADXL345_ACC_SCALE						256.0
+#define ADXL345_ACC_SCALE						3.9/1000
 #define ADXL345_ACC_RESOLUTION					0x00
 #endif
 
 #ifdef ADXL345_4g
-#define ADXL345_ACC_SCALE						128.0
+#define ADXL345_ACC_SCALE						7.8/1000
 #define ADXL345_ACC_RESOLUTION					0x01
 #endif
 
 #ifdef ADXL345_8g
-#define ADXL345_ACC_SCALE						64.0
+#define ADXL345_ACC_SCALE						15.6/1000
 #define ADXL345_ACC_RESOLUTION					0x02
 #endif
 
 #ifdef ADXL345_16g
-#define ADXL345_ACC_SCALE						32.0
+#define ADXL345_ACC_SCALE						31.2/1000
 #define ADXL345_ACC_RESOLUTION					0x03
 #endif
 
-enum AdxlBitNum{
-D0,D1,D2,D3,D4,D5,D6,D7
-};
-
 typedef struct{
-	I2C_Communicator Communicator;	
+	I2C_DeviceStruct Communicator;	
 	
 	uint8_t Datarate;
 	uint8_t DataFormat;
@@ -81,7 +77,8 @@ typedef struct{
 		double y;
 		double z;
 	}Data;
-} ADXL_Init_TypeDef;
+	char DataRepr[50];
+} ADXL_TypeDef;
 //------------------------------------------------
 void ADXL_Init(void);
 void ADXL_DefaultSettings(void);

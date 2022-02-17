@@ -1,5 +1,4 @@
 #include "I2C_Process.h"
-#include "Logger.h"
 //------------------------------------------------
 /* Device Info */
 #define BMP280_ADDRESS 											0x76<<1
@@ -57,7 +56,8 @@
 #define BMP280_IS_UPDATING									0x01 //BMP280 updating
 
 #define SEALEVELPRESSURE_PA 								1013250
-//------------------------------------------------
+
+//---BMP280 Calibration Data Struct---//
 typedef struct{
   uint16_t dig_T1;
   int16_t dig_T2;
@@ -78,9 +78,10 @@ typedef struct{
   int16_t dig_H5;
   int8_t dig_H6;
 } BMP280_CalibData;
-//------------------------------------------------
+
+//---BMP280 Device Struct---//
 typedef struct{
-	I2C_Communicator Communicator;	
+	I2C_DeviceStruct Communicator;	
 	BMP280_CalibData Coefficients;
 	
 	uint8_t FilterCoefficient;
@@ -90,15 +91,15 @@ typedef struct{
 	uint8_t Power;	
 	
 	struct BMP_Data{
-		float pressure;
-		float temperature;
-		float altitude;
-		float mmHg;
-	}Data;
-} BMP280_Init_TypeDef;
-//------------------------------------------------
+		double pressure;
+		double temperature;
+		double altitude;
+		double mmHg;
+	}Data;	
+	char DataRepr[50];
+} BMP280_TypeDef;
+
+//---Function Prototypes---//
 void BMP_Init(void);
 void BMP_DefaultSettings(void);
-void BMP_SoftReset(void);
-uint8_t BMP_Status(void);
 void BMP_ReadData(void);

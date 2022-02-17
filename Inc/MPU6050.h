@@ -1,3 +1,4 @@
+#pragma once
 #include "I2C_Process.h"
 //------------------------------------------------
 /* Device Info */
@@ -150,7 +151,7 @@
 #endif
 
 typedef struct{
-	I2C_Communicator Communicator;	
+	I2C_DeviceStruct Communicator;	
 	
 	uint8_t GyroRes;
 	uint8_t GyroScale;
@@ -168,10 +169,9 @@ typedef struct{
 		double Z_Gyro;
 		double Temperature;
 	}Data;
-} MPU_Init_TypeDef;
+	char DataRepr[50];
+} MPU_TypeDef;
 
 void MPU_DefaultSettings(void);
 void MPU_Init(void);
-void MPU_Read_ACC(void);
-void MPU_Read_GYRO(void);
-void MPU_Read_TEMP(void);
+void MPU_ReadData(void);
