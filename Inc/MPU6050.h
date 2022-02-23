@@ -2,8 +2,8 @@
 #include "I2C_Process.h"
 //------------------------------------------------
 /* Device Info */
-#define MPU6050_ADDRESS 			0x68<<1
-#define MPU6050_ID 					0x68 //Device ID
+#define MPU6050_ADDRESS 				0x68
+#define MPU6050_ID 							0x68 //Device ID
 //------------------------------------------------
 /* Registers Addresses */
 #define MPU6050_SELF_TEST_X 		0x0D
@@ -172,6 +172,5 @@ typedef struct{
 	char DataRepr[50];
 } MPU_TypeDef;
 
-void MPU_DefaultSettings(void);
 void MPU_Init(void);
 void MPU_ReadData(void);

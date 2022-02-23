@@ -4,6 +4,7 @@ extern I2C_HandleTypeDef hi2c1;
 
 #define be16toword(a) ((((a)>>8)&0xff)|(((a)<<8)&0xff00))
 #define be24toword(a) ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000))
+#define CommunicationAddress(a) a<<1
 
 //---I2C Bus Struct---//
 typedef struct{
@@ -53,6 +54,8 @@ void CheckDeviceState(I2C_DeviceStruct *Communicator);
 
 void I2C_WriteByte(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t Value);
 void I2C_ReadData8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value);
+void I2C_ReadData2x8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value);
+void I2C_ReadData3x8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value);
 void I2C_ReadDataU16(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint16_t *Value);
 void I2C_ReadDataS16(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, int16_t *Value);
 void I2C_ReadReg_U24(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint32_t *Value);

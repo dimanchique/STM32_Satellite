@@ -3,7 +3,6 @@
 #include "string.h"
 //------------------------------------------------
 BMP280_TypeDef BMP280 = {0};
-static double base_mmHg;
 static int32_t temper_int;
 extern volatile DiskWriter Logger;
 //------------------------------------------------
@@ -20,19 +19,19 @@ static void BMP_SoftReset(){
 static void GenerateDataRepresentation(uint8_t ConnectionValid){
 	if(ConnectionValid)
 		sprintf(BMP280.DataRepr,
-						"[%s]%.2f, %.5f, %.5f, %.5f|",
+						"[%s] %.2f; %.3f; %.3f; %.3f;",
 						BMP280.Communicator.Name,
 						BMP280.Data.temperature,
 						BMP280.Data.pressure,
 						BMP280.Data.mmHg,
 						BMP280.Data.altitude);
 	else
-		sprintf(BMP280.DataRepr, "[%s] NULL|", BMP280.Communicator.Name);
+		sprintf(BMP280.DataRepr, "[%s] NULL;", BMP280.Communicator.Name);
 }
 //------------------------------------------------
-static void Calibrate(void){
+static void BMP_Calibrate(void){
 	BMP_ReadData();
-	base_mmHg = BMP280.Data.mmHg;
+	BMP280.Data.base_mmHg = BMP280.Data.mmHg;
 }
 //------------------------------------------------
 static void BMP_ReadCoefficients(){
@@ -54,43 +53,39 @@ static void BMP_ReadCoefficients(){
 	}
 }
 //------------------------------------------------
-void BMP_DefaultSettings(){	
+void BMP_Init(void){
 	//Communication Section
 	BMP280.Communicator.Name = "BMP280";
 	BMP280.Communicator.State = NotInitialized;
-	BMP280.Communicator.CommAddress = BMP280_ADDRESS;
-	BMP280.Communicator.FactAddress = BMP280_ADDRESS>>1;
+	BMP280.Communicator.CommAddress = CommunicationAddress(BMP280_ADDRESS);
+	BMP280.Communicator.FactAddress = BMP280_ADDRESS;
 	BMP280.Communicator.Device_ID = BMP280_ID;
-	BMP280.Communicator.ID_Register = BMP280_ID_REGISTER;	
-	
-	LogState(BMP280.Communicator);	
-	CheckDeviceState(&BMP280.Communicator);
-	
+	BMP280.Communicator.ID_Register = BMP280_ID_REGISTER;		
 	//Setup Section
 	BMP280.Power = BMP280_NORMALMODE;														//Measure Continuously
 	BMP280.StandbyTime = BMP280_STANDBYTIME2;										//Measure every 125ms
 	BMP280.Pressure_Oversampling = BMP280_OVERSAMPLINGx4;				//Use Standart Resolution (18 bit)
 	BMP280.Temperature_Oversampling = BMP280_OVERSAMPLINGx1;		//Use Ultra-Low Power mode (16 bit)
-	BMP280.FilterCoefficient = BMP280_FILTERCOEFF8;							//ODR = 7.3 Hz, RMS = 6.4 (see page 14, table 7 of datasheet)
-}
-//------------------------------------------------
-void BMP_Init(void){
+	BMP280.FilterCoefficient = BMP280_FILTERCOEFF8;							//ODR = 7.3 Hz, RMS = 6.4 (see page 14, table 7 of datasheet)	
+	LogState(BMP280.Communicator);	
+	
 	CheckDeviceState(&BMP280.Communicator);
 	if (BMP280.Communicator.ConnectionStatus == HAL_OK)
+	{
 		Verify_Device(&BMP280.Communicator);
-	
-	if (BMP280.Communicator.ConnectionStatus == HAL_OK){
-		BMP_SoftReset();
-		while(BMP_Status() & BMP280_IS_UPDATING);
-		BMP_ReadCoefficients();
-		uint8_t ConfigRegister = (uint8_t)(BMP280.StandbyTime<<5 | BMP280.FilterCoefficient<<2);
-		I2C_WriteByte(&BMP280.Communicator, BMP280_CONFIG_REGISTER, ConfigRegister);	
-		uint8_t CtrlRegister = (uint8_t)(BMP280.Temperature_Oversampling<<5 | BMP280.Pressure_Oversampling<<2 | BMP280.Power);
-		I2C_WriteByte(&BMP280.Communicator, BMP280_CTRL_REGISTER, CtrlRegister);	
-		Calibrate();
-	}
-	
-	if (BMP280.Communicator.ConnectionStatus == HAL_OK) BMP280.Communicator.State = Initialized;
+		if (BMP280.Communicator.ConnectionStatus == HAL_OK){
+			BMP_SoftReset();
+			while(BMP_Status() & BMP280_IS_UPDATING);
+			BMP_ReadCoefficients();
+			uint8_t ConfigRegister = (uint8_t)(BMP280.StandbyTime<<5 | BMP280.FilterCoefficient<<2);
+			I2C_WriteByte(&BMP280.Communicator, BMP280_CONFIG_REGISTER, ConfigRegister);	
+			uint8_t CtrlRegister = (uint8_t)(BMP280.Temperature_Oversampling<<5 | BMP280.Pressure_Oversampling<<2 | BMP280.Power);
+			I2C_WriteByte(&BMP280.Communicator, BMP280_CTRL_REGISTER, CtrlRegister);	
+			HAL_Delay(100);
+			BMP_Calibrate();
+		}
+		if (BMP280.Communicator.ConnectionStatus == HAL_OK) BMP280.Communicator.State = Initialized;
+	}		
 	LogState(BMP280.Communicator);
 }
 //------------------------------------------------
@@ -126,17 +121,15 @@ static double BMP_GetPressureAndTemperature(){
 	val2 = (((int64_t)BMP280.Coefficients.dig_P8) * p) >> 19;
 	p = ((p + val1 + val2) >> 8) + ((int64_t)BMP280.Coefficients.dig_P7 << 4);
 	pres_int = ((p >> 8) * 1000) + (((p & 0xff) * 390625) / 100000);
-	press_float = (float)pres_int / 100.0f;
+	press_float = (float)pres_int / 1000.0f;
   return (double)press_float;
 }
 //------------------------------------------------
 void BMP_ReadData(){
-	CheckDeviceState(&BMP280.Communicator);
 	if (BMP280.Communicator.ConnectionStatus == HAL_OK){
 		BMP280.Data.pressure = BMP_GetPressureAndTemperature();
-		BMP280.Data.mmHg = BMP280.Data.pressure * 0.000750061683;
-		BMP280.Data.pressure/=10.0;
-		BMP280.Data.altitude = (base_mmHg - BMP280.Data.mmHg) * 10.5;			
+		BMP280.Data.mmHg = BMP280.Data.pressure * 0.00750061683;
+		BMP280.Data.altitude = (BMP280.Data.base_mmHg - BMP280.Data.mmHg) * 10.5;			
 	}
 	else{
 		BMP280.Data.pressure = 0;

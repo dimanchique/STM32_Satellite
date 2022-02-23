@@ -55,7 +55,7 @@ void Verify_Device(I2C_DeviceStruct *Communicator){
 	}
 }
 //------------------------------------------------
-static void I2C_Report(I2C_DeviceStruct *Communicator, uint8_t Operation, uint8_t BlockSize){
+static void ReportResult(I2C_DeviceStruct *Communicator, uint8_t Operation, uint8_t BlockSize){
 	if(I2C_Bus.OperationResult != HAL_OK){
 		if (Operation==Writing) Communicator->State = WritingError;
 		else Communicator->State = ReadingError;
@@ -66,21 +66,29 @@ static void I2C_Report(I2C_DeviceStruct *Communicator, uint8_t Operation, uint8_
 		else Communicator->State = ReadingSuccess;
 		Communicator->ConnectionStatus = HAL_OK;
 	}		
+	#ifdef DEBUG	
 	LogI2C_Operation(*Communicator, Operation, BlockSize);
+	#endif
 }
 //------------------------------------------------
 void I2C_WriteByte(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t Value){
 	I2C_Bus.OperationResult = HAL_I2C_Mem_Write(&I2C_Bus.I2C_Instance, Communicator->CommAddress, (uint16_t)RegisterAddress, I2C_MEMADD_SIZE_8BIT, &Value, 1, 0x10000);
-  #ifdef DEBUG	
-	I2C_Report(Communicator, Writing, 8);
-	#endif
+	ReportResult(Communicator, Writing, 8);
 }
 //------------------------------------------------
 void I2C_ReadData8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value){
   I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, Communicator->CommAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, Value, 1, 0x10000);
-	#ifdef DEBUG	
-	I2C_Report(Communicator, Reading, 8);
-	#endif
+	ReportResult(Communicator, Reading, 8);
+}
+//------------------------------------------------
+void I2C_ReadData2x8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value){
+  I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, Communicator->CommAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 2, 0x10000);
+	ReportResult(Communicator, Reading, 16);
+}
+//------------------------------------------------
+void I2C_ReadData3x8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value){
+  I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, Communicator->CommAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 3, 0x10000);
+	ReportResult(Communicator, Reading, 24);
 }
 //------------------------------------------------
 static void I2C_ReadData16(uint8_t DeviceAddress, uint8_t RegisterAddress, uint16_t *Value){
@@ -89,16 +97,12 @@ static void I2C_ReadData16(uint8_t DeviceAddress, uint8_t RegisterAddress, uint1
 //------------------------------------------------
 void I2C_ReadDataU16(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint16_t *Value){
   I2C_ReadData16(Communicator->CommAddress, RegisterAddress, Value);
-	#ifdef DEBUG
-	I2C_Report(Communicator, Reading, 16);
-	#endif
+	ReportResult(Communicator, Reading, 16);
 }
 //------------------------------------------------
 void I2C_ReadDataS16(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, int16_t *Value){
   I2C_ReadData16(Communicator->CommAddress, RegisterAddress, (uint16_t*)Value);
-	#ifdef DEBUG
-	I2C_Report(Communicator, Reading, 16);
-	#endif
+	ReportResult(Communicator, Reading, 16);
 }
 //------------------------------------------------
 static void I2C_ReadData24(uint8_t DeviceAddress, uint8_t RegisterAddress, uint32_t *Value){
@@ -108,23 +112,17 @@ static void I2C_ReadData24(uint8_t DeviceAddress, uint8_t RegisterAddress, uint3
 void I2C_ReadDataBE_U24(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint32_t *Value){
   I2C_ReadData24(Communicator->CommAddress, RegisterAddress, Value);
   *(uint32_t *) Value = be24toword(*(uint32_t *) Value) & 0x00FFFFFF;
-	#ifdef DEBUG
-	I2C_Report(Communicator, Reading, 24);
-	#endif
+	ReportResult(Communicator, Reading, 24);
 }
 //------------------------------------------------
 void I2C_ReadReg_U24(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint32_t *Value){
-  I2C_ReadData24(Communicator->CommAddress, RegisterAddress,Value);
+  I2C_ReadData24(Communicator->CommAddress, RegisterAddress, Value);
   *(uint32_t *) Value &= 0x00FFFFFF;
-	#ifdef DEBUG
-	I2C_Report(Communicator, Reading, 24);
-	#endif
+	ReportResult(Communicator, Reading, 24);
 }
 //------------------------------------------------
 void I2C_ReadData48(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value){
   I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance, Communicator->CommAddress, RegisterAddress, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 6, 0x10000);
-	#ifdef DEBUG
-  I2C_Report(Communicator, Reading, 48);
-	#endif
+  ReportResult(Communicator, Reading, 48);
 }
 //------------------------------------------------

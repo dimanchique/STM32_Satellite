@@ -2,8 +2,8 @@
 #include "I2C_Process.h"
 //------------------------------------------------
 /* Device Info */
-#define ADXL345_ADDRESS 						0x53<<1
-#define ADXL345_ID 								0xE5 //Device ID
+#define ADXL345_ADDRESS 						0x53
+#define ADXL345_ID 									0xE5 //Device ID
 //------------------------------------------------
 /* Registers Addresses */
 #define ADXL345_ID_REGISTER 					0x00 //Device ID Register
@@ -64,7 +64,8 @@
 #define ADXL345_ACC_SCALE						31.2/1000
 #define ADXL345_ACC_RESOLUTION					0x03
 #endif
-
+//------------------------------------------------
+/* Typedef Struct */
 typedef struct{
 	I2C_DeviceStruct Communicator;	
 	
@@ -81,5 +82,4 @@ typedef struct{
 } ADXL_TypeDef;
 //------------------------------------------------
 void ADXL_Init(void);
-void ADXL_DefaultSettings(void);
 void ADXL_ReadData(void);

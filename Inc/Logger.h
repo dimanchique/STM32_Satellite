@@ -12,11 +12,11 @@
 #define DATA_MESSAGE 2
 #define WARNING_MESSAGE 3
 
-#define QUEUE_SLOTS 10
-#define MESSAGE_LENGTH 100
+#define QUEUE_SLOTS 2
+#define MESSAGE_LENGTH 200
 
 typedef struct{
-	char Message[(QUEUE_SLOTS+1)*MESSAGE_LENGTH];
+	char Message[(QUEUE_SLOTS)*MESSAGE_LENGTH];
 	char Queue[QUEUE_SLOTS][MESSAGE_LENGTH];
 	uint8_t current_slot;
 	char CurrentInstance[15];
