@@ -424,16 +424,19 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
 */
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 {
-  if(htim_base->Instance==TIM1)
+  if(htim_base->Instance==TIM6)
   {
-  /* USER CODE BEGIN TIM1_MspInit 0 */
+  /* USER CODE BEGIN TIM6_MspInit 0 */
 
-  /* USER CODE END TIM1_MspInit 0 */
+  /* USER CODE END TIM6_MspInit 0 */
     /* Peripheral clock enable */
-    __HAL_RCC_TIM1_CLK_ENABLE();
-  /* USER CODE BEGIN TIM1_MspInit 1 */
+    __HAL_RCC_TIM6_CLK_ENABLE();
+    /* TIM6 interrupt Init */
+    HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
+  /* USER CODE BEGIN TIM6_MspInit 1 */
 
-  /* USER CODE END TIM1_MspInit 1 */
+  /* USER CODE END TIM6_MspInit 1 */
   }
 
 }
@@ -446,16 +449,19 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 */
 void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 {
-  if(htim_base->Instance==TIM1)
+  if(htim_base->Instance==TIM6)
   {
-  /* USER CODE BEGIN TIM1_MspDeInit 0 */
+  /* USER CODE BEGIN TIM6_MspDeInit 0 */
 
-  /* USER CODE END TIM1_MspDeInit 0 */
+  /* USER CODE END TIM6_MspDeInit 0 */
     /* Peripheral clock disable */
-    __HAL_RCC_TIM1_CLK_DISABLE();
-  /* USER CODE BEGIN TIM1_MspDeInit 1 */
+    __HAL_RCC_TIM6_CLK_DISABLE();
 
-  /* USER CODE END TIM1_MspDeInit 1 */
+    /* TIM6 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(TIM6_DAC_IRQn);
+  /* USER CODE BEGIN TIM6_MspDeInit 1 */
+
+  /* USER CODE END TIM6_MspDeInit 1 */
   }
 
 }
@@ -489,6 +495,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* USART1 interrupt Init */
+    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
   /* USER CODE END USART1_MspInit 1 */
@@ -518,6 +527,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9|GPIO_PIN_10);
 
+    /* USART1 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspDeInit 1 */
 
   /* USER CODE END USART1_MspDeInit 1 */
@@ -529,4 +540,3 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
 /* USER CODE END 1 */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
