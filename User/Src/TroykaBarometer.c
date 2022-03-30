@@ -50,7 +50,7 @@ void TroykaBarometer_Init()
 		if (Barometer.Communicator.ConnectionStatus == HAL_OK)
 		{
 			Barometer.ControlData |= LPS_CTRL_REG1_PD;
-			I2C_WriteByte(&Barometer.Communicator, TROYKA_BAROMETER_CTRL_REG1, Barometer.ControlData);			
+            I2C_WriteData8(&Barometer.Communicator, TROYKA_BAROMETER_CTRL_REG1, Barometer.ControlData);
 			HAL_Delay(100);
 			TroykaBarometer_Calibrate();
 		}

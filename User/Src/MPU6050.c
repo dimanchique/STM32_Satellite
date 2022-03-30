@@ -31,7 +31,7 @@ static void MPU_Calibrate(void){
 	int16_t xx,yy,zz;
 	
 	while (n < CalibrationCycles) {
-		I2C_ReadData48(&MPU6050.Communicator, MPU6050_ACC_X, data);
+        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_ACC_X, data);
 		xx = (int16_t)((data[1]<<8)|data[0]);
 		yy = (int16_t)((data[3]<<8)|data[2]);
 		zz = (int16_t)((data[5]<<8)|data[4]);
@@ -48,7 +48,7 @@ static void MPU_Calibrate(void){
   n = 0;
 
   while (n < CalibrationCycles) {
-		I2C_ReadData48(&MPU6050.Communicator, MPU6050_GYRO_X, data);
+      I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_GYRO_X, data);
 		xx = (int16_t)((data[1]<<8)|data[0]);
 		yy = (int16_t)((data[3]<<8)|data[2]);
 		zz = (int16_t)((data[5]<<8)|data[4]);
@@ -87,9 +87,9 @@ void MPU_Init(){
 	{
 		Verify_Device(&MPU6050.Communicator);
 		if (MPU6050.Communicator.ConnectionStatus == HAL_OK){
-			I2C_WriteByte(&MPU6050.Communicator, MPU6050_PWR_MGMT_1, MPU6050_RESET);
-			I2C_WriteByte(&MPU6050.Communicator, MPU6050_ACCEL_CONFIG, MPU6050.AccRes|MPU6050.AccTest);
-			I2C_WriteByte(&MPU6050.Communicator, MPU6050_GYRO_CONFIG, MPU6050.GyroRes|MPU6050.GyroTest);
+            I2C_WriteData8(&MPU6050.Communicator, MPU6050_PWR_MGMT_1, MPU6050_RESET);
+            I2C_WriteData8(&MPU6050.Communicator, MPU6050_ACCEL_CONFIG, MPU6050.AccRes | MPU6050.AccTest);
+            I2C_WriteData8(&MPU6050.Communicator, MPU6050_GYRO_CONFIG, MPU6050.GyroRes | MPU6050.GyroTest);
 			MPU_Calibrate();
 		}
 		if (MPU6050.Communicator.ConnectionStatus == HAL_OK) MPU6050.Communicator.State = Initialized;
@@ -101,7 +101,7 @@ static void MPU_Read_ACC(void){
 	if (MPU6050.Communicator.ConnectionStatus == HAL_OK){
 		uint8_t data[6] = {0};
 		int16_t xx,yy,zz;
-		I2C_ReadData48(&MPU6050.Communicator, MPU6050_ACC_X, data);
+        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_ACC_X, data);
 		xx = (int16_t)((data[1]<<8)|data[0]);
 		yy = (int16_t)((data[3]<<8)|data[2]);
 		zz = (int16_t)((data[5]<<8)|data[4]);
@@ -120,7 +120,7 @@ static void MPU_Read_GYRO(void){
 	if (MPU6050.Communicator.ConnectionStatus == HAL_OK){
 		uint8_t data[6] = {0};
 		int16_t xx,yy,zz;
-		I2C_ReadData48(&MPU6050.Communicator, MPU6050_GYRO_X, data);
+        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_GYRO_X, data);
 		xx = (int16_t)((data[1]<<8)|data[0]);
 		yy = (int16_t)((data[3]<<8)|data[2]);
 		zz = (int16_t)((data[5]<<8)|data[4]);
