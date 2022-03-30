@@ -13,7 +13,7 @@ static uint8_t BMP_Status(){
 }
 //------------------------------------------------
 static void BMP_SoftReset(){
-	I2C_WriteByte(&BMP280.Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
+    I2C_WriteData8(&BMP280.Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
 }
 //------------------------------------------------
 static void GenerateDataRepresentation(uint8_t ConnectionValid){
@@ -78,9 +78,9 @@ void BMP_Init(void){
 			while(BMP_Status() & BMP280_IS_UPDATING);
 			BMP_ReadCoefficients();
 			uint8_t ConfigRegister = (uint8_t)(BMP280.StandbyTime<<5 | BMP280.FilterCoefficient<<2);
-			I2C_WriteByte(&BMP280.Communicator, BMP280_CONFIG_REGISTER, ConfigRegister);	
+            I2C_WriteData8(&BMP280.Communicator, BMP280_CONFIG_REGISTER, ConfigRegister);
 			uint8_t CtrlRegister = (uint8_t)(BMP280.Temperature_Oversampling<<5 | BMP280.Pressure_Oversampling<<2 | BMP280.Power);
-			I2C_WriteByte(&BMP280.Communicator, BMP280_CTRL_REGISTER, CtrlRegister);	
+            I2C_WriteData8(&BMP280.Communicator, BMP280_CTRL_REGISTER, CtrlRegister);
 			HAL_Delay(100);
 			BMP_Calibrate();
 		}
@@ -93,7 +93,7 @@ static void BMP_GetTemperature(){
 	uint32_t temper_raw;
 	int32_t val1, val2;
 	while(BMP_Status() & BMP280_IS_UPDATING);
-	I2C_ReadDataBE_U24(&BMP280.Communicator, BMP280_TEMP_REGISTER,&temper_raw);
+    I2C_ReadDataU24BE(&BMP280.Communicator, BMP280_TEMP_REGISTER, &temper_raw);
 	temper_raw >>= 4;
 	val1 = ((((temper_raw>>3) - ((int32_t)BMP280.Coefficients.dig_T1 << 1))) * ((int32_t)BMP280.Coefficients.dig_T2)) >> 11;
 	val2 = (((((temper_raw>>4) - ((int32_t)BMP280.Coefficients.dig_T1)) * ((temper_raw>>4) - ((int32_t)BMP280.Coefficients.dig_T1))) >> 12) * ((int32_t)BMP280.Coefficients.dig_T3)) >> 14;
@@ -107,7 +107,7 @@ static double BMP_GetPressureAndTemperature(){
 	int64_t val1, val2, p;
 	BMP_GetTemperature();
 	while(BMP_Status() & BMP280_IS_UPDATING);
-	I2C_ReadDataBE_U24(&BMP280.Communicator, BMP280_PRESSURE_REGISTER, &press_raw);
+    I2C_ReadDataU24BE(&BMP280.Communicator, BMP280_PRESSURE_REGISTER, &press_raw);
 	press_raw >>= 4;
 	val1 = ((int64_t) temper_int) - 128000;
 	val2 = val1 * val1 * (int64_t)BMP280.Coefficients.dig_P6;

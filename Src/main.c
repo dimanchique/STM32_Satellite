@@ -19,7 +19,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-//#include "fatfs.h"
+#include "fatfs.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Logger.h"
@@ -47,11 +48,17 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc2;
+
 I2C_HandleTypeDef hi2c1;
-//SD_HandleTypeDef hsd1;
+
+SD_HandleTypeDef hsd1;
+
 SPI_HandleTypeDef hspi2;
+
 TIM_HandleTypeDef htim6;
+
 UART_HandleTypeDef huart1;
+
 /* USER CODE BEGIN PV */
 extern volatile BMP280_TypeDef BMP280;
 extern volatile ADXL_TypeDef ADXL345;
@@ -66,7 +73,7 @@ static void MX_I2C1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
-//static void MX_SDMMC1_SD_Init(void);
+static void MX_SDMMC1_SD_Init(void);
 static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 void DWT_Init(void);
@@ -120,6 +127,8 @@ int main(void)
   MX_ADC2_Init();
   MX_USART1_UART_Init();
   MX_SPI2_Init();
+  MX_SDMMC1_SD_Init();
+  MX_FATFS_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	NVIC_SetPriority(TIM17_IRQn, 5);
@@ -338,6 +347,33 @@ static void MX_I2C1_Init(void)
 }
 
 /**
+  * @brief SDMMC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SDMMC1_SD_Init(void)
+{
+
+  /* USER CODE BEGIN SDMMC1_Init 0 */
+
+  /* USER CODE END SDMMC1_Init 0 */
+
+  /* USER CODE BEGIN SDMMC1_Init 1 */
+
+  /* USER CODE END SDMMC1_Init 1 */
+  hsd1.Instance = SDMMC1;
+  hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
+  hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+  hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
+  hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+  hsd1.Init.ClockDiv = 0;
+  /* USER CODE BEGIN SDMMC1_Init 2 */
+
+  /* USER CODE END SDMMC1_Init 2 */
+
+}
+
+/**
   * @brief SPI2 Initialization Function
   * @param None
   * @retval None
@@ -504,6 +540,7 @@ void DWT_Init(void){
 	DWT_CONTROL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 /* USER CODE END 4 */
+
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM17 interrupt took place, inside
@@ -530,7 +567,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void){
+void Error_Handler(void)
+{
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
@@ -557,4 +595,3 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -6,11 +6,11 @@
 #include "MPU6050.h"
 #include "NEO7M.h"
 
-SD_HandleTypeDef hsd1;
+extern SD_HandleTypeDef hsd1;
 DiskWriter Logger = {0};
 
 static uint32_t byteswritten;
-static const char LOG_LEVEL[][10] = {"LOG LEVEL", "[LOG]", "[DATA]", "[WARNING]"};
+static const char LOG_LEVEL[][11] = {"LOG LEVEL", "[LOG]", "[DATA]", "[WARNING]"};
 
 extern I2C_BusStruct I2C_Bus;
 extern BMP280_TypeDef BMP280;
