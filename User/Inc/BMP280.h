@@ -1,18 +1,18 @@
 #include "I2C_Process.h"
 #include "ModuleCoreTypes.h"
-//------------------------------------------------
+
 /* Device Info */
-#define BMP280_ADDRESS 											0x76
-#define BMP280_ID 													0x58
-//------------------------------------------------
+#define BMP280_ADDRESS 									0x76
+#define BMP280_ID 										0x58
+
 /* Registers Addresses */
-#define BMP280_TEMP_REGISTER 								0xFA 	//Temperature 0xFA-0xFC (MSB-LSB-XLSB)
+#define BMP280_TEMP_REGISTER 							0xFA 	//Temperature 0xFA-0xFC (MSB-LSB-XLSB)
 #define BMP280_PRESSURE_REGISTER						0xF7 	//Temperature 0xF7-0xF9 (MSB-LSB-XLSB)
 #define BMP280_CONFIG_REGISTER 							0xF5	//Configuration Register
-#define BMP280_CTRL_REGISTER								0xF4 	//D0-D1 - Power Control
+#define BMP280_CTRL_REGISTER							0xF4 	//D0-D1 - Power Control
 #define BMP280_STATUS_REGISTER							0xF3 	//D0 and D3 describes data status
-#define BMP280_RESET_REGISTER								0xE0 	//Put 'BMP_SoftReset' here to soft reset chip
-#define BMP280_ID_REGISTER									0xD0 	//Device ID Register
+#define BMP280_RESET_REGISTER							0xE0 	//Put 'BMP_SoftReset' here to soft reset chip
+#define BMP280_ID_REGISTER								0xD0 	//Device ID Register
 #define BMP280_REGISTER_DIG_T1 							0x88
 #define BMP280_REGISTER_DIG_T2 							0x8A
 #define BMP280_REGISTER_DIG_T3 							0x8C
@@ -27,19 +27,19 @@
 #define BMP280_REGISTER_DIG_P9 							0x9E
 //------------------------------------------------
 //BMP280_OVERSAMPLING settings
-#define BMP280_SKIPMEASURING 								0x00	//Dont Measure
-#define BMP280_OVERSAMPLINGx1								0x01	//Ultra-Low Power 				16 bit 	//if Pressure x1	-> Temperature x1 (Recomended)
+#define BMP280_SKIPMEASURING 							0x00	//Dont Measure
+#define BMP280_OVERSAMPLINGx1							0x01	//Ultra-Low Power 				16 bit 	//if Pressure x1	-> Temperature x1 (Recomended)
 #define BMP280_OVERSAMPLINGx2 							0x02	//Low Power 							17 bit 	//if Pressure x2	-> Temperature x1 (Recomended)
 #define BMP280_OVERSAMPLINGx4 							0x03	//Standart Resolution 		18 bit 	//if Pressure x4 	-> Temperature x1 (Recomended)
 #define BMP280_OVERSAMPLINGx8 							0x04	//High Resolution 				19 bit 	//if Pressure x8 	-> Temperature x1 (Recomended)
 #define BMP280_OVERSAMPLINGx16							0x05	//Ultra-High Resolution 	20 bit 	//if Pressure x16 -> Temperature x2 (Recomended)
 //Power settings
-#define BMP280_NORMALMODE										0x03	//Continous measuring with period t(standby)
-#define BMP280_FORCEDMODE										0x02	//Make one measure then go to Sleep Mode
-#define BMP280_SLEEPMODE										0x00	//DEFAULT! No measurements, low power consumption
+#define BMP280_NORMALMODE								0x03	//Continous measuring with period t(standby)
+#define BMP280_FORCEDMODE								0x02	//Make one measure then go to Sleep Mode
+#define BMP280_SLEEPMODE								0x00	//DEFAULT! No measurements, low power consumption
 //Standby Time settings
-#define BMP280_STANDBYTIME1									0x00	//Standby Time = 0.5ms
-#define BMP280_STANDBYTIME2									0x01	//Standby Time = 62.5ms
+#define BMP280_STANDBYTIME1								0x00	//Standby Time = 0.5ms
+#define BMP280_STANDBYTIME2								0x01	//Standby Time = 62.5ms
 #define BMP280_STANDBYTIME3									0x02	//Standby Time = 125ms
 #define BMP280_STANDBYTIME4									0x03	//Standby Time = 250ms
 #define BMP280_STANDBYTIME5									0x04	//Standby Time = 500ms
