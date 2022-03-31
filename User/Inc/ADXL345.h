@@ -3,7 +3,7 @@
 //------------------------------------------------
 /* Device Info */
 #define ADXL345_ADDRESS 						0x53
-#define ADXL345_ID 									0xE5 //Device ID
+#define ADXL345_ID 								0xE5 //Device ID
 //------------------------------------------------
 /* Registers Addresses */
 #define ADXL345_ID_REGISTER 					0x00 //Device ID Register
@@ -66,14 +66,16 @@
 #endif
 //------------------------------------------------
 /* Typedef Struct */
-typedef struct{
-	I2C_DeviceStruct Communicator;	
+typedef struct
+{
+    I2C_DeviceStruct Communicator;
 	
 	uint8_t Datarate;
 	uint8_t DataFormat;
 	uint8_t Power;
 	
-	struct ADXL_Data{
+	struct ADXL_Data
+    {
 		double x;
 		double y;
 		double z;

@@ -2,7 +2,7 @@
 #include "stm32h7xx_hal.h"
 extern I2C_HandleTypeDef hi2c1;
 
-#define be24toword(a) ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB with LSB
+#define be24toword(a) ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
 #define CommunicationAddress(a) a<<1
 
 #define MAX_I2C_DEVICES 10
