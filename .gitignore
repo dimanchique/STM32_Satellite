@@ -1,1 +1,8 @@
-/.idea
+/Drivers
+/MDK-ARM
+/Middlewares
+.gitignore
+.mxproject
+*.ioc
+*.lnk
+.gitignore
