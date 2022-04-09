@@ -1,3 +1,4 @@
+#pragma once
 #include "I2C_Process.h"
 #include "ModuleCoreTypes.h"
 
@@ -60,42 +61,40 @@
 #define BMP280_SOFTRESET 								0xB6    //Put IC to SoftReset Mode
 #define BMP280_IS_UPDATING								0x01    //BMP280 updating
 
-/** Calibration Data Typedef Struct **/
-typedef struct{
-  uint16_t dig_T1;
-  int16_t dig_T2;
-  int16_t dig_T3;
-  uint16_t dig_P1;
-  int16_t dig_P2;
-  int16_t dig_P3;
-  int16_t dig_P4;
-  int16_t dig_P5;
-  int16_t dig_P6;
-  int16_t dig_P7;
-  int16_t dig_P8;
-  int16_t dig_P9;
-  uint8_t dig_H1;
-  int16_t dig_H2;
-  uint8_t dig_H3;
-  int16_t dig_H4;
-  int16_t dig_H5;
-  int8_t dig_H6;
-} BMP280_CalibrationData;
+/** Calibration Data Struct **/
+struct BMP280_CalibrationData {
+    uint16_t dig_T1;
+    int16_t dig_T2;
+    int16_t dig_T3;
+    uint16_t dig_P1;
+    int16_t dig_P2;
+    int16_t dig_P3;
+    int16_t dig_P4;
+    int16_t dig_P5;
+    int16_t dig_P6;
+    int16_t dig_P7;
+    int16_t dig_P8;
+    int16_t dig_P9;
+};
+
+/** Configuration Data Struct **/
+struct BMP280_ConfigurationData {
+    uint8_t FilterCoefficient;
+    uint8_t Temperature_Oversampling;
+    uint8_t Pressure_Oversampling;
+    uint8_t StandbyTime;
+    uint8_t Power;
+};
 
 /** BMP280 Device Struct **/
-typedef struct{
-	I2C_DeviceStruct Communicator;
-    struct
-    {
-        uint8_t FilterCoefficient;
-        uint8_t Temperature_Oversampling;
-        uint8_t Pressure_Oversampling;
-        uint8_t StandbyTime;
-        uint8_t Power;
-    } Configuration;
-    BMP280_CalibrationData Coefficients;
-	struct BarometerData Data;	
-	char DataRepr[50];
+typedef struct {
+    I2C_DeviceStruct Communicator;
+
+    struct BMP280_ConfigurationData Configuration;
+    struct BMP280_CalibrationData CalibrationCoefficients;
+    struct BarometerData Data;
+    struct ModuleExtraData ExtraData;
+    char DataRepr[50];
 } BMP280_TypeDef;
 
 /** Functions Prototypes **/

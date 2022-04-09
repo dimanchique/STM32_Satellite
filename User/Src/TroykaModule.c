@@ -5,7 +5,6 @@
 #include "TroykaMagnetometer.h"
 #include "TroykaGyroscope.h"
 
-void TroykaInit()
-{
-	
+void TroykaInit() {
+
 }

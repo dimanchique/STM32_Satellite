@@ -1,11 +1,11 @@
 #include "I2C_Process.h"
-//------------------------------------------------
-/* Device Info */
+
+/** Device Info **/
 #define TROYKA_MAGNETOMETER_ADDRESS							0x1C //LIS3MDL
 #define TROYKA_MAGNETOMETER_ID_REGISTER 				0x0F
 #define TROYKA_MAGNETOMETER_ID 									0x3D
-//------------------------------------------------
-/* Registers Addresses */
+
+/** Registers Addresses **/
 #define TROYKA_MAGNETOMETER_CTRL_REG1  					0x20
 #define TROYKA_MAGNETOMETER_CTRL_REG2  					0x21
 #define TROYKA_MAGNETOMETER_CTRL_REG3  					0x22

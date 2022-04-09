@@ -1,4 +1,5 @@
 #pragma once
+
 #include "stm32h7xx_hal.h"
 
 #include "fatfs.h"
@@ -15,17 +16,19 @@
 #define QUEUE_SLOTS 2
 #define MESSAGE_LENGTH 200
 
-typedef struct{
-	char Message[(QUEUE_SLOTS)*MESSAGE_LENGTH];
-	char Queue[QUEUE_SLOTS][MESSAGE_LENGTH];
-	uint8_t current_slot;
-	char CurrentInstance[15];
-	FRESULT FatFsStatus;
-	uint8_t Disk_Mounted;
-	uint8_t File_Opened;
-	FRESULT Write_Status;
+/** Logger Struct **/
+typedef struct {
+    char Message[(QUEUE_SLOTS) * MESSAGE_LENGTH];
+    char Queue[QUEUE_SLOTS][MESSAGE_LENGTH];
+    uint8_t current_slot;
+    char CurrentInstance[15];
+    FRESULT FatFsStatus;
+    uint8_t Disk_Mounted;
+    uint8_t File_Opened;
+    FRESULT Write_Status;
 } DiskWriter;
 
+/** Functions Prototypes **/
 void InitSDSystem(void);
 void LogState(I2C_DeviceStruct Instance);
 void LogI2C(I2C_BusStruct Instance);

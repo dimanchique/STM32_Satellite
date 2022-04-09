@@ -1,11 +1,11 @@
 #include "I2C_Process.h"
-//------------------------------------------------
-/* Device Info */
+
+/** Device Info **/
 #define TROYKA_GYROSCOPE_ADDRESS								0x69 //I3G4250D/L3G4200D
 #define TROYKA_GYROSCOPE_ID_REGISTER 						0x0F
 #define TROYKA_GYROSCOPE_ID 										0xD3
-//------------------------------------------------
-/* Registers Addresses */
+
+/** Registers Addresses **/
 #define TROYKA_GYROSCOPE_CTRL_REG1 							0x20
 #define TROYKA_GYROSCOPE_CTRL_REG2 							0x21
 #define TROYKA_GYROSCOPE_CTRL_REG3 							0x22
