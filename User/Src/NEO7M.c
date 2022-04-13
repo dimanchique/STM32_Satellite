@@ -3,7 +3,7 @@
 
 //------------------------------------------------
 extern UART_HandleTypeDef huart1;
-volatile uint8_t ReceptionEnd;
+uint8_t ReceptionEnd;
 static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
 static uint8_t hh, mm, ss;
 GPS_TypeDef NEO7M = {0};
@@ -149,10 +149,20 @@ void ProcessResponse() {
 
 //------------------------------------------------
 void NEO7M_Init() {
-    //HAL_UART_Transmit(&huart1, (uint8_t *) SetupGPSRate, strlen(SetupGPSRate), 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *) SetupGPSRate, strlen(SetupGPSRate), 100);
+    HAL_Delay(100);
     HAL_UART_Transmit(&huart1, (uint8_t *) DisableGSAPacket, strlen(DisableGSAPacket), 100);
+    HAL_Delay(100);
     HAL_UART_Transmit(&huart1, (uint8_t *) DisableGSVPacket, strlen(DisableGSVPacket), 100);
+    HAL_Delay(100);
     HAL_UART_Transmit(&huart1, (uint8_t *) DisableVTGPacket, strlen(DisableVTGPacket), 100);
-    HAL_UART_Receive_IT(&huart1, (uint8_t *) NEO7M.Message, GPS_DATA_SIZE);
+    HAL_Delay(100);
 }
 //------------------------------------------------
+void ReadData()
+{
+    ReceptionEnd = 0;
+    HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE);
+    while (ReceptionEnd==0);
+    ProcessResponse();
+}

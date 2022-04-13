@@ -156,6 +156,7 @@ int main(void) {
         ADXL_ReadData();
         MPU_ReadData();
         TroykaBarometer_ReadData();
+        ReadData();
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */

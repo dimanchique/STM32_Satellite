@@ -4,7 +4,7 @@
 #include "string.h"
 #include "stdlib.h"
 
-#define GPS_DATA_SIZE           500
+#define GPS_DATA_SIZE           300
 #define GPS_PAYLOAD_SIZE        100
 
 /** Setup NEO7M UART Commands **/
@@ -51,3 +51,4 @@ typedef struct {
 /** Functions Prototypes **/
 void NEO7M_Init(void);
 void ProcessResponse();
+void ReadData(void);
