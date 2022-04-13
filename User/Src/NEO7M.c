@@ -161,8 +161,7 @@ void NEO7M_Init() {
 //------------------------------------------------
 void ReadData()
 {
-    ReceptionEnd = 0;
-    HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE);
-    while (ReceptionEnd==0);
+    while(USART1->CR1 & USART_ISR_IDLE);
+    HAL_UART_Receive(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, 1200);
     ProcessResponse();
 }
