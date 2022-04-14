@@ -145,7 +145,6 @@ int main(void) {
     I2C_Init();
     I2C_Scan();
     InitSensors();
-    NEO7M_Init();
     HAL_TIM_Base_Start_IT(&htim6);
     /* USER CODE END 2 */
 

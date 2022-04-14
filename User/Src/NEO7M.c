@@ -3,7 +3,7 @@
 
 //------------------------------------------------
 extern UART_HandleTypeDef huart1;
-uint8_t ReceptionEnd;
+volatile ReceivingEnd = 0;
 static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
 static uint8_t hh, mm, ss;
 GPS_TypeDef NEO7M = {0};
@@ -124,12 +124,13 @@ static void ParceGPGLL(char *packet) {
 //------------------------------------------------
 void ProcessResponse() {
     char *token, *packet;
-    for (int i = 0; i < 3; i++) {
+    int pack = 0;
+    for (pack = 0; pack < 3; pack++) {
         strcpy(NEO7M.TempMessage, NEO7M.Message);
-        token = strstr(NEO7M.TempMessage, Keys[i]);
+        token = strstr(NEO7M.TempMessage, Keys[pack]);
         if (token) {
             packet = strtok(token, "$");
-            switch (i) {
+            switch (pack) {
                 case 0:
                     ParceGPGGA(packet);
                     break;
@@ -147,21 +148,12 @@ void ProcessResponse() {
     GenerateDataRepresentation();
 }
 
-//------------------------------------------------
-void NEO7M_Init() {
-    HAL_UART_Transmit(&huart1, (uint8_t *) SetupGPSRate, strlen(SetupGPSRate), 100);
-    HAL_Delay(100);
-    HAL_UART_Transmit(&huart1, (uint8_t *) DisableGSAPacket, strlen(DisableGSAPacket), 100);
-    HAL_Delay(100);
-    HAL_UART_Transmit(&huart1, (uint8_t *) DisableGSVPacket, strlen(DisableGSVPacket), 100);
-    HAL_Delay(100);
-    HAL_UART_Transmit(&huart1, (uint8_t *) DisableVTGPacket, strlen(DisableVTGPacket), 100);
-    HAL_Delay(100);
-}
-//------------------------------------------------
 void ReadData()
 {
-    while(USART1->CR1 & USART_ISR_IDLE);
-    HAL_UART_Receive(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, 1200);
-    ProcessResponse();
+    ReceivingEnd = 1;
+    HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, NULL, GPS_DATA_SIZE, 1000);
+    HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE);
+    while (ReceivingEnd==1);
+    if(IsValid(NEO7M.Message))
+        ProcessResponse();
 }

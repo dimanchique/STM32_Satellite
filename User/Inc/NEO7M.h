@@ -49,6 +49,5 @@ typedef struct {
 } GPS_TypeDef;
 
 /** Functions Prototypes **/
-void NEO7M_Init(void);
-void ProcessResponse();
+void ProcessResponse(void);
 void ReadData(void);
