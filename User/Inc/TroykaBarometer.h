@@ -35,15 +35,6 @@
 #define MILLIBARS_TO_PASCALS                                    100
 #define MILLIBARS_TO_MILLIMETERSHG                        0.75
 
-/** LPS311AP/LPS25HB Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    uint8_t ControlData;
-    struct BarometerData Data;
-    struct ModuleExtraData ExtraData;
-    char DataRepr[50];
-} TroykaBarometer_TypeDef;
-
 /** Functions Prototypes **/
 void TroykaBarometer_Init(void);
 void TroykaBarometer_ReadData(void);

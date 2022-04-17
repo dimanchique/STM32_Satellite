@@ -22,12 +22,12 @@
 #define ADXL345_DATAZ0                              0x36 //Z-Axis Data 0
 #define ADXL345_DATAZ1                              0x37 //Z-Axis Data 1
 
-/** Data Rate Defining **/
+/** Data Rate Definition **/
 //#define ADXL345_Rate50Hz
 #define ADXL345_Rate100Hz
 //#define ADXL345_Rate200Hz
 
-/** Acceleration Range Defining **/
+/** Acceleration Range Definition **/
 //#define ADXL345_2g
 //#define ADXL345_4g
 #define ADXL345_8g
@@ -48,33 +48,24 @@
 
 /** Acceleration Scaling and Resolution **/
 #ifdef ADXL345_2g
-#define ADXL345_ACC_SCALE						    3.9/1000
+#define ADXL345_ACC_SCALE						    0.0039
 #define ADXL345_ACC_RESOLUTION					    0x00
 #endif
 
 #ifdef ADXL345_4g
-#define ADXL345_ACC_SCALE						    7.8/1000
+#define ADXL345_ACC_SCALE						    0.0078
 #define ADXL345_ACC_RESOLUTION					    0x01
 #endif
 
 #ifdef ADXL345_8g
-#define ADXL345_ACC_SCALE                           15.6/1000
+#define ADXL345_ACC_SCALE                           0.0156
 #define ADXL345_ACC_RESOLUTION                      0x02
 #endif
 
 #ifdef ADXL345_16g
-#define ADXL345_ACC_SCALE						    31.2/1000
+#define ADXL345_ACC_SCALE						    0.0312
 #define ADXL345_ACC_RESOLUTION					    0x03
 #endif
-
-/** ADXL345 Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-
-    struct AccelerometerConfig Configuration;
-    struct AccelerometerData Data;
-    char DataRepr[50];
-} ADXL345_TypeDef;
 
 /** Functions Prototypes **/
 void ADXL_Init(void);

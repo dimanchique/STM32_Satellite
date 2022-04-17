@@ -42,7 +42,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern volatile ReceivingEnd;
+extern volatile uint8_t ReceivingEnd;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

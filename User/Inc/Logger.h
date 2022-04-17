@@ -8,13 +8,16 @@
 
 #define DEFAULT_FILENAME "DATA.txt"
 
-#define LOG_HEADER 0
-#define LOG_MESSAGE 1
-#define DATA_MESSAGE 2
-#define WARNING_MESSAGE 3
-
 #define QUEUE_SLOTS 2
 #define MESSAGE_LENGTH 200
+
+#define ENABLE_DEBUG
+
+enum LogLevel {
+    LOG_MESSAGE,
+    DATA_MESSAGE,
+    WARNING_MESSAGE
+};
 
 /** Logger Struct **/
 typedef struct {

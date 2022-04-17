@@ -2,7 +2,6 @@
 #include "Logger.h"
 
 ADXL345_TypeDef ADXL345 = {0};
-extern DiskWriter Logger;
 
 static void GenerateDataRepresentation(uint8_t ConnectionValid) {
     if (ConnectionValid)
@@ -22,9 +21,15 @@ static void ADXL_Calibrate(void) {
     ADXL345.Data.AccX /= ADXL345_ACC_SCALE;
     ADXL345.Data.AccY /= ADXL345_ACC_SCALE;
     ADXL345.Data.AccZ /= ADXL345_ACC_SCALE;
-    I2C_WriteData8(&ADXL345.Communicator, ADXL345_OFSX, (uint8_t) ((ADXL345.Data.AccX - ADXL345_ACC_SCALE) / 4));
-    I2C_WriteData8(&ADXL345.Communicator, ADXL345_OFSY, (uint8_t) ((ADXL345.Data.AccY - ADXL345_ACC_SCALE) / 4));
-    I2C_WriteData8(&ADXL345.Communicator, ADXL345_OFSZ, (uint8_t) ((ADXL345.Data.AccZ - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL345.Communicator,
+                   ADXL345_OFSX,
+                   (uint8_t) ((ADXL345.Data.AccX - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL345.Communicator,
+                   ADXL345_OFSY,
+                   (uint8_t) ((ADXL345.Data.AccY - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL345.Communicator,
+                   ADXL345_OFSZ,
+                   (uint8_t) ((ADXL345.Data.AccZ - ADXL345_ACC_SCALE) / 4));
 }
 
 void ADXL_Init(void) {
@@ -35,28 +40,35 @@ void ADXL_Init(void) {
     ADXL345.Communicator.FactAddress = ADXL345_ADDRESS;
     ADXL345.Communicator.Device_ID = ADXL345_ID;
     ADXL345.Communicator.ID_Register = ADXL345_ID_REGISTER;
-
-    /** Data Section **/
-    ADXL345.Configuration.Datarate = ADXL345_DATARATE;
-    ADXL345.Configuration.DataFormat = ADXL345_ACC_RESOLUTION;
-    ADXL345.Configuration.Power = 0x08;
+#ifdef ENABLE_DEBUG
     LogState(ADXL345.Communicator);
-
+#endif
     /** Setup Section **/
     CheckDeviceState(&ADXL345.Communicator);
     if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
         Verify_Device(&ADXL345.Communicator);
         if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_BW_RATE, ADXL345.Configuration.Datarate);
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_DATA_FORMAT, ADXL345.Configuration.DataFormat);
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, 0x00);
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, ADXL345.Configuration.Power);
-            HAL_Delay(100);
+            I2C_WriteData8(&ADXL345.Communicator,
+                           ADXL345_BW_RATE,
+                           ADXL345_DATARATE);
+            I2C_WriteData8(&ADXL345.Communicator,
+                           ADXL345_DATA_FORMAT,
+                           ADXL345_ACC_RESOLUTION);
+            I2C_WriteData8(&ADXL345.Communicator,
+                           ADXL345_POWER_CTL,
+                           0x00);
+            I2C_WriteData8(&ADXL345.Communicator,
+                           ADXL345_POWER_CTL,
+                           0x08);
+            HAL_Delay(50);
             ADXL_Calibrate();
         }
-        if (ADXL345.Communicator.ConnectionStatus == HAL_OK) ADXL345.Communicator.State = Initialized;
+        if (ADXL345.Communicator.ConnectionStatus == HAL_OK)
+            ADXL345.Communicator.State = Initialized;
     }
+#ifdef ENABLE_DEBUG
     LogState(ADXL345.Communicator);
+#endif
 }
 
 void ADXL_ReadData(void) {

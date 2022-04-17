@@ -1,7 +1,6 @@
 #include "TroykaBarometer.h"
 #include "Logger.h"
 
-//------------------------------------------------
 TroykaBarometer_TypeDef Barometer = {0};
 
 static void TroykaBarometer_Calibrate() {
@@ -9,7 +8,6 @@ static void TroykaBarometer_Calibrate() {
     Barometer.Data.base_mmHg = Barometer.Data.mmHg;
 }
 
-//------------------------------------------------
 static void GenerateDataRepresentation(uint8_t ConnectionValid) {
     if (ConnectionValid)
         sprintf(Barometer.DataRepr,
@@ -33,8 +31,9 @@ void TroykaBarometer_Init() {
     Barometer.Communicator.ID_Register = TROYKA_BAROMETER_ID_REGISTER;
     Barometer.ControlData = 0;
     Barometer.ControlData |= LPS_CTRL_REG1_ODR1 | LPS_CTRL_REG1_ODR2;
+#ifdef ENABLE_DEBUG
     LogState(Barometer.Communicator);
-
+#endif
     /** Setup Section **/
     CheckDeviceState(&Barometer.Communicator);
     if (Barometer.Communicator.ConnectionStatus == HAL_OK) {
@@ -53,14 +52,18 @@ void TroykaBarometer_Init() {
         }
         if (Barometer.Communicator.ConnectionStatus == HAL_OK) Barometer.Communicator.State = Initialized;
     }
+#ifdef ENABLE_DEBUG
     LogState(Barometer.Communicator);
+#endif
 }
 
 static void TroykaBarometer_ReadPressure() {
     if (Barometer.Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[3] = {0};
         uint32_t rawPressure;
-        I2C_ReadData3x8(&Barometer.Communicator, 0x80 | TROYKA_BAROMETER_PRESS_POUT_XL_REH, data);
+        I2C_ReadData3x8(&Barometer.Communicator,
+                        0x80 | TROYKA_BAROMETER_PRESS_POUT_XL_REH,
+                        data);
         rawPressure = (uint32_t) data[2] << 16 | (uint16_t) data[1] << 8 | data[0];
         double millibars = rawPressure / 4096.0;
         Barometer.Data.Pressure = millibars * MILLIBARS_TO_PASCALS;
@@ -76,8 +79,12 @@ static void TroykaBarometer_ReadPressure() {
 static void TroykaBarometer_ReadTemperature() {
     if (Barometer.Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[2] = {0};
-        I2C_ReadData8(&Barometer.Communicator, TROYKA_BAROMETER_TEMP_OUT_L, &data[0]);
-        I2C_ReadData8(&Barometer.Communicator, TROYKA_BAROMETER_TEMP_OUT_H, &data[1]);
+        I2C_ReadData8(&Barometer.Communicator,
+                      TROYKA_BAROMETER_TEMP_OUT_L,
+                      &data[0]);
+        I2C_ReadData8(&Barometer.Communicator,
+                      TROYKA_BAROMETER_TEMP_OUT_H,
+                      &data[1]);
         Barometer.ExtraData.Temperature = 42.5 + (float) (int16_t) ((data[1] << 8) | data[0]) / 480.0;
     } else {
         Barometer.ExtraData.Temperature = 0;
@@ -85,7 +92,13 @@ static void TroykaBarometer_ReadTemperature() {
 }
 
 void TroykaBarometer_ReadData() {
-    TroykaBarometer_ReadPressure();
-    TroykaBarometer_ReadTemperature();
+    if (Barometer.Communicator.ConnectionStatus == HAL_OK) {
+        TroykaBarometer_ReadPressure();
+        TroykaBarometer_ReadTemperature();
+    } else {
+        Barometer.Data.Pressure = 0;
+        Barometer.Data.mmHg = 0;
+        Barometer.Data.Altitude = 0;
+    }
     GenerateDataRepresentation(Barometer.Communicator.ConnectionStatus == HAL_OK);
 }

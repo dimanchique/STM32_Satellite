@@ -1,6 +1,5 @@
 #include "MPU6050.h"
 #include "Logger.h"
-#include "string.h"
 
 MPU6050_TypeDef MPU6050 = {0};
 
@@ -25,12 +24,11 @@ static void GenerateDataRepresentation(uint8_t ConnectionValid) {
 }
 
 static void MPU_Calibrate(void) {
-    uint16_t n = 0;
     double AccX, AccY, AccZ, GyroX, GyroY, GyroZ;
     uint8_t data[6] = {0};
     int16_t xx, yy, zz;
 
-    while (n < CalibrationCycles) {
+    for (uint16_t n = 0; n < CalibrationCycles; n++) {
         I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_ACC_X, data);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
@@ -41,13 +39,12 @@ static void MPU_Calibrate(void) {
         ACC_ERROR_X = ACC_ERROR_X + AccX;
         ACC_ERROR_Y = ACC_ERROR_Y + AccY;
         ACC_ERROR_Z = ACC_ERROR_Z + AccZ;
-        n++;
     }
     ACC_ERROR_X = ACC_ERROR_X / CalibrationCycles;
     ACC_ERROR_Y = ACC_ERROR_Y / CalibrationCycles;
-    n = 0;
+    ACC_ERROR_Z = ACC_ERROR_Z / CalibrationCycles;
 
-    while (n < CalibrationCycles) {
+    for (uint16_t n = 0; n < CalibrationCycles; n++) {
         I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_GYRO_X, data);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
@@ -58,7 +55,6 @@ static void MPU_Calibrate(void) {
         GYRO_ERROR_X = GYRO_ERROR_X + GyroX;
         GYRO_ERROR_Y = GYRO_ERROR_Y + GyroY;
         GYRO_ERROR_Z = GYRO_ERROR_Z + GyroZ;
-        n++;
     }
     GYRO_ERROR_X = GYRO_ERROR_X / CalibrationCycles;
     GYRO_ERROR_Y = GYRO_ERROR_Y / CalibrationCycles;
@@ -73,21 +69,31 @@ void MPU_Init() {
     MPU6050.Communicator.FactAddress = MPU6050_ADDRESS;
     MPU6050.Communicator.Device_ID = MPU6050_ID;
     MPU6050.Communicator.ID_Register = MPU6050_ID_REGISTER;
+#ifdef ENABLE_DEBUG
     LogState(MPU6050.Communicator);
-
+#endif
     /** Setup Section **/
     CheckDeviceState(&MPU6050.Communicator);
     if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
         Verify_Device(&MPU6050.Communicator);
         if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
-            I2C_WriteData8(&MPU6050.Communicator, MPU6050_PWR_MGMT_1, MPU6050_RESET);
-            I2C_WriteData8(&MPU6050.Communicator, MPU6050_ACCEL_CONFIG, MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC);
-            I2C_WriteData8(&MPU6050.Communicator, MPU6050_GYRO_CONFIG, MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO);
+            I2C_WriteData8(&MPU6050.Communicator,
+                           MPU6050_PWR_MGMT_1,
+                           MPU6050_RESET);
+            I2C_WriteData8(&MPU6050.Communicator,
+                           MPU6050_ACCEL_CONFIG,
+                           MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC);
+            I2C_WriteData8(&MPU6050.Communicator,
+                           MPU6050_GYRO_CONFIG,
+                           MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO);
             MPU_Calibrate();
         }
-        if (MPU6050.Communicator.ConnectionStatus == HAL_OK) MPU6050.Communicator.State = Initialized;
+        if (MPU6050.Communicator.ConnectionStatus == HAL_OK)
+            MPU6050.Communicator.State = Initialized;
     }
+#ifdef ENABLE_DEBUG
     LogState(MPU6050.Communicator);
+#endif
 }
 
 static void MPU_Read_ACC(void) {

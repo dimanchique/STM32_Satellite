@@ -1,36 +1,38 @@
 #include "I2C_Process.h"
 #include "Logger.h"
 
-static I2C_BusStruct I2C_Bus = {0};
+I2C_BusStruct I2C_Bus = {0};
+extern I2C_HandleTypeDef hi2c1;
 
 void I2C_Init(void) {
     I2C_Bus.I2C_Instance = hi2c1;
     I2C_Bus.OperationResult = HAL_OK;
     I2C_Bus.Scanned = 0;
     I2C_Bus.Devices = 0;
+#ifdef ENABLE_DEBUG
     LogI2C(I2C_Bus);
+#endif
 }
 
 void I2C_Scan(void) {
-    uint8_t n = 0;
     for (uint8_t address = 8; address < 128; address++) {
         if (HAL_I2C_IsDeviceReady(&I2C_Bus.I2C_Instance,
                                   (uint16_t) (address << 1),
-                                  4,
+                                  2,
                                   50) == HAL_OK) {
-            I2C_Bus.AddressList[n] = address;
             I2C_Bus.Devices++;
-            n++;
         }
     }
     I2C_Bus.Scanned = 1;
+#ifdef ENABLE_DEBUG
     LogI2C(I2C_Bus);
+#endif
 }
 
 void CheckDeviceState(I2C_DeviceStruct *Communicator) {
     Communicator->ConnectionStatus = HAL_I2C_IsDeviceReady(&I2C_Bus.I2C_Instance,
                                                            Communicator->CommAddress,
-                                                           4,
+                                                           2,
                                                            50);
     if (Communicator->State == NotInitialized) {
         if (Communicator->ConnectionStatus == HAL_OK)
@@ -66,7 +68,7 @@ void Verify_Device(I2C_DeviceStruct *Communicator) {
     }
 }
 
-static void ReportResult(I2C_DeviceStruct *Communicator, uint8_t Operation, uint8_t BlockSize) {
+static void ReportResult(I2C_DeviceStruct *Communicator, OperationTypeDef Operation, uint8_t BlockSize) {
     if (I2C_Bus.OperationResult != HAL_OK) {
         if (Operation == Writing)
             Communicator->State = WritingError;
@@ -80,7 +82,7 @@ static void ReportResult(I2C_DeviceStruct *Communicator, uint8_t Operation, uint
             Communicator->State = ReadingSuccess;
         Communicator->ConnectionStatus = HAL_OK;
     }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
     LogI2C_Operation(*Communicator, Operation, BlockSize);
 #endif
 }

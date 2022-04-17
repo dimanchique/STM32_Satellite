@@ -1,17 +1,13 @@
 #include "Logger.h"
 
-#include "TroykaBarometer.h"
-#include "BMP280.h"
-#include "ADXL345.h"
-#include "MPU6050.h"
+#include "ModuleCoreTypes.h"
 #include "NEO7M.h"
 
 extern SD_HandleTypeDef hsd1;
 DiskWriter Logger = {0};
 
 static uint32_t byteswritten;
-static const char LOG_LEVEL[][11] = {"LOG LEVEL",
-                                     "[LOG]",
+static const char LOG_LEVEL[][10] = {"[LOG]",
                                      "[DATA]",
                                      "[WARNING]"};
 

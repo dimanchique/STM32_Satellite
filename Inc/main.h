@@ -48,7 +48,6 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-//#define DEBUG
 #define DWT_CONTROL *(volatile unsigned long *)0xE0001000
 #define SCB_DEMCR   *(volatile unsigned long *)0xE000EDFC
 /* USER CODE END EM */

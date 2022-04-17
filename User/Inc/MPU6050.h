@@ -98,15 +98,6 @@
 #define MPU6050_ACC_SCALE			2048.0
 #endif
 
-/** MPU6050 Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct GyroscopeData GyroData;
-    struct AccelerometerData AccData;
-    struct ModuleExtraData ExtraData;
-    char DataRepr[50];
-} MPU6050_TypeDef;
-
 /** Functions Prototypes **/
 void MPU_Init(void);
 void MPU_ReadData(void);

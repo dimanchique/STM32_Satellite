@@ -25,8 +25,6 @@
 /** LIS331DLH Device Struct **/
 typedef struct {
     I2C_DeviceStruct Communicator;
-
-    struct AccelerometerConfig Configuration;
     struct AccelerometerData Data;
     char DataRepr[50];
 } TroykaAccelerometer_TypeDef;

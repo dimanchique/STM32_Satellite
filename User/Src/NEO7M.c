@@ -3,7 +3,7 @@
 
 //------------------------------------------------
 extern UART_HandleTypeDef huart1;
-volatile ReceivingEnd = 0;
+volatile uint8_t ReceivingEnd = 0;
 static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
 static uint8_t hh, mm, ss;
 GPS_TypeDef NEO7M = {0};
@@ -151,7 +151,7 @@ void ProcessResponse() {
 void ReadData()
 {
     ReceivingEnd = 1;
-    HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, NULL, GPS_DATA_SIZE, 1000);
+    HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, NULL, 1000);
     HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE);
     while (ReceivingEnd==1);
     if(IsValid(NEO7M.Message))
