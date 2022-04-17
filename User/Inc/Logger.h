@@ -13,10 +13,10 @@
 
 #define ENABLE_DEBUG
 
-enum LogLevel {
-    LOG_MESSAGE,
-    DATA_MESSAGE,
-    WARNING_MESSAGE
+enum Level {
+    LOG         = 0x00,
+    DATA        = 0x01,
+    WARNING     = 0x02
 };
 
 /** Logger Struct **/
@@ -35,5 +35,5 @@ typedef struct {
 void InitSDSystem(void);
 void LogState(I2C_DeviceStruct Instance);
 void LogI2C(I2C_BusStruct Instance);
-void LogI2C_Operation(I2C_DeviceStruct Instance, uint8_t Operation, uint8_t BlockSize);
+void LogI2C_Operation(I2C_DeviceStruct Instance, OperationType Operation, uint8_t BlockSize);
 void ForceDataLogging(void);

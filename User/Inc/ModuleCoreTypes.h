@@ -49,18 +49,18 @@ typedef enum {
     ReadingError            = 0x07,
     ReadingSuccess          = 0x08,
     ID_Check_Error          = 0x09
-} ConnectionStatusTypeDef;
+} ConnectionStatusType;
 
 /** Operation Type Enum **/
 typedef enum {
     Reading                 = 0x00,
     Writing                 = 0x01
-} OperationTypeDef;
+} OperationType;
 
 /** Base I2C Device Struct **/
 typedef struct I2C_DeviceStruct {
     char *Name;
-    ConnectionStatusTypeDef State;
+    ConnectionStatusType State;
     uint8_t CommAddress;
     uint8_t FactAddress;
     uint8_t Device_ID;
