@@ -38,7 +38,7 @@ static void ConvertData(GPSProtocol *GPSProtocol) {
 static void GenerateDataRepresentation() {
     if (NEO7M.GPGGA.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[%s], Lat:%f%c, Long:%f%c, Altitude:%f%c, Source:%s|",
+                "[%s] Lat:%f%c Long:%f%c Altitude:%f%c Source:%s;",
                 NEO7M.GPGGA.TimeRepr,
                 NEO7M.GPGGA.LatitudeDegrees,
                 NEO7M.GPGGA.LatitudeDirection,
@@ -47,9 +47,10 @@ static void GenerateDataRepresentation() {
                 NEO7M.GPGGA.Extras.Altitude,
                 NEO7M.GPGGA.Extras.AltitudeUnits,
                 Keys[0]);
-    } else if (NEO7M.GPRMC.IsValid) {
+    }
+    else if (NEO7M.GPRMC.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[%s], Lat:%f%c, Long:%f%c, Speed:%f, Source:%s|",
+                "[%s] Lat:%f%c Long:%f%c Speed:%f Source:%s;",
                 NEO7M.GPRMC.TimeRepr,
                 NEO7M.GPRMC.LatitudeDegrees,
                 NEO7M.GPRMC.LatitudeDirection,
@@ -57,16 +58,17 @@ static void GenerateDataRepresentation() {
                 NEO7M.GPRMC.LongitudeDirection,
                 NEO7M.GPGGA.Extras.SpeedInKnots,
                 Keys[1]);
-    } else if (NEO7M.GPGLL.IsValid) {
+    }
+    else if (NEO7M.GPGLL.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[%s], Lat:%f%c, Long:%f%c, Source:%s|",
+                "[%s] Lat:%f%c Long:%f%c Source:%s;",
                 NEO7M.GPGLL.TimeRepr,
                 NEO7M.GPGLL.LatitudeDegrees,
                 NEO7M.GPGLL.LatitudeDirection,
                 NEO7M.GPGLL.LongitudeDegrees,
                 NEO7M.GPGLL.LongitudeDirection,
                 Keys[2]);
-    } else strcpy(NEO7M.PayloadMessage, "GPS UNAVAILABLE|");
+    } else strcpy(NEO7M.PayloadMessage, "GPS UNAVAILABLE;");
 }
 
 //------------------------------------------------

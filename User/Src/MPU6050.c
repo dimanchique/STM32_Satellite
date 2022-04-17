@@ -10,7 +10,7 @@ static uint16_t CalibrationCycles = 500;
 static void GenerateDataRepresentation(uint8_t ConnectionValid) {
     if (ConnectionValid)
         sprintf(MPU6050.DataRepr,
-                "[%s] %.3f; %.3f; %.3f; %.3f; %.3f; %.3f; %.3f;",
+                "[%s] %.3f %.3f %.3f %.3f %.3f %.3f %.3f;",
                 MPU6050.Communicator.Name,
                 MPU6050.AccData.AccX,
                 MPU6050.AccData.AccY,

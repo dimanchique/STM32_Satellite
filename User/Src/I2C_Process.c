@@ -68,7 +68,7 @@ void Verify_Device(I2C_DeviceStruct *Communicator) {
     }
 }
 
-static void ReportResult(I2C_DeviceStruct *Communicator, OperationTypeDef Operation, uint8_t BlockSize) {
+static void ReportResult(I2C_DeviceStruct *Communicator, OperationType Operation, uint8_t BlockSize) {
     if (I2C_Bus.OperationResult != HAL_OK) {
         if (Operation == Writing)
             Communicator->State = WritingError;

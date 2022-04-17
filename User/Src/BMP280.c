@@ -5,22 +5,18 @@ BMP280_TypeDef BMP280 = {0};
 
 static uint8_t BMP_IsUpdating(void) {
     uint8_t status;
-    I2C_ReadData8(&BMP280.Communicator,
-                  BMP280_STATUS_REGISTER,
-                  &status);
+    I2C_ReadData8(&BMP280.Communicator, BMP280_STATUS_REGISTER, &status);
     return (status & 0x09) & BMP280_IS_UPDATING;
 }
 
 static void BMP_SoftReset(void) {
-    I2C_WriteData8(&BMP280.Communicator,
-                   BMP280_RESET_REGISTER,
-                   BMP280_SOFTRESET);
+    I2C_WriteData8(&BMP280.Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
 }
 
 static void GenerateDataRepresentation(uint8_t ConnectionValid) {
     if (ConnectionValid)
         sprintf(BMP280.DataRepr,
-                "[%s] %.2f; %.3f; %.3f; %.3f;",
+                "[%s] %.2f %.3f %.3f %.3f;",
                 BMP280.Communicator.Name,
                 BMP280.ExtraData.Temperature,
                 BMP280.Data.Pressure,

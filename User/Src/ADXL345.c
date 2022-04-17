@@ -6,7 +6,7 @@ ADXL345_TypeDef ADXL345 = {0};
 static void GenerateDataRepresentation(uint8_t ConnectionValid) {
     if (ConnectionValid)
         sprintf(ADXL345.DataRepr,
-                "[%s] %.4f; %.4f; %.4f;",
+                "[%s] %.4f %.4f %.4f;",
                 ADXL345.Communicator.Name,
                 ADXL345.Data.AccX,
                 ADXL345.Data.AccY,
@@ -16,20 +16,13 @@ static void GenerateDataRepresentation(uint8_t ConnectionValid) {
 }
 
 static void ADXL_Calibrate(void) {
-    // TODO: check if everything is OK with calibration process
     ADXL_ReadData();
     ADXL345.Data.AccX /= ADXL345_ACC_SCALE;
     ADXL345.Data.AccY /= ADXL345_ACC_SCALE;
     ADXL345.Data.AccZ /= ADXL345_ACC_SCALE;
-    I2C_WriteData8(&ADXL345.Communicator,
-                   ADXL345_OFSX,
-                   (uint8_t) ((ADXL345.Data.AccX - ADXL345_ACC_SCALE) / 4));
-    I2C_WriteData8(&ADXL345.Communicator,
-                   ADXL345_OFSY,
-                   (uint8_t) ((ADXL345.Data.AccY - ADXL345_ACC_SCALE) / 4));
-    I2C_WriteData8(&ADXL345.Communicator,
-                   ADXL345_OFSZ,
-                   (uint8_t) ((ADXL345.Data.AccZ - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL345.Communicator, ADXL345_OFSX, (uint8_t) ((ADXL345.Data.AccX - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL345.Communicator, ADXL345_OFSY, (uint8_t) ((ADXL345.Data.AccY - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL345.Communicator, ADXL345_OFSZ, (uint8_t) ((ADXL345.Data.AccZ - ADXL345_ACC_SCALE) / 4));
 }
 
 void ADXL_Init(void) {
@@ -48,18 +41,10 @@ void ADXL_Init(void) {
     if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
         Verify_Device(&ADXL345.Communicator);
         if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
-            I2C_WriteData8(&ADXL345.Communicator,
-                           ADXL345_BW_RATE,
-                           ADXL345_DATARATE);
-            I2C_WriteData8(&ADXL345.Communicator,
-                           ADXL345_DATA_FORMAT,
-                           ADXL345_ACC_RESOLUTION);
-            I2C_WriteData8(&ADXL345.Communicator,
-                           ADXL345_POWER_CTL,
-                           0x00);
-            I2C_WriteData8(&ADXL345.Communicator,
-                           ADXL345_POWER_CTL,
-                           0x08);
+            I2C_WriteData8(&ADXL345.Communicator, ADXL345_BW_RATE, ADXL345_DATARATE);
+            I2C_WriteData8(&ADXL345.Communicator, ADXL345_DATA_FORMAT, ADXL345_ACC_RESOLUTION);
+            I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, 0x00);
+            I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, 0x08);
             HAL_Delay(50);
             ADXL_Calibrate();
         }
