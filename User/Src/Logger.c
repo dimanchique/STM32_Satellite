@@ -4,20 +4,19 @@
 #include "NEO7M.h"
 
 static char* LogLevel[] = {"[LOG]",
-                    "[DATA]",
-                    "[WARNING]"};
+                           "[DATA]",
+                           "[WARNING]"};
 
 static char* LogStatus[] = {"NotInitialized",
-                     "Initialized",
-                     "Initialization Error",
-                     "Working",
-                     "Connection Lost",
-                     "Error Writing",
-                     "Success Writing",
-                     "Error Reading",
-                     "Success Reading",
-                     "ID Check Error"};
-
+                            "Initialized",
+                            "Initialization Error",
+                            "Working",
+                            "Connection Lost",
+                            "Error Writing",
+                            "Success Writing",
+                            "Error Reading",
+                            "Success Reading",
+                            "ID Check Error"};
 
 extern SD_HandleTypeDef hsd1;
 DiskWriter Logger = {0};
@@ -30,9 +29,10 @@ extern GPS_TypeDef NEO7M;
 extern TroykaBarometer_TypeDef Barometer;
 
 static void WriteLog() {
-    if (Logger.current_slot < QUEUE_SLOTS) {
-        strcpy(Logger.Queue[Logger.current_slot++], Logger.Message);
-        if (Logger.current_slot < QUEUE_SLOTS) return;
+    if (Logger.CurrentMessageSlot < QUEUE_SLOTS) {
+        strcpy(Logger.Queue[Logger.CurrentMessageSlot++], Logger.Message);
+        if (Logger.CurrentMessageSlot < QUEUE_SLOTS)
+            return;
     }
 
     NVIC_DisableIRQ(TIM17_IRQn);
@@ -41,27 +41,27 @@ static void WriteLog() {
         strcat(Logger.Message, Logger.Queue[i]);
         strcpy(Logger.Queue[i], "");
     }
-    Logger.current_slot = 0;
+    Logger.CurrentMessageSlot = 0;
     NVIC_EnableIRQ(TIM17_IRQn);
 
     Logger.FatFsStatus = f_open(&SDFile, DEFAULT_FILENAME, FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
-        Logger.File_Opened = 1;
-        Logger.Write_Status = f_write(&SDFile, Logger.Message, strlen((char *) Logger.Message), NULL);
+        Logger.FileOpened = 1;
+        Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char *) Logger.Message), NULL);
         Logger.FatFsStatus = f_close(&SDFile);
     }
     if (Logger.FatFsStatus == FR_OK)
-        Logger.File_Opened = 0;
+        Logger.FileOpened = 0;
 
     strcpy(Logger.Message, "");
 }
 
-void LogI2C_Operation(I2C_DeviceStruct Instance, OperationType Operation, uint8_t BlockSize) {
+void LogI2C_Operation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize) {
     char log_level[10];
     char result[21];
 
-    strcpy(Logger.CurrentInstance, Instance.Name);
-    if (Instance.ConnectionStatus == HAL_OK) {
+    strcpy(Logger.CurrentInstance, Instance->Name);
+    if (Instance->ConnectionStatus == HAL_OK) {
         if (Operation==Reading)
             strcpy(result, LogStatus[ReadingSuccess]);
         else
@@ -83,30 +83,14 @@ void LogI2C_Operation(I2C_DeviceStruct Instance, OperationType Operation, uint8_
     WriteLog();
 }
 
-void LogI2C(I2C_BusStruct Instance) {
-    strcpy(Logger.CurrentInstance, "I2C Bus");
-    if (Instance.Scanned == 0)
-        sprintf(Logger.Message,
-                "%s Instance: %s, Instance Message: Initialized\n",
-                LogLevel[LOG],
-                Logger.CurrentInstance);
-    else
-        sprintf(Logger.Message,
-                "%s Instance: %s, Found devices: %d\n",
-                LogLevel[LOG],
-                Logger.CurrentInstance,
-                Instance.Devices);
-    WriteLog();
-}
-
-void LogState(I2C_DeviceStruct Instance) {
+void LogState(I2C_DeviceStruct *Instance) {
     char log_level[10];
     char log_status[21];
 
-    strcpy(log_status, LogStatus[Instance.State]);
+    strcpy(log_status, LogStatus[Instance->State]);
 
-    strcpy(Logger.CurrentInstance, Instance.Name);
-    switch (Instance.State) {
+    strcpy(Logger.CurrentInstance, Instance->Name);
+    switch (Instance->State) {
         case NotInitialized:
         case InitializationError:
         case ConnectionLost:
@@ -158,13 +142,13 @@ static void MountDisk() {
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FatFsStatus = f_open(&SDFile, DEFAULT_FILENAME, FA_CREATE_ALWAYS | FA_WRITE);
         Logger.FatFsStatus = f_close(&SDFile);
-        Logger.Disk_Mounted = 1;
+        Logger.DiskMounted = 1;
     }
 }
 
 static void UnMountDisk() {
     Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) NULL, 0);
-    Logger.Disk_Mounted = 0;
+    Logger.DiskMounted = 0;
 }
 
 static void CreateInitialLog() {
@@ -179,10 +163,10 @@ void InitSDSystem() {
     MX_FATFS_Init();
     strcpy(Logger.CurrentInstance, "FatFS");
     strcpy(Logger.Message, "");
-    Logger.current_slot = 0;
-    Logger.Disk_Mounted = 0;
-    Logger.File_Opened = 0;
+    Logger.CurrentMessageSlot = 0;
+    Logger.DiskMounted = 0;
+    Logger.FileOpened = 0;
     MountDisk();
-    if (Logger.Disk_Mounted)
+    if (Logger.DiskMounted)
         CreateInitialLog();
 }

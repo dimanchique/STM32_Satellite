@@ -65,12 +65,12 @@ void MPU_Init() {
     /** Communication Section **/
     MPU6050.Communicator.Name = "MPU6050";
     MPU6050.Communicator.State = NotInitialized;
-    MPU6050.Communicator.CommAddress = CommunicationAddress(MPU6050_ADDRESS);
+    MPU6050.Communicator.CommAddress = MPU6050_ADDRESS<<1;
     MPU6050.Communicator.FactAddress = MPU6050_ADDRESS;
     MPU6050.Communicator.Device_ID = MPU6050_ID;
     MPU6050.Communicator.ID_Register = MPU6050_ID_REGISTER;
 #ifdef ENABLE_DEBUG
-    LogState(MPU6050.Communicator);
+    LogState(&MPU6050.Communicator);
 #endif
     /** Setup Section **/
     CheckDeviceState(&MPU6050.Communicator);
@@ -82,17 +82,17 @@ void MPU_Init() {
                            MPU6050_RESET);
             I2C_WriteData8(&MPU6050.Communicator,
                            MPU6050_ACCEL_CONFIG,
-                           MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC);
+                           (uint8_t)(MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC));
             I2C_WriteData8(&MPU6050.Communicator,
                            MPU6050_GYRO_CONFIG,
-                           MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO);
+                           (uint8_t)(MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO));
             MPU_Calibrate();
         }
         if (MPU6050.Communicator.ConnectionStatus == HAL_OK)
             MPU6050.Communicator.State = Initialized;
     }
 #ifdef ENABLE_DEBUG
-    LogState(MPU6050.Communicator);
+    LogState(&MPU6050.Communicator);
 #endif
 }
 

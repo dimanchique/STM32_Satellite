@@ -1,4 +1,4 @@
-#include "I2C_Process.h"
+#include "I2C_Interface.h"
 #include "ModuleCoreTypes.h"
 
 /** Device Info **/
@@ -22,9 +22,3 @@
 #define TROYKA_ACELEROMETER_OUT_Z_L                        0x2C
 #define TROYKA_ACELEROMETER_OUT_Z_H                        0x2D
 
-/** LIS331DLH Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct AccelerometerData Data;
-    char DataRepr[50];
-} TroykaAccelerometer_TypeDef;

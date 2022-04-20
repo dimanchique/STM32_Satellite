@@ -98,12 +98,12 @@ void BMP_Init(void) {
     /** Communication Section **/
     BMP280.Communicator.Name = "BMP280";
     BMP280.Communicator.State = NotInitialized;
-    BMP280.Communicator.CommAddress = CommunicationAddress(BMP280_ADDRESS);
+    BMP280.Communicator.CommAddress = BMP280_ADDRESS<<1;
     BMP280.Communicator.FactAddress = BMP280_ADDRESS;
     BMP280.Communicator.Device_ID = BMP280_ID;
     BMP280.Communicator.ID_Register = BMP280_ID_REGISTER;
 #ifdef ENABLE_DEBUG
-    LogState(BMP280.Communicator);
+    LogState(&BMP280.Communicator);
 #endif
     /** Setup Section **/
     CheckDeviceState(&BMP280.Communicator);
@@ -115,10 +115,10 @@ void BMP_Init(void) {
             BMP_ReadCoefficients();
             I2C_WriteData8(&BMP280.Communicator,
                            BMP280_CONFIG_REGISTER,
-                           (uint8_t) (BMP280_STANDBYTIME << 5 | BMP280_FILTERING_TYPE << 2));
+                           BMP280_STANDBYTIME << 5 | BMP280_FILTERING_TYPE << 2);
             I2C_WriteData8(&BMP280.Communicator,
                            BMP280_CTRL_REGISTER,
-                           (uint8_t) (BMP280_TEMPERATURE_OVERSAMPLING << 5 | BMP280_PRESSURE_OVERSAMPLING << 2 | BMP280_POWER_MODE));
+                           BMP280_TEMPERATURE_OVERSAMPLING << 5 | BMP280_PRESSURE_OVERSAMPLING << 2 | BMP280_POWER_MODE);
             HAL_Delay(50);
             BMP_Calibrate();
         }
@@ -126,7 +126,7 @@ void BMP_Init(void) {
             BMP280.Communicator.State = Initialized;
     }
 #ifdef ENABLE_DEBUG
-    LogState(BMP280.Communicator);
+    LogState(&BMP280.Communicator);
 #endif
 }
 

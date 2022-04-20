@@ -126,7 +126,7 @@ static void ParceGPGLL(char *packet) {
 //------------------------------------------------
 void ProcessResponse() {
     char *token, *packet;
-    int pack = 0;
+    int pack;
     for (pack = 0; pack < 3; pack++) {
         strcpy(NEO7M.TempMessage, NEO7M.Message);
         token = strstr(NEO7M.TempMessage, Keys[pack]);

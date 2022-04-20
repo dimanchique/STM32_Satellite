@@ -30,7 +30,6 @@
 #include "ADXL345.h"
 #include "MPU6050.h"
 #include "NEO7M.h"
-#include "NRF_Module.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,8 +97,6 @@ static void InitSensors(void) {
     BMP_Init();
     ADXL_Init();
     MPU_Init();
-    if (NRF_Connected())
-        NRF_DefaultInit();
 }
 /* USER CODE END 0 */
 

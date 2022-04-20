@@ -1,17 +1,14 @@
 #pragma once
-
 #include "stm32h7xx_hal.h"
-
 #include "fatfs.h"
 #include "stdio.h"
 #include "string.h"
 
-#define DEFAULT_FILENAME "DATA.txt"
+#define ENABLE_DEBUG
 
+#define DEFAULT_FILENAME "DATA.txt"
 #define QUEUE_SLOTS 2
 #define MESSAGE_LENGTH 200
-
-#define ENABLE_DEBUG
 
 enum Level {
     LOG         = 0x00,
@@ -21,19 +18,17 @@ enum Level {
 
 /** Logger Struct **/
 typedef struct {
+    char CurrentInstance[15];
     char Message[(QUEUE_SLOTS) * MESSAGE_LENGTH];
     char Queue[QUEUE_SLOTS][MESSAGE_LENGTH];
-    uint8_t current_slot;
-    char CurrentInstance[15];
+    uint8_t CurrentMessageSlot;
     FRESULT FatFsStatus;
-    uint8_t Disk_Mounted;
-    uint8_t File_Opened;
-    FRESULT Write_Status;
+    uint8_t DiskMounted;
+    uint8_t FileOpened;
 } DiskWriter;
 
 /** Functions Prototypes **/
 void InitSDSystem(void);
-void LogState(I2C_DeviceStruct Instance);
-void LogI2C(I2C_BusStruct Instance);
-void LogI2C_Operation(I2C_DeviceStruct Instance, OperationType Operation, uint8_t BlockSize);
+void LogState(I2C_DeviceStruct *Instance);
+void LogI2C_Operation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize);
 void ForceDataLogging(void);

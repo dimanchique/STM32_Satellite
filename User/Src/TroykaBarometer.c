@@ -25,14 +25,14 @@ void TroykaBarometer_Init() {
     /** Communication Section **/
     Barometer.Communicator.Name = "LPS311";
     Barometer.Communicator.State = NotInitialized;
-    Barometer.Communicator.CommAddress = CommunicationAddress(TROYKA_BAROMETER_ADDRESS);
+    Barometer.Communicator.CommAddress = TROYKA_BAROMETER_ADDRESS<<1;
     Barometer.Communicator.FactAddress = TROYKA_BAROMETER_ADDRESS;
     Barometer.Communicator.Device_ID = TROYKA_BAROMETER_LPS311_ID;
     Barometer.Communicator.ID_Register = TROYKA_BAROMETER_ID_REGISTER;
     Barometer.ControlData = 0;
     Barometer.ControlData |= LPS_CTRL_REG1_ODR1 | LPS_CTRL_REG1_ODR2;
 #ifdef ENABLE_DEBUG
-    LogState(Barometer.Communicator);
+    LogState(&Barometer.Communicator);
 #endif
     /** Setup Section **/
     CheckDeviceState(&Barometer.Communicator);
@@ -53,7 +53,7 @@ void TroykaBarometer_Init() {
         if (Barometer.Communicator.ConnectionStatus == HAL_OK) Barometer.Communicator.State = Initialized;
     }
 #ifdef ENABLE_DEBUG
-    LogState(Barometer.Communicator);
+    LogState(&Barometer.Communicator);
 #endif
 }
 
@@ -67,7 +67,7 @@ static void TroykaBarometer_ReadPressure() {
         rawPressure = (uint32_t) data[2] << 16 | (uint16_t) data[1] << 8 | data[0];
         double millibars = rawPressure / 4096.0;
         Barometer.Data.Pressure = millibars * MILLIBARS_TO_PASCALS;
-        Barometer.Data.mmHg = millibars * MILLIBARS_TO_MILLIMETERSHG;
+        Barometer.Data.mmHg = millibars * MILLIBARS_TO_MMHG;
         Barometer.Data.Altitude = (Barometer.Data.base_mmHg - Barometer.Data.mmHg) * 10.5;
     } else {
         Barometer.Data.Pressure = 0;

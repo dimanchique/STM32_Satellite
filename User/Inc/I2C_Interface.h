@@ -3,7 +3,6 @@
 #include "ModuleCoreTypes.h"
 
 #define be24_to_word24(a) ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
-#define CommunicationAddress(a) a<<1
 
 /** Base Functions Prototypes **/
 void I2C_Init(void);

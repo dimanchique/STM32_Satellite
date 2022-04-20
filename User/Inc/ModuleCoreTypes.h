@@ -33,7 +33,6 @@ struct ModuleExtraData {
 typedef struct I2C_BusStruct {
     I2C_HandleTypeDef I2C_Instance;
     HAL_StatusTypeDef OperationResult;
-    uint8_t Scanned;
     uint8_t Devices;
 } I2C_BusStruct;
 
