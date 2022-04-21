@@ -61,28 +61,25 @@ void Verify_Device(I2C_DeviceStruct *Communicator) {
 }
 
 static void ReportResult(I2C_DeviceStruct *Communicator, OperationType Operation, uint8_t BlockSize) {
-    if (I2C_Bus.OperationResult != HAL_OK) {
+    if (I2C_Bus.OperationResult == HAL_OK) {
+        Communicator->State = Working;
+        Communicator->ConnectionStatus = HAL_OK;
+    } else {
         if (Operation == Writing)
             Communicator->State = WritingError;
         else
             Communicator->State = ReadingError;
         Communicator->ConnectionStatus = HAL_ERROR;
-    } else {
-        if (Operation == Writing)
-            Communicator->State = WritingSuccess;
-        else
-            Communicator->State = ReadingSuccess;
-        Communicator->ConnectionStatus = HAL_OK;
     }
 #ifdef ENABLE_DEBUG
-    LogI2C_Operation(Communicator, Operation, BlockSize);
+    LogOperation(Communicator, Operation, BlockSize);
 #endif
 }
 
 void I2C_WriteData8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t Value) {
     I2C_Bus.OperationResult = HAL_I2C_Mem_Write(&I2C_Bus.I2C_Instance,
                                                 Communicator->CommAddress,
-                                                (uint16_t) RegisterAddress,
+                                                RegisterAddress,
                                                 I2C_MEMADD_SIZE_8BIT,
                                                 &Value,
                                                 1,
@@ -99,6 +96,17 @@ void I2C_ReadData8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint
                                                1,
                                                0x50);
     ReportResult(Communicator, Reading, 8);
+}
+
+void I2C_ReadData2x8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value) {
+    I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance,
+                                               Communicator->CommAddress,
+                                               RegisterAddress,
+                                               I2C_MEMADD_SIZE_8BIT,
+                                               (uint8_t *) Value,
+                                               2,
+                                               0x50);
+    ReportResult(Communicator, Reading, 16);
 }
 
 void I2C_ReadData3x8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value) {

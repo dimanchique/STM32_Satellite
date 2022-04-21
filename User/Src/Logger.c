@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-#include "ModuleCoreTypes.h"
+#include "CoreTypes.h"
 #include "NEO7M.h"
 
 static char* LogLevel[] = {"[LOG]",
@@ -29,6 +29,9 @@ extern GPS_TypeDef NEO7M;
 extern TroykaBarometer_TypeDef Barometer;
 
 static void WriteLog() {
+    if (Logger.FatFsStatus != FR_OK)
+        return;
+
     if (Logger.CurrentMessageSlot < QUEUE_SLOTS) {
         strcpy(Logger.Queue[Logger.CurrentMessageSlot++], Logger.Message);
         if (Logger.CurrentMessageSlot < QUEUE_SLOTS)
@@ -56,7 +59,7 @@ static void WriteLog() {
     strcpy(Logger.Message, "");
 }
 
-void LogI2C_Operation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize) {
+void LogOperation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize) {
     char log_level[10];
     char result[21];
 
@@ -83,7 +86,7 @@ void LogI2C_Operation(I2C_DeviceStruct *Instance, OperationType Operation, uint8
     WriteLog();
 }
 
-void LogState(I2C_DeviceStruct *Instance) {
+void LogDeviceState(I2C_DeviceStruct *Instance) {
     char log_level[10];
     char log_status[21];
 
@@ -116,7 +119,8 @@ void LogState(I2C_DeviceStruct *Instance) {
 void ForceDataLogging() {
     NVIC_DisableIRQ(TIM6_DAC_IRQn);
     NVIC_DisableIRQ(TIM17_IRQn);
-    sprintf(Logger.Message, "%s %s %s %s %s %s\n",
+    sprintf(Logger.Message, "%lu %s %s %s %s %s %s\n",
+            HAL_GetTick(),
             LogLevel[DATA],
             NEO7M.PayloadMessage,
             BMP280.DataRepr,

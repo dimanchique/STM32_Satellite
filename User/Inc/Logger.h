@@ -29,6 +29,6 @@ typedef struct {
 
 /** Functions Prototypes **/
 void InitSDSystem(void);
-void LogState(I2C_DeviceStruct *Instance);
-void LogI2C_Operation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize);
+void LogDeviceState(I2C_DeviceStruct *Instance);
+void LogOperation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize);
 void ForceDataLogging(void);

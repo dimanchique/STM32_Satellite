@@ -103,7 +103,7 @@ void BMP_Init(void) {
     BMP280.Communicator.Device_ID = BMP280_ID;
     BMP280.Communicator.ID_Register = BMP280_ID_REGISTER;
 #ifdef ENABLE_DEBUG
-    LogState(&BMP280.Communicator);
+    LogDeviceState(&BMP280.Communicator);
 #endif
     /** Setup Section **/
     CheckDeviceState(&BMP280.Communicator);
@@ -126,7 +126,7 @@ void BMP_Init(void) {
             BMP280.Communicator.State = Initialized;
     }
 #ifdef ENABLE_DEBUG
-    LogState(&BMP280.Communicator);
+    LogDeviceState(&BMP280.Communicator);
 #endif
 }
 

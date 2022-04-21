@@ -1,6 +1,6 @@
 #pragma once
 #include "I2C_Interface.h"
-#include "ModuleCoreTypes.h"
+#include "CoreTypes.h"
 
 /** Device Info **/
 #define MPU6050_ADDRESS 			0x68
@@ -18,7 +18,8 @@
 #define MPU6050_ACC_X 				0x3B
 #define MPU6050_ACC_Y 				0x3D
 #define MPU6050_ACC_Z 				0x3F
-#define MPU6050_TEMP 				0x41
+#define MPU6050_TEMP_H 				0x41
+#define MPU6050_TEMP_L 				0x42
 #define MPU6050_GYRO_X 				0x43
 #define MPU6050_GYRO_Y 				0x45
 #define MPU6050_GYRO_Z 				0x47

@@ -1,5 +1,5 @@
 #include "I2C_Interface.h"
-#include "ModuleCoreTypes.h"
+#include "CoreTypes.h"
 
 /** Device Info **/
 #define TROYKA_ACCELEROMETER_ADDRESS                        0x18 //LIS331DLH

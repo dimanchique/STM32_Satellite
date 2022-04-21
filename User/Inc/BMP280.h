@@ -1,6 +1,6 @@
 #pragma once
 #include "I2C_Interface.h"
-#include "ModuleCoreTypes.h"
+#include "CoreTypes.h"
 
 /** Device Info **/
 #define BMP280_ADDRESS 									0x76

@@ -1,6 +1,6 @@
 #pragma once
 #include "I2C_Interface.h"
-#include "ModuleCoreTypes.h"
+#include "CoreTypes.h"
 
 /** Device Info **/
 #define ADXL345_ADDRESS                             0x53

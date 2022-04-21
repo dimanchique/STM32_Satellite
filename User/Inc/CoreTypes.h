@@ -1,5 +1,8 @@
 #pragma once
 
+/**         **/
+/** SENSORS **/
+/**         **/
 /** Barometer Data Struct **/
 struct BarometerData {
     double Pressure;
@@ -14,6 +17,7 @@ struct AccelerometerData {
     double AccY;
     double AccZ;
 };
+
 /** Gyroscope Data Struct **/
 struct GyroscopeData {
     double GyroX;
@@ -23,12 +27,12 @@ struct GyroscopeData {
 
 /** Extra Data Struct (not every device has a temperature sensor) **/
 struct ModuleExtraData {
-    double Temperature;
+    float Temperature;
 };
 
-
-/** I2C DECLARATION **/
-
+/**     **/
+/** I2C **/
+/**     **/
 /** I2C Bus Struct **/
 typedef struct I2C_BusStruct {
     I2C_HandleTypeDef I2C_Instance;
@@ -67,9 +71,9 @@ typedef struct I2C_DeviceStruct {
     HAL_StatusTypeDef ConnectionStatus;
 } I2C_DeviceStruct;
 
-
-/** DEVICES DECLARATION **/
-
+/**         **/
+/** DEVICES **/
+/**         **/
 /** BMP280 Calibration Data Struct **/
 struct BMP280_CalibrationData {
     uint16_t dig_T1;
@@ -114,14 +118,14 @@ typedef struct {
 /** LPS311AP/LPS25HB Device Struct **/
 typedef struct {
     I2C_DeviceStruct Communicator;
-    uint8_t ControlData;
     struct BarometerData Data;
     struct ModuleExtraData ExtraData;
     char DataRepr[50];
 } TroykaBarometer_TypeDef;
 
-/** GPS DECLARATION **/
-
+/**     **/
+/** GPS **/
+/**     **/
 #define GPS_DATA_SIZE           300
 #define GPS_PAYLOAD_SIZE        100
 

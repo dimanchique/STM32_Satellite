@@ -34,7 +34,7 @@ void ADXL_Init(void) {
     ADXL345.Communicator.Device_ID = ADXL345_ID;
     ADXL345.Communicator.ID_Register = ADXL345_ID_REGISTER;
 #ifdef ENABLE_DEBUG
-    LogState(&ADXL345.Communicator);
+    LogDeviceState(&ADXL345.Communicator);
 #endif
     /** Setup Section **/
     CheckDeviceState(&ADXL345.Communicator);
@@ -52,7 +52,7 @@ void ADXL_Init(void) {
             ADXL345.Communicator.State = Initialized;
     }
 #ifdef ENABLE_DEBUG
-    LogState(&ADXL345.Communicator);
+    LogDeviceState(&ADXL345.Communicator);
 #endif
 }
 
