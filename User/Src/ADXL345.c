@@ -27,27 +27,22 @@ static void ADXL_Calibrate(void) {
 
 void ADXL_Init(void) {
     /** Communication Section **/
-    ADXL345.Communicator.Name = "ADXL345";
-    ADXL345.Communicator.State = NotInitialized;
-    ADXL345.Communicator.CommAddress = ADXL345_ADDRESS<<1;
-    ADXL345.Communicator.FactAddress = ADXL345_ADDRESS;
-    ADXL345.Communicator.Device_ID = ADXL345_ID;
-    ADXL345.Communicator.ID_Register = ADXL345_ID_REGISTER;
+    I2C_SetupCommunicator(&ADXL345.Communicator,
+                          "ADXL345",
+                          ADXL345_ADDRESS,
+                          ADXL345_ID,
+                          ADXL345_ID_REGISTER);
 #ifdef ENABLE_DEBUG
     LogDeviceState(&ADXL345.Communicator);
 #endif
     /** Setup Section **/
-    CheckDeviceState(&ADXL345.Communicator);
-    if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
-        Verify_Device(&ADXL345.Communicator);
-        if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_BW_RATE, ADXL345_DATARATE);
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_DATA_FORMAT, ADXL345_ACC_RESOLUTION);
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, 0x00);
-            I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, 0x08);
-            HAL_Delay(50);
-            ADXL_Calibrate();
-        }
+    if (I2C_DeviceCheckedAndVerified(&ADXL345.Communicator)){
+        I2C_WriteData8(&ADXL345.Communicator, ADXL345_BW_RATE, ADXL345_DATARATE);
+        I2C_WriteData8(&ADXL345.Communicator, ADXL345_DATA_FORMAT, ADXL345_ACC_RESOLUTION);
+        I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, 0x00);
+        I2C_WriteData8(&ADXL345.Communicator, ADXL345_POWER_CTL, 0x08);
+        HAL_Delay(50);
+        ADXL_Calibrate();
         if (ADXL345.Communicator.ConnectionStatus == HAL_OK)
             ADXL345.Communicator.State = Initialized;
     }
@@ -60,9 +55,9 @@ void ADXL_ReadData(void) {
     if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
         I2C_ReadData6x8(&ADXL345.Communicator, ADXL345_DATAX0, data);
-        ADXL345.Data.AccX = (double) ((int16_t) ((data[1] << 8) | data[0]) * ADXL345_ACC_SCALE);
-        ADXL345.Data.AccY = (double) ((int16_t) ((data[3] << 8) | data[2]) * ADXL345_ACC_SCALE);
-        ADXL345.Data.AccZ = (double) ((int16_t) ((data[5] << 8) | data[4]) * ADXL345_ACC_SCALE);
+        ADXL345.Data.AccX = ((int16_t) ((data[1] << 8) | data[0]) * ADXL345_ACC_SCALE);
+        ADXL345.Data.AccY = ((int16_t) ((data[3] << 8) | data[2]) * ADXL345_ACC_SCALE);
+        ADXL345.Data.AccZ = ((int16_t) ((data[5] << 8) | data[4]) * ADXL345_ACC_SCALE);
     } else {
         ADXL345.Data.AccX = 0;
         ADXL345.Data.AccY = 0;

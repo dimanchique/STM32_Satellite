@@ -17,7 +17,7 @@ static void GenerateDataRepresentation(uint8_t ConnectionValid) {
                 MPU6050.GyroData.GyroX,
                 MPU6050.GyroData.GyroY,
                 MPU6050.GyroData.GyroZ,
-                MPU6050.ExtraData.Temperature);
+                MPU6050.Temperature);
     else
         sprintf(MPU6050.DataRepr, "[%s] NULL;", MPU6050.Communicator.Name);
 }
@@ -62,31 +62,27 @@ static void MPU_Calibrate(void) {
 
 void MPU_Init() {
     /** Communication Section **/
-    MPU6050.Communicator.Name = "MPU6050";
-    MPU6050.Communicator.State = NotInitialized;
-    MPU6050.Communicator.CommAddress = MPU6050_ADDRESS<<1;
-    MPU6050.Communicator.FactAddress = MPU6050_ADDRESS;
-    MPU6050.Communicator.Device_ID = MPU6050_ID;
-    MPU6050.Communicator.ID_Register = MPU6050_ID_REGISTER;
+    I2C_SetupCommunicator(&MPU6050.Communicator,
+                          "MPU6050",
+                          MPU6050_ADDRESS,
+                          MPU6050_ID,
+                          MPU6050_ID_REGISTER);
 #ifdef ENABLE_DEBUG
     LogDeviceState(&MPU6050.Communicator);
 #endif
     /** Setup Section **/
-    CheckDeviceState(&MPU6050.Communicator);
-    if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
-        Verify_Device(&MPU6050.Communicator);
-        if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
-            I2C_WriteData8(&MPU6050.Communicator,
-                           MPU6050_PWR_MGMT_1,
-                           MPU6050_RESET);
-            I2C_WriteData8(&MPU6050.Communicator,
-                           MPU6050_ACCEL_CONFIG,
-                           (uint8_t)(MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC));
-            I2C_WriteData8(&MPU6050.Communicator,
-                           MPU6050_GYRO_CONFIG,
-                           (uint8_t)(MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO));
-            MPU_Calibrate();
-        }
+    if (I2C_DeviceCheckedAndVerified(&MPU6050.Communicator)){
+        I2C_WriteData8(&MPU6050.Communicator,
+                       MPU6050_PWR_MGMT_1,
+                       MPU6050_RESET);
+        I2C_WriteData8(&MPU6050.Communicator,
+                       MPU6050_ACCEL_CONFIG,
+                       (uint8_t)(MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC));
+        I2C_WriteData8(&MPU6050.Communicator,
+                       MPU6050_GYRO_CONFIG,
+                       (uint8_t)(MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO));
+        HAL_Delay(50);
+        MPU_Calibrate();
         if (MPU6050.Communicator.ConnectionStatus == HAL_OK)
             MPU6050.Communicator.State = Working;
     }
@@ -95,7 +91,7 @@ void MPU_Init() {
 #endif
 }
 
-static void MPU_Read_ACC(void) {
+static void MPU_Read_Acceleration(void) {
     if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
         int16_t xx, yy, zz;
@@ -103,9 +99,9 @@ static void MPU_Read_ACC(void) {
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
         zz = (int16_t) ((data[5] << 8) | data[4]);
-        MPU6050.AccData.AccX = (double) (xx / MPU6050_ACC_SCALE) - ACC_ERROR_X;
-        MPU6050.AccData.AccY = (double) (yy / MPU6050_ACC_SCALE) - ACC_ERROR_Y;
-        MPU6050.AccData.AccZ = (double) (zz / MPU6050_ACC_SCALE) - ACC_ERROR_Z;
+        MPU6050.AccData.AccX = (xx / MPU6050_ACC_SCALE) - ACC_ERROR_X;
+        MPU6050.AccData.AccY = (yy / MPU6050_ACC_SCALE) - ACC_ERROR_Y;
+        MPU6050.AccData.AccZ = (zz / MPU6050_ACC_SCALE) - ACC_ERROR_Z;
     } else {
         MPU6050.AccData.AccX = 0;
         MPU6050.AccData.AccY = 0;
@@ -113,7 +109,7 @@ static void MPU_Read_ACC(void) {
     }
 }
 
-static void MPU_Read_GYRO(void) {
+static void MPU_Read_Gyroscope(void) {
     if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
         int16_t xx, yy, zz;
@@ -131,20 +127,20 @@ static void MPU_Read_GYRO(void) {
     }
 }
 
-static void MPU_Read_TEMP(void) {
+static void MPU_Read_Temperature(void) {
     if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[2] = {0};
         I2C_ReadData2x8(&MPU6050.Communicator,
                       MPU6050_TEMP_H,
                       data);
-        MPU6050.ExtraData.Temperature = 36.53f + (float) (int16_t) ((data[1] << 8) | data[0]) / 340.0f;;
+        MPU6050.Temperature = 36.53f + (float) (int16_t) ((data[0] << 8) | data[1]) / 340.0f;;
     } else
-        MPU6050.ExtraData.Temperature = 0;
+        MPU6050.Temperature = 0;
 }
 
 void MPU_ReadData() {
-    MPU_Read_ACC();
-    MPU_Read_GYRO();
-    MPU_Read_TEMP();
+    MPU_Read_Acceleration();
+    MPU_Read_Gyroscope();
+    MPU_Read_Temperature();
     GenerateDataRepresentation(MPU6050.Communicator.ConnectionStatus == HAL_OK);
 }

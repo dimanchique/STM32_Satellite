@@ -7,8 +7,10 @@
 /** Base Functions Prototypes **/
 void I2C_Init(void);
 void I2C_Scan(void);
-void Verify_Device(I2C_DeviceStruct *Communicator);
-void CheckDeviceState(I2C_DeviceStruct *Communicator);
+void I2C_VerifyDevice(I2C_DeviceStruct *Communicator);
+void I2C_CheckDeviceState(I2C_DeviceStruct *Communicator);
+void I2C_SetupCommunicator(I2C_DeviceStruct *Communicator, char* DeviceName, uint8_t DeviceAddress, uint8_t DeviceID, uint8_t DeviceIDRegister);
+uint8_t I2C_DeviceCheckedAndVerified(I2C_DeviceStruct *Communicator);
 
 /** Communication Functions Prototypes **/
 void I2C_WriteData8(I2C_DeviceStruct *Communicator, uint8_t RegisterAddress, uint8_t Value);
