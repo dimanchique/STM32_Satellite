@@ -1,14 +1,15 @@
 #pragma once
 
-/**         **/
-/** SENSORS **/
-/**         **/
+/**              **/
+/** SENSORS BASE **/
+/**              **/
 /** Barometer Data Struct **/
 struct BarometerData {
     double Pressure;
     double Altitude;
     double mmHg;
     double base_mmHg;
+    float Temperature;
 };
 
 /** Accelerometer Data Struct **/
@@ -23,11 +24,6 @@ struct GyroscopeData {
     double GyroX;
     double GyroY;
     double GyroZ;
-};
-
-/** Extra Data Struct (not every device has a temperature sensor) **/
-struct ModuleExtraData {
-    float Temperature;
 };
 
 /**     **/
@@ -75,7 +71,7 @@ typedef struct I2C_DeviceStruct {
 /** DEVICES **/
 /**         **/
 /** BMP280 Calibration Data Struct **/
-struct BMP280_CalibrationData {
+struct CalibrationData {
     uint16_t dig_T1;
     int16_t dig_T2;
     int16_t dig_T3;
@@ -93,9 +89,8 @@ struct BMP280_CalibrationData {
 /** BMP280 Device Struct **/
 typedef struct {
     I2C_DeviceStruct Communicator;
-    struct BMP280_CalibrationData CalibrationCoefficients;
+    struct CalibrationData CalibrationCoefficients;
     struct BarometerData Data;
-    struct ModuleExtraData ExtraData;
     char DataRepr[50];
 } BMP280_TypeDef;
 
@@ -111,7 +106,7 @@ typedef struct {
     I2C_DeviceStruct Communicator;
     struct GyroscopeData GyroData;
     struct AccelerometerData AccData;
-    struct ModuleExtraData ExtraData;
+    float Temperature;
     char DataRepr[50];
 } MPU6050_TypeDef;
 
@@ -119,9 +114,22 @@ typedef struct {
 typedef struct {
     I2C_DeviceStruct Communicator;
     struct BarometerData Data;
-    struct ModuleExtraData ExtraData;
     char DataRepr[50];
 } TroykaBarometer_TypeDef;
+
+/** LIS331DLH Device Struct **/
+typedef struct {
+    I2C_DeviceStruct Communicator;
+    struct AccelerometerData Data;
+    char DataRepr[50];
+} TroykaAccelerometer_TypeDef;
+
+/** I3G4250D Device Struct **/
+typedef struct {
+    I2C_DeviceStruct Communicator;
+    struct GyroscopeData GyroData;
+    char DataRepr[50];
+} TroykaGyroscope_TypeDef;
 
 /**     **/
 /** GPS **/
