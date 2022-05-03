@@ -26,6 +26,8 @@
 #include "Logger.h"
 
 #include "TroykaBarometer.h"
+#include "TroykaAccelerometer.h"
+#include "TroykaGyroscope.h"
 #include "BMP280.h"
 #include "ADXL345.h"
 #include "MPU6050.h"
@@ -59,9 +61,7 @@ TIM_HandleTypeDef htim6;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-extern BMP280_TypeDef BMP280;
-extern ADXL345_TypeDef ADXL345;
-extern MPU6050_TypeDef MPU6050;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -80,11 +80,10 @@ void DWT_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-// Timer 6 tick with freq = 10Hz, callback function at the end of file
-
 static void InitSensors(void) {
     TroykaBarometer_Init();
+    TroykaAccelerometer_Init();
+    TroykaGyroscope_Init();
     BMP_Init();
     ADXL_Init();
     MPU_Init();
@@ -135,7 +134,6 @@ int main(void)
     I2C_Scan();
     InitSensors();
     HAL_TIM_Base_Start_IT(&htim6);
-    uint8_t size;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -145,9 +143,9 @@ int main(void)
         ADXL_ReadData();
         MPU_ReadData();
         TroykaBarometer_ReadData();
-        size = sizeof(float);
-        size = sizeof(uint16_t);
-                //ReadData();
+        TroykaAccelerometer_ReadData();
+        TroykaAccelerometer_ReadData();
+        ReadData();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -21,15 +21,16 @@ static char* LogStatus[] = {"NotInitialized",
 extern SD_HandleTypeDef hsd1;
 DiskWriter Logger = {0};
 
-extern I2C_BusStruct I2C_Bus;
 extern BMP280_TypeDef BMP280;
 extern ADXL345_TypeDef ADXL345;
 extern MPU6050_TypeDef MPU6050;
 extern GPS_TypeDef NEO7M;
+extern TroykaAccelerometer_TypeDef Accelerometer;
 extern TroykaBarometer_TypeDef Barometer;
+extern TroykaGyroscope_TypeDef Gyroscope;
 
 static void WriteLog() {
-    if (Logger.FatFsStatus != FR_OK)
+    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
         return;
 
     if (Logger.CurrentMessageSlot < QUEUE_SLOTS) {
@@ -60,6 +61,9 @@ static void WriteLog() {
 }
 
 void LogOperation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize) {
+    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+        return;
+
     char log_level[10];
     char result[21];
 
@@ -87,6 +91,9 @@ void LogOperation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t B
 }
 
 void LogDeviceState(I2C_DeviceStruct *Instance) {
+    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+        return;
+
     char log_level[10];
     char log_status[21];
 
@@ -117,16 +124,21 @@ void LogDeviceState(I2C_DeviceStruct *Instance) {
 }
 
 void ForceDataLogging() {
+    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+        return;
+
     NVIC_DisableIRQ(TIM6_DAC_IRQn);
     NVIC_DisableIRQ(TIM17_IRQn);
-    sprintf(Logger.Message, "%lu %s %s %s %s %s %s\n",
+    sprintf(Logger.Message, "%lu %s %s %s %s %s %s %s %s\n",
             HAL_GetTick(),
             LogLevel[DATA],
             NEO7M.PayloadMessage,
             BMP280.DataRepr,
             Barometer.DataRepr,
             ADXL345.DataRepr,
-            MPU6050.DataRepr);
+            Accelerometer.DataRepr,
+            MPU6050.DataRepr,
+            Gyroscope.DataRepr);
     NVIC_EnableIRQ(TIM17_IRQn);
     WriteLog();
     NVIC_EnableIRQ(TIM6_DAC_IRQn);
