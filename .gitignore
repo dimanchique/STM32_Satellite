@@ -10,8 +10,6 @@
 .mxproject
 *.ioc
 *.lnk
-CMakeLists.txt
 SatelliteCLion.ioc
-stm32h750b-disco.cfg
 STM32H750VBTX_FLASH.ld
 STM32H750VBTX_RAM.ld
