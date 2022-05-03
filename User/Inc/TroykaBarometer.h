@@ -4,7 +4,7 @@
 /** Device Info **/
 #define TROYKA_BAROMETER_ADDRESS                        0x5C
 #define TROYKA_BAROMETER_ID_REGISTER                    0x0F
-#define TROYKA_BAROMETER_ID                      0xBB //LPS311AP
+#define TROYKA_BAROMETER_ID                             0xBB
 /** Registers Addresses **/
 #define TROYKA_BAROMETER_CTRL_REG1                      0x20
 #define TROYKA_BAROMETER_STATUS_REG                     0x27
@@ -15,12 +15,12 @@
 #define TROYKA_BAROMETER_TEMP_OUT_H                     0x2C
 
 /** Device Values **/
-#define LPS_CTRL_REG1_ODR0                              0x10
-#define LPS_CTRL_REG1_ODR1                              0x20
-#define LPS_CTRL_REG1_ODR2                              0x40
-#define LPS_CTRL_REG1_PD                                0x80
+#define TROYKA_BAROMETER_REG1_ODR0                      0x10
+#define TROYKA_BAROMETER_REG1_ODR1                      0x20
+#define TROYKA_BAROMETER_REG1_ODR2                      0x40
+#define TROYKA_BAROMETER_REG1_PD                        0x80
 #define MILLIBARS_TO_PASCALS                            100
-#define MILLIBARS_TO_MMHG                               0.75
+#define MILLIBARS_TO_MMHG                               0.75f
 
 /** Functions Prototypes **/
 void TroykaBarometer_Init(void);
