@@ -134,7 +134,7 @@ typedef struct {
 /**     **/
 /** GPS **/
 /**     **/
-#define GPS_DATA_SIZE           300
+#define GPS_DATA_SIZE           500
 #define GPS_PAYLOAD_SIZE        100
 
 /** Struct for Extra Data **/
@@ -171,3 +171,17 @@ typedef struct {
     int SkipInt;
     char SkipChar;
 } GPS_TypeDef;
+
+
+/**     **/
+/** GSM **/
+/**     **/
+
+#define MESSAGE_SIZE            100
+#define RESPONSE_SIZE           40
+/** SIM900 Device Struct **/
+typedef struct {
+    HAL_StatusTypeDef Status;
+    char Message[MESSAGE_SIZE];
+    char Response[RESPONSE_SIZE];
+} GSM_TypeDef;
