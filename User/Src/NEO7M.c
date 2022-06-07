@@ -150,11 +150,10 @@ void ProcessResponse() {
     GenerateDataRepresentation();
 }
 
-void ReadData()
+void GPS_ReadData()
 {
     ReceivingEnd = 1;
-    HAL_StatusTypeDef res = HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, NULL, 1000);
-    if (res == HAL_TIMEOUT)
+    if (HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, NULL, 1000) == HAL_TIMEOUT)
         return;
     HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE);
     while (ReceivingEnd==1);

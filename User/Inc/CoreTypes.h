@@ -1,9 +1,28 @@
 #pragma once
 
+#define UNREACHABLE "UNREACHABLE"
+
+/** Operation Type Enum **/
+typedef enum { Reading, Writing } OperationType;
+
+/** Connection Status Enum **/
+typedef enum {
+    NotInitialized,
+    Initialized,
+    InitializationError,
+    Working,
+    ConnectionLost,
+    WritingError,
+    WritingSuccess,
+    ReadingError,
+    ReadingSuccess,
+    ID_Check_Error
+} ConnectionStatusType;
+
 /**              **/
 /** SENSORS BASE **/
 /**              **/
-/** Barometer Data Struct **/
+/** TroykaBarometer Data Struct **/
 struct BarometerData {
     double Pressure;
     double Altitude;
@@ -19,7 +38,7 @@ struct AccelerometerData {
     double AccZ;
 };
 
-/** Gyroscope Data Struct **/
+/** TroykaGyroscope Data Struct **/
 struct GyroscopeData {
     double GyroX;
     double GyroY;
@@ -33,35 +52,13 @@ struct GyroscopeData {
 typedef struct I2C_BusStruct {
     I2C_HandleTypeDef I2C_Instance;
     HAL_StatusTypeDef OperationResult;
-    uint8_t Devices;
 } I2C_BusStruct;
-
-/** Connection Status Enum **/
-typedef enum {
-    NotInitialized          = 0x00,
-    Initialized             = 0x01,
-    InitializationError     = 0x02,
-    Working                 = 0x03,
-    ConnectionLost          = 0x04,
-    WritingError            = 0x05,
-    WritingSuccess          = 0x06,
-    ReadingError            = 0x07,
-    ReadingSuccess          = 0x08,
-    ID_Check_Error          = 0x09
-} ConnectionStatusType;
-
-/** Operation Type Enum **/
-typedef enum {
-    Reading                 = 0x00,
-    Writing                 = 0x01
-} OperationType;
 
 /** Base I2C Device Struct **/
 typedef struct I2C_DeviceStruct {
     char *Name;
     ConnectionStatusType State;
     uint8_t CommAddress;
-    uint8_t FactAddress;
     uint8_t Device_ID;
     uint8_t ID_Register;
     HAL_StatusTypeDef ConnectionStatus;
@@ -131,6 +128,13 @@ typedef struct {
     char DataRepr[50];
 } TroykaGyroscope_TypeDef;
 
+typedef struct {
+    struct BarometerData Data;
+    char *DeviceName;
+    uint8_t ADC_Channel;
+    char DataRepr[50];
+} AnalogBarometer_TypeDef;
+
 /**     **/
 /** GPS **/
 /**     **/
@@ -176,9 +180,9 @@ typedef struct {
 /**     **/
 /** GSM **/
 /**     **/
-
 #define MESSAGE_SIZE            100
 #define RESPONSE_SIZE           40
+
 /** SIM900 Device Struct **/
 typedef struct {
     HAL_StatusTypeDef Status;

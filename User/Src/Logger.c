@@ -3,10 +3,6 @@
 #include "CoreTypes.h"
 #include "NEO7M.h"
 
-static char* LogLevel[] = {"[LOG]",
-                           "[DATA]",
-                           "[WARNING]"};
-
 static char* LogStatus[] = {"NotInitialized",
                             "Initialized",
                             "Initialization Error",
@@ -25,9 +21,15 @@ extern BMP280_TypeDef BMP280;
 extern ADXL345_TypeDef ADXL345;
 extern MPU6050_TypeDef MPU6050;
 extern GPS_TypeDef NEO7M;
-extern TroykaAccelerometer_TypeDef Accelerometer;
-extern TroykaBarometer_TypeDef Barometer;
-extern TroykaGyroscope_TypeDef Gyroscope;
+extern TroykaAccelerometer_TypeDef TroykaAccelerometer;
+extern TroykaBarometer_TypeDef TroykaBarometer;
+extern TroykaGyroscope_TypeDef TroykaGyroscope;
+extern AnalogBarometer_TypeDef AnalogBarometer;
+
+static void SetFileName(uint8_t file_number){
+    sprintf(Logger.FileName, "DATA%d.txt", file_number);
+    Logger.LinesCount = 0;
+}
 
 static void WriteLog() {
     if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
@@ -44,11 +46,12 @@ static void WriteLog() {
     for (uint8_t i = 0; i < QUEUE_SLOTS; i++) {
         strcat(Logger.Message, Logger.Queue[i]);
         strcpy(Logger.Queue[i], "");
+        Logger.LinesCount++;
     }
     Logger.CurrentMessageSlot = 0;
     NVIC_EnableIRQ(TIM17_IRQn);
 
-    Logger.FatFsStatus = f_open(&SDFile, DEFAULT_FILENAME, FA_OPEN_APPEND | FA_WRITE);
+    Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FileOpened = 1;
         Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char *) Logger.Message), NULL);
@@ -58,6 +61,9 @@ static void WriteLog() {
         Logger.FileOpened = 0;
 
     strcpy(Logger.Message, "");
+
+    if (Logger.LinesCount >= LINES_COUNT)
+        SetFileName(++Logger.FileCount);
 }
 
 void LogOperation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t BlockSize) {
@@ -65,22 +71,22 @@ void LogOperation(I2C_DeviceStruct *Instance, OperationType Operation, uint8_t B
         return;
 
     char log_level[10];
-    char result[21];
+    char result[20];
 
     strcpy(Logger.CurrentInstance, Instance->Name);
     if (Instance->ConnectionStatus == HAL_OK) {
         if (Operation==Reading)
-            strcpy(result, LogStatus[ReadingSuccess]);
+            strcpy(result, "Success reading");
         else
-            strcpy(result, LogStatus[WritingSuccess]);
-        strcpy(log_level, LogLevel[LOG]);
+            strcpy(result, "Success writing");
+        strcpy(log_level, "[LOG]");
     }
     else {
         if (Operation==Reading)
-            strcpy(result, LogStatus[ReadingError]);
+            strcpy(result, "Error reading");
         else
-            strcpy(result, LogStatus[WritingError]);
-        strcpy(log_level, LogLevel[WARNING]);
+            strcpy(result, "Error writing");
+        strcpy(log_level, "[WARNING]");
     }
     sprintf(Logger.Message, "%s Instance: %s, Instance Message: %s %d bits\n",
             log_level,
@@ -105,13 +111,13 @@ void LogDeviceState(I2C_DeviceStruct *Instance) {
         case InitializationError:
         case ConnectionLost:
         case ID_Check_Error: {
-            strcpy(log_level, LogLevel[WARNING]);
+            strcpy(log_level, "[WARNING]");
             break;
         }
         case Initialized:
         default:
         {
-            strcpy(log_level, LogLevel[LOG]);
+            strcpy(log_level, "[LOG]");
             break;
         }
     }
@@ -129,16 +135,16 @@ void ForceDataLogging() {
 
     NVIC_DisableIRQ(TIM6_DAC_IRQn);
     NVIC_DisableIRQ(TIM17_IRQn);
-    sprintf(Logger.Message, "%lu %s %s %s %s %s %s %s %s\n",
+    sprintf(Logger.Message, "%lu [DATA] %s %s %s %s %s %s %s %s\n",
             HAL_GetTick(),
-            LogLevel[DATA],
             NEO7M.PayloadMessage,
             BMP280.DataRepr,
-            Barometer.DataRepr,
+            TroykaBarometer.DataRepr,
+            AnalogBarometer.DataRepr,
             ADXL345.DataRepr,
-            Accelerometer.DataRepr,
+            TroykaAccelerometer.DataRepr,
             MPU6050.DataRepr,
-            Gyroscope.DataRepr);
+            TroykaGyroscope.DataRepr);
     NVIC_EnableIRQ(TIM17_IRQn);
     WriteLog();
     NVIC_EnableIRQ(TIM6_DAC_IRQn);
@@ -156,21 +162,14 @@ static void MX_SDMMC1_SD_Init(void) {
 static void MountDisk() {
     Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
     if (Logger.FatFsStatus == FR_OK) {
-        Logger.FatFsStatus = f_open(&SDFile, DEFAULT_FILENAME, FA_CREATE_ALWAYS | FA_WRITE);
+        Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_CREATE_ALWAYS | FA_WRITE);
         Logger.FatFsStatus = f_close(&SDFile);
         Logger.DiskMounted = 1;
     }
 }
 
-static void UnMountDisk() {
-    Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) NULL, 0);
-    Logger.DiskMounted = 0;
-}
-
 static void CreateInitialLog() {
-    sprintf(Logger.Message, "%s Initial log created. FatFS status: %s\n",
-            LogLevel[LOG],
-            LogStatus[Initialized]);
+    strcpy(Logger.Message, "[LOG] Initial log created. FatFS status: Initialized\n");
     WriteLog();
 }
 
@@ -182,6 +181,10 @@ void InitSDSystem() {
     Logger.CurrentMessageSlot = 0;
     Logger.DiskMounted = 0;
     Logger.FileOpened = 0;
+    Logger.FileCount = 0;
+
+    SetFileName(Logger.FileCount);
+
     MountDisk();
     if (Logger.DiskMounted)
         CreateInitialLog();

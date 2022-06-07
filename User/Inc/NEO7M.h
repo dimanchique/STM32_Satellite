@@ -11,4 +11,4 @@
 
 /** Functions Prototypes **/
 void ProcessResponse(void);
-void ReadData(void);
+void GPS_ReadData(void);

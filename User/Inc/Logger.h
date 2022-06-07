@@ -6,15 +6,9 @@
 
 #define ENABLE_DEBUG
 
-#define DEFAULT_FILENAME "DATA.txt"
-#define QUEUE_SLOTS 2
-#define MESSAGE_LENGTH 200
-
-enum Level {
-    LOG         = 0x00,
-    DATA        = 0x01,
-    WARNING     = 0x02
-};
+#define QUEUE_SLOTS 4
+#define MESSAGE_LENGTH 300
+#define LINES_COUNT 400
 
 /** Logger Struct **/
 typedef struct {
@@ -22,6 +16,9 @@ typedef struct {
     char Message[(QUEUE_SLOTS) * MESSAGE_LENGTH];
     char Queue[QUEUE_SLOTS][MESSAGE_LENGTH];
     uint8_t CurrentMessageSlot;
+    uint16_t LinesCount;
+    uint8_t FileCount;
+    char FileName[10];
     FRESULT FatFsStatus;
     uint8_t DiskMounted;
     uint8_t FileOpened;
