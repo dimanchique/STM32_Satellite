@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Logger.h"
-
 #include "TroykaBarometer.h"
 #include "TroykaAccelerometer.h"
 #include "TroykaGyroscope.h"
@@ -33,6 +32,7 @@
 #include "MPU6050.h"
 #include "NEO7M.h"
 #include "SIM900.h"
+#include "AnalogDevice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,6 +91,7 @@ static void InitSensors(void) {
     ADXL_Init();
     MPU_Init();
     SIM900_Init();
+    AnalogBarometer_Init();
 }
 /* USER CODE END 0 */
 
@@ -136,7 +137,6 @@ int main(void)
     DWT_Init();
     InitSDSystem();
     I2C_Init();
-    I2C_Scan();
     InitSensors();
     HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
@@ -149,8 +149,9 @@ int main(void)
         MPU_ReadData();
         TroykaBarometer_ReadData();
         TroykaAccelerometer_ReadData();
-        TroykaAccelerometer_ReadData();
-        ReadData();
+        TroykaGyroscope_ReadData();
+        AnalogBarometer_ReadData();
+        GPS_ReadData();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
