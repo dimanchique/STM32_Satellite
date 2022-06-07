@@ -3,8 +3,8 @@
 
 ADXL345_TypeDef ADXL345 = {0};
 
-static void GenerateDataRepresentation(uint8_t ConnectionValid) {
-    if (ConnectionValid)
+static void GenerateDataRepresentation() {
+    if (ADXL345.Communicator.ConnectionStatus == HAL_OK)
         sprintf(ADXL345.DataRepr,
                 "[%s] %.4f %.4f %.4f;",
                 ADXL345.Communicator.Name,
@@ -12,7 +12,7 @@ static void GenerateDataRepresentation(uint8_t ConnectionValid) {
                 ADXL345.Data.AccY,
                 ADXL345.Data.AccZ);
     else
-        sprintf(ADXL345.DataRepr, "[%s] NULL;", ADXL345.Communicator.Name);
+        sprintf(ADXL345.DataRepr, "[%s] %s;", ADXL345.Communicator.Name, UNREACHABLE);
 }
 
 static void ADXL_Calibrate(void) {
@@ -54,14 +54,10 @@ void ADXL_Init(void) {
 void ADXL_ReadData(void) {
     if (ADXL345.Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
-        I2C_ReadData6x8(&ADXL345.Communicator, ADXL345_DATAX0, data);
+        I2C_ReadData6x8(&ADXL345.Communicator, ADXL345_DATA, data);
         ADXL345.Data.AccX = ((int16_t) ((data[1] << 8) | data[0]) * ADXL345_ACC_SCALE);
         ADXL345.Data.AccY = ((int16_t) ((data[3] << 8) | data[2]) * ADXL345_ACC_SCALE);
         ADXL345.Data.AccZ = ((int16_t) ((data[5] << 8) | data[4]) * ADXL345_ACC_SCALE);
-    } else {
-        ADXL345.Data.AccX = 0;
-        ADXL345.Data.AccY = 0;
-        ADXL345.Data.AccZ = 0;
     }
-    GenerateDataRepresentation(ADXL345.Communicator.ConnectionStatus == HAL_OK);
+    GenerateDataRepresentation();
 }

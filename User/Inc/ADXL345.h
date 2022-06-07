@@ -14,12 +14,7 @@
 #define ADXL345_BW_RATE                             0x2C        //Data rate and power mode control
 #define ADXL345_POWER_CTL                           0x2D        //Power-saving features control
 #define ADXL345_DATA_FORMAT                         0x31        //Data format control
-#define ADXL345_DATAX0                              0x32        //X-Axis Data LSB
-#define ADXL345_DATAX1                              0x33        //X-Axis Data MSB
-#define ADXL345_DATAY0                              0x34        //Y-Axis Data LSB
-#define ADXL345_DATAY1                              0x35        //Y-Axis Data MSB
-#define ADXL345_DATAZ0                              0x36        //Z-Axis Data LSB
-#define ADXL345_DATAZ1                              0x37        //Z-Axis Data MSB
+#define ADXL345_DATA                                0x32        //Accelerometer XYZ LSB-MSB 6 bytes
 
 /** Datarate Settings **/
 //#define ADXL345_DATARATE                          0x09        //5Hz

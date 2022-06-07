@@ -7,33 +7,22 @@
 #define MPU6050_ID 					0x68        //Device ID
 
 /** Registers Addresses **/
-#define MPU6050_ID_REGISTER			0x75        //Device ID Register
-#define MPU6050_SELF_TEST_X 		0x0D
-#define MPU6050_SELF_TEST_Y 		0x0E
-#define MPU6050_SELF_TEST_Z 		0x0F
-#define MPU6050_SELF_TEST_A 		0x10
-#define MPU6050_CONFIG 				0x1A
+#define MPU6050_ID_REGISTER			0x75    //Device ID Register
 #define MPU6050_GYRO_CONFIG 		0x1B
 #define MPU6050_ACCEL_CONFIG 		0x1C
-#define MPU6050_ACC_X 				0x3B
-#define MPU6050_ACC_Y 				0x3D
-#define MPU6050_ACC_Z 				0x3F
-#define MPU6050_TEMP_H 				0x41
-#define MPU6050_TEMP_L 				0x42
-#define MPU6050_GYRO_X 				0x43
-#define MPU6050_GYRO_Y 				0x45
-#define MPU6050_GYRO_Z 				0x47
-#define MPU6050_USER_CTRL 			0x6A
+#define MPU6050_ACC 				0x3B    //Accelerometer XYZ MSB-LSB 6 bytes
+#define MPU6050_TEMP 				0x41    //Temperature MSB-LSB 2 bytes
+#define MPU6050_GYRO 				0x43    //TroykaGyroscope XYZ MSB-LSB 6 bytes
 #define MPU6050_PWR_MGMT_1 			0x6B
 #define MPU6050_PWR_MGMT_2 			0x6C
 
-/** Accelerometer/Gyroscope Self-Test Settings **/
+/** Accelerometer/TroykaGyroscope Self-Test Settings **/
 //#define MPU6050_TEST_ACC			0xE0
 #define MPU6050_TEST_ACC			0x00
 //#define MPU6050_TEST_GYRO			0xE0
 #define MPU6050_TEST_GYRO			0x00
 
-/** Gyroscope Resolution Settings **/
+/** TroykaGyroscope Resolution Settings **/
 //#define MPU6050_GYRO_RESOLUTION	0x00        //250°/sec
 //#define MPU6050_GYRO_SCALE		131.0       //250°/sec
 #define MPU6050_GYRO_RESOLUTION		0x08        //500°/sec

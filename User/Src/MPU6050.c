@@ -6,8 +6,8 @@ MPU6050_TypeDef MPU6050 = {0};
 static double ACC_ERROR_X, ACC_ERROR_Y, ACC_ERROR_Z, GYRO_ERROR_X, GYRO_ERROR_Y, GYRO_ERROR_Z = 0;
 static uint16_t CalibrationCycles = 500;
 
-static void GenerateDataRepresentation(uint8_t ConnectionValid) {
-    if (ConnectionValid)
+static void GenerateDataRepresentation() {
+    if (MPU6050.Communicator.ConnectionStatus == HAL_OK)
         sprintf(MPU6050.DataRepr,
                 "[%s] %.3f %.3f %.3f %.3f %.3f %.3f %.3f;",
                 MPU6050.Communicator.Name,
@@ -19,7 +19,7 @@ static void GenerateDataRepresentation(uint8_t ConnectionValid) {
                 MPU6050.GyroData.GyroZ,
                 MPU6050.Temperature);
     else
-        sprintf(MPU6050.DataRepr, "[%s] NULL;", MPU6050.Communicator.Name);
+        sprintf(MPU6050.DataRepr, "[%s] %s;", MPU6050.Communicator.Name, UNREACHABLE);
 }
 
 static void MPU_Calibrate(void) {
@@ -28,7 +28,7 @@ static void MPU_Calibrate(void) {
     int16_t xx, yy, zz;
 
     for (uint16_t n = 0; n < CalibrationCycles; n++) {
-        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_ACC_X, data);
+        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_ACC, data);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
         zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -44,7 +44,7 @@ static void MPU_Calibrate(void) {
     ACC_ERROR_Z = ACC_ERROR_Z / CalibrationCycles;
 
     for (uint16_t n = 0; n < CalibrationCycles; n++) {
-        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_GYRO_X, data);
+        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_GYRO, data);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
         zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -92,55 +92,42 @@ void MPU_Init() {
 }
 
 static void MPU_Read_Acceleration(void) {
-    if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
-        uint8_t data[6] = {0};
-        int16_t xx, yy, zz;
-        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_ACC_X, data);
-        xx = (int16_t) ((data[1] << 8) | data[0]);
-        yy = (int16_t) ((data[3] << 8) | data[2]);
-        zz = (int16_t) ((data[5] << 8) | data[4]);
-        MPU6050.AccData.AccX = (xx / MPU6050_ACC_SCALE) - ACC_ERROR_X;
-        MPU6050.AccData.AccY = (yy / MPU6050_ACC_SCALE) - ACC_ERROR_Y;
-        MPU6050.AccData.AccZ = (zz / MPU6050_ACC_SCALE) - ACC_ERROR_Z;
-    } else {
-        MPU6050.AccData.AccX = 0;
-        MPU6050.AccData.AccY = 0;
-        MPU6050.AccData.AccZ = 0;
-    }
+    uint8_t data[6] = {0};
+    int16_t xx, yy, zz;
+    I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_ACC, data);
+    xx = (int16_t) ((data[1] << 8) | data[0]);
+    yy = (int16_t) ((data[3] << 8) | data[2]);
+    zz = (int16_t) ((data[5] << 8) | data[4]);
+    MPU6050.AccData.AccX = (xx / MPU6050_ACC_SCALE) - ACC_ERROR_X;
+    MPU6050.AccData.AccY = (yy / MPU6050_ACC_SCALE) - ACC_ERROR_Y;
+    MPU6050.AccData.AccZ = (zz / MPU6050_ACC_SCALE) - ACC_ERROR_Z;
 }
 
 static void MPU_Read_Gyroscope(void) {
-    if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
-        uint8_t data[6] = {0};
-        int16_t xx, yy, zz;
-        I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_GYRO_X, data);
-        xx = (int16_t) ((data[1] << 8) | data[0]);
-        yy = (int16_t) ((data[3] << 8) | data[2]);
-        zz = (int16_t) ((data[5] << 8) | data[4]);
-        MPU6050.GyroData.GyroX = xx / MPU6050_GYRO_SCALE - GYRO_ERROR_X;
-        MPU6050.GyroData.GyroY = yy / MPU6050_GYRO_SCALE - GYRO_ERROR_Y;
-        MPU6050.GyroData.GyroZ = zz / MPU6050_GYRO_SCALE - GYRO_ERROR_Z;
-    } else {
-        MPU6050.GyroData.GyroX = 0;
-        MPU6050.GyroData.GyroY = 0;
-        MPU6050.GyroData.GyroZ = 0;
-    }
+    uint8_t data[6] = {0};
+    int16_t xx, yy, zz;
+    I2C_ReadData6x8(&MPU6050.Communicator, MPU6050_GYRO, data);
+    xx = (int16_t) ((data[1] << 8) | data[0]);
+    yy = (int16_t) ((data[3] << 8) | data[2]);
+    zz = (int16_t) ((data[5] << 8) | data[4]);
+    MPU6050.GyroData.GyroX = xx / MPU6050_GYRO_SCALE - GYRO_ERROR_X;
+    MPU6050.GyroData.GyroY = yy / MPU6050_GYRO_SCALE - GYRO_ERROR_Y;
+    MPU6050.GyroData.GyroZ = zz / MPU6050_GYRO_SCALE - GYRO_ERROR_Z;
 }
 
 static void MPU_Read_Temperature(void) {
-    if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
-        uint8_t data[2] = {0};
-        I2C_ReadData2x8(&MPU6050.Communicator,
-                      MPU6050_TEMP_H,
-                      data);
-        MPU6050.Temperature = 36.53f + (float) (int16_t) ((data[0] << 8) | data[1]) / 340.0f;;
-    } else
-        MPU6050.Temperature = 0;
+    uint8_t data[2] = {0};
+    I2C_ReadData2x8(&MPU6050.Communicator,
+                  MPU6050_TEMP,
+                  data);
+    MPU6050.Temperature = 36.53f + (float) (int16_t) ((data[0] << 8) | data[1]) / 340.0f;
 }
 
 void MPU_ReadData() {
-    MPU_Read_Acceleration();
-    MPU_Read_Gyroscope();
-    MPU_Read_Temperature();
-    GenerateDataRepresentation(MPU6050.Communicator.ConnectionStatus == HAL_OK);
+    if (MPU6050.Communicator.ConnectionStatus == HAL_OK) {
+        MPU_Read_Acceleration();
+        MPU_Read_Gyroscope();
+        MPU_Read_Temperature();
+    }
+    GenerateDataRepresentation();
 }

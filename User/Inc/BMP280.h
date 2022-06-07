@@ -9,7 +9,7 @@
 /** Registers Addresses **/
 #define BMP280_ID_REGISTER								0xD0 	//Device ID Register
 #define BMP280_TEMP_REGISTER 							0xFA 	//Temperature 0xFA-0xFC (MSB-LSB-XLSB)
-#define BMP280_PRESSURE_REGISTER						0xF7 	//Temperature 0xF7-0xF9 (MSB-LSB-XLSB)
+#define BMP280_PRESSURE_REGISTER						0xF7 	//Pressure 0xF7-0xF9 (MSB-LSB-XLSB)
 #define BMP280_CONFIG_REGISTER 							0xF5	//Configuration Register
 #define BMP280_CTRL_REGISTER							0xF4 	//Control Register (D0-D1 - Power Control)
 #define BMP280_STATUS_REGISTER							0xF3 	//Status Register (D0 and D3 describes data status)
@@ -26,6 +26,10 @@
 #define BMP280_REGISTER_DIG_P7 							0x9A
 #define BMP280_REGISTER_DIG_P8 							0x9C
 #define BMP280_REGISTER_DIG_P9 							0x9E
+
+/** Value to reset BMP280 and value to detect updating status **/
+#define BMP280_SOFTRESET 								0xB6
+#define BMP280_IS_UPDATING								0x01    //BMP280 updating flag
 
 /** Pressure Oversampling Settings **/
 //#define BMP280_PRESSURE_OVERSAMPLING 					0x00	//Don't Measure
@@ -61,10 +65,6 @@
 //#define BMP280_FILTERING_TYPE							0x02    //IIR Coefficient = 4  (Bandwidth = 0.092*ODR)
 #define BMP280_FILTERING_TYPE							0x03    //IIR Coefficient = 8  (Bandwidth = 0.042*ODR)
 //#define BMP280_FILTERING_TYPE							0x04    //IIR Coefficient = 16 (Bandwidth = 0.021*ODR)
-
-/** Value to reset BMP280 and value to detect updating status **/
-#define BMP280_SOFTRESET 								0xB6
-#define BMP280_IS_UPDATING								0x01    //BMP280 updating flag
 
 /** Functions Prototypes **/
 void BMP_Init(void);

@@ -13,8 +13,8 @@ static void BMP_SoftReset(void) {
     I2C_WriteData8(&BMP280.Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
 }
 
-static void GenerateDataRepresentation(uint8_t ConnectionValid) {
-    if (ConnectionValid)
+static void GenerateDataRepresentation() {
+    if (BMP280.Communicator.ConnectionStatus == HAL_OK)
         sprintf(BMP280.DataRepr,
                 "[%s] %.2f %.3f %.3f %.3f;",
                 BMP280.Communicator.Name,
@@ -23,7 +23,7 @@ static void GenerateDataRepresentation(uint8_t ConnectionValid) {
                 BMP280.Data.mmHg,
                 BMP280.Data.Altitude);
     else
-        sprintf(BMP280.DataRepr, "[%s] NULL;", BMP280.Communicator.Name);
+        sprintf(BMP280.DataRepr, "[%s] %s;", BMP280.Communicator.Name, UNREACHABLE);
 }
 
 static void BMP_Calibrate(void) {
@@ -90,7 +90,7 @@ static void BMP_GetPressureAndTemperature(void) {
     pres_int = ((p >> 8) * 1000) + (((p & 0xff) * 390625) / 100000);
     press_float = (float) pres_int / 1000.0f;
     BMP280.Data.Pressure = (double) press_float;
-    BMP280.Data.mmHg = BMP280.Data.Pressure * 0.00750061683;
+    BMP280.Data.mmHg = BMP280.Data.Pressure * 0.0075006156130264;
     BMP280.Data.Altitude = (BMP280.Data.base_mmHg - BMP280.Data.mmHg) * 10.5;
 }
 
@@ -126,12 +126,7 @@ void BMP_Init(void) {
 }
 
 void BMP_ReadData(void) {
-    if (BMP280.Communicator.ConnectionStatus == HAL_OK) {
+    if (BMP280.Communicator.ConnectionStatus == HAL_OK)
         BMP_GetPressureAndTemperature();
-    } else {
-        BMP280.Data.Pressure = 0;
-        BMP280.Data.mmHg = 0;
-        BMP280.Data.Altitude = 0;
-    }
-    GenerateDataRepresentation(BMP280.Communicator.ConnectionStatus == HAL_OK);
+    GenerateDataRepresentation();
 }

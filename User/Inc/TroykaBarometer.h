@@ -8,7 +8,7 @@
 /** Registers Addresses **/
 #define TROYKA_BAROMETER_CTRL_REG1                      0x20
 #define TROYKA_BAROMETER_STATUS_REG                     0x27
-#define TROYKA_BAROMETER_PRESS_POUT_XL_REH              0x28
+#define TROYKA_BAROMETER_PRESS_POUT_XL                  0x28
 #define TROYKA_BAROMETER_PRESS_OUT_L                    0x29
 #define TROYKA_BAROMETER_PRESS_OUT_H                    0x2A
 #define TROYKA_BAROMETER_TEMP_OUT_L                     0x2B

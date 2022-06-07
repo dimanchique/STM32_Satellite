@@ -6,7 +6,6 @@
 
 /** Base Functions Prototypes **/
 void I2C_Init(void);
-void I2C_Scan(void);
 void I2C_VerifyDevice(I2C_DeviceStruct *Communicator);
 void I2C_CheckDeviceState(I2C_DeviceStruct *Communicator);
 void I2C_SetupCommunicator(I2C_DeviceStruct *Communicator, char* DeviceName, uint8_t DeviceAddress, uint8_t DeviceID, uint8_t DeviceIDRegister);
