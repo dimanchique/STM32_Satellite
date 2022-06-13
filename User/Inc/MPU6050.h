@@ -14,7 +14,9 @@
 #define MPU6050_TEMP 				0x41    //Temperature MSB-LSB 2 bytes
 #define MPU6050_GYRO 				0x43    //TroykaGyroscope XYZ MSB-LSB 6 bytes
 #define MPU6050_PWR_MGMT_1 			0x6B
-#define MPU6050_PWR_MGMT_2 			0x6C
+
+/** Device Values **/
+#define MPU6050_RESET				0x00
 
 /** Accelerometer/TroykaGyroscope Self-Test Settings **/
 //#define MPU6050_TEST_ACC			0xE0
@@ -41,9 +43,6 @@
 #define MPU6050_ACC_SCALE			4096.0      //8g
 //#define MPU6050_ACC_RESOLUTION	0x18        //16g
 //#define MPU6050_ACC_SCALE			2048.0      //16g
-
-/** Value to reset MPU6050 and value to detect updating status **/
-#define MPU6050_RESET				0x00
 
 /** Functions Prototypes **/
 void MPU_Init(void);

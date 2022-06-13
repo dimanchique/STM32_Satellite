@@ -1,7 +1,5 @@
 #pragma once
-#include "stm32h7xx_hal.h"
-#include "string.h"
-#include "stdlib.h"
+#include "CoreTypes.h"
 
 /** Setup NEO7M UART Commands **/
 #define SetupGPSRate        "181\n98\n6\n8\n6\n0\n100\n0\n1\n0\n1\n0\n122\n18\n181\n98\n6\n8\n0\n0\n14\n48\n"                      //Period 500ms (2Hz)

@@ -1,9 +1,26 @@
 #pragma once
 
+#include "stm32h7xx_hal.h"
+#include "string.h"
+#include "stdio.h"
+
 #define UNREACHABLE "UNREACHABLE"
+#define be24_to_word24(a)           ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
+#define VoltageToPressure(x)        x * (100000.0f / (2.7f - 0.2f))
+#define ADC_Resolution              (3.3f / 65535)
+#define PaToMmHg(x)                 (x * 0.0075006156130264)
+#define MILLIBARS_TO_PASCALS        100
+#define MILLIBARS_TO_MMHG           0.75f
+#define GSM_MESSAGE_SIZE            100
+#define GSM_RESPONSE_SIZE           40
+#define GPS_DATA_SIZE               500
+#define GPS_PAYLOAD_SIZE            100
 
 /** Operation Type Enum **/
-typedef enum { Reading, Writing } OperationType;
+typedef enum {
+    Reading,
+    Writing
+} OperationType;
 
 /** Connection Status Enum **/
 typedef enum {
@@ -11,18 +28,22 @@ typedef enum {
     Initialized,
     InitializationError,
     Working,
+    Error,
     ConnectionLost,
-    WritingError,
-    WritingSuccess,
-    ReadingError,
-    ReadingSuccess,
     ID_Check_Error
 } ConnectionStatusType;
 
-/**              **/
-/** SENSORS BASE **/
-/**              **/
-/** TroykaBarometer Data Struct **/
+/** Device Struct **/
+typedef struct {
+    void* Communicator;
+    char* DeviceName;
+    char DataRepr[60];
+} DeviceTypeDef;
+
+/**         **/
+/** SENSORS **/
+/**         **/
+/** Barometer Data Struct **/
 struct BarometerData {
     double Pressure;
     double Altitude;
@@ -38,7 +59,7 @@ struct AccelerometerData {
     double AccZ;
 };
 
-/** TroykaGyroscope Data Struct **/
+/** Gyroscope Data Struct **/
 struct GyroscopeData {
     double GyroX;
     double GyroY;
@@ -49,20 +70,27 @@ struct GyroscopeData {
 /** I2C **/
 /**     **/
 /** I2C Bus Struct **/
-typedef struct I2C_BusStruct {
+typedef struct {
     I2C_HandleTypeDef I2C_Instance;
     HAL_StatusTypeDef OperationResult;
 } I2C_BusStruct;
 
-/** Base I2C Device Struct **/
-typedef struct I2C_DeviceStruct {
-    char *Name;
+/** I2C Communication Bus Struct **/
+typedef struct {
     ConnectionStatusType State;
+    char* Name;
     uint8_t CommAddress;
     uint8_t Device_ID;
     uint8_t ID_Register;
     HAL_StatusTypeDef ConnectionStatus;
-} I2C_DeviceStruct;
+} I2C_CommunicatorStruct;
+
+/** ADC Communication Bus Struct **/
+typedef struct {
+    ADC_HandleTypeDef *Instance;
+    HAL_StatusTypeDef State;
+    uint8_t Channel;
+} ADC_CommunicatorStruct;
 
 /**         **/
 /** DEVICES **/
@@ -83,64 +111,9 @@ struct CalibrationData {
     int16_t dig_P9;
 };
 
-/** BMP280 Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct CalibrationData CalibrationCoefficients;
-    struct BarometerData Data;
-    char DataRepr[50];
-} BMP280_TypeDef;
-
-/** ADXL345 Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct AccelerometerData Data;
-    char DataRepr[50];
-} ADXL345_TypeDef;
-
-/** MPU6050 Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct GyroscopeData GyroData;
-    struct AccelerometerData AccData;
-    float Temperature;
-    char DataRepr[50];
-} MPU6050_TypeDef;
-
-/** LPS311AP/LPS25HB Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct BarometerData Data;
-    char DataRepr[50];
-} TroykaBarometer_TypeDef;
-
-/** LIS331DLH Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct AccelerometerData Data;
-    char DataRepr[50];
-} TroykaAccelerometer_TypeDef;
-
-/** I3G4250D Device Struct **/
-typedef struct {
-    I2C_DeviceStruct Communicator;
-    struct GyroscopeData GyroData;
-    char DataRepr[50];
-} TroykaGyroscope_TypeDef;
-
-typedef struct {
-    struct BarometerData Data;
-    char *DeviceName;
-    uint8_t ADC_Channel;
-    char DataRepr[50];
-} AnalogBarometer_TypeDef;
-
 /**     **/
 /** GPS **/
 /**     **/
-#define GPS_DATA_SIZE           500
-#define GPS_PAYLOAD_SIZE        100
-
 /** Struct for Extra Data **/
 typedef struct {
     float Altitude;
@@ -176,16 +149,12 @@ typedef struct {
     char SkipChar;
 } GPS_TypeDef;
 
-
 /**     **/
 /** GSM **/
 /**     **/
-#define MESSAGE_SIZE            100
-#define RESPONSE_SIZE           40
-
 /** SIM900 Device Struct **/
 typedef struct {
     HAL_StatusTypeDef Status;
-    char Message[MESSAGE_SIZE];
-    char Response[RESPONSE_SIZE];
+    char Message[GSM_MESSAGE_SIZE];
+    char Response[GSM_RESPONSE_SIZE];
 } GSM_TypeDef;

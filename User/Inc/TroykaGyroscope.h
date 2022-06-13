@@ -9,12 +9,9 @@
 /** Registers Addresses **/
 #define TROYKA_GYROSCOPE_CTRL_REG1 					0x20
 #define TROYKA_GYROSCOPE_CTRL_REG4 					0x23
-#define TROYKA_GYROSCOPE_OUT_X_L  					0x28
+#define TROYKA_GYROSCOPE_OUT  					    0x28
 
 /** Device Values **/
-#define TROYKA_GYROSCOPE_CTRL_REG1_X_EN             0x01
-#define TROYKA_GYROSCOPE_CTRL_REG1_Y_EN             0x02
-#define TROYKA_GYROSCOPE_CTRL_REG1_Z_EN             0x04
 #define TROYKA_GYROSCOPE_CTRL_REG1_XYZ_EN           0x07
 
 /** Resolution Settings **/

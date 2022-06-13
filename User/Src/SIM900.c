@@ -6,7 +6,7 @@ extern UART_HandleTypeDef huart2;
 static void SendCommand(char *Command, char *Response) {
     HAL_UART_Transmit(&huart2, (uint8_t*)Command, strlen(Command), 500);
     HAL_Delay(500);
-    HAL_UART_Receive(&huart2, (uint8_t*)SIM900.Response, RESPONSE_SIZE, 500);
+    HAL_UART_Receive(&huart2, (uint8_t*)Response, GSM_RESPONSE_SIZE, 500);
 }
 
 static uint8_t ResponseIs(char *WantedResponse){

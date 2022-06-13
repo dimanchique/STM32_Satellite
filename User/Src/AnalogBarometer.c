@@ -1,31 +1,41 @@
 #include "AnalogDevice.h"
 
-AnalogBarometer_TypeDef AnalogBarometer;
+DeviceTypeDef AnalogBarometer = {0};
+ADC_CommunicatorStruct Communicator = {0};
+struct BarometerData AnalogBaroData;
+extern ADC_HandleTypeDef hadc1;
 
 static void GenerateDataRepresentation() {
     sprintf(AnalogBarometer.DataRepr,
             "[%s] %.3f %.3f %.3f;",
             AnalogBarometer.DeviceName,
-            AnalogBarometer.Data.Pressure,
-            AnalogBarometer.Data.mmHg,
-            AnalogBarometer.Data.Altitude);
+            AnalogBaroData.Pressure,
+            AnalogBaroData.mmHg,
+            AnalogBaroData.Altitude);
+}
+
+static void AnalogBarometer_Calibrate(void){
+    AnalogBarometer_ReadData();
+    AnalogBaroData.base_mmHg = AnalogBaroData.mmHg;
 }
 
 void AnalogBarometer_Init(void) {
-    strcpy(AnalogBarometer.DeviceName, "AnalogBarometer");
-    AnalogBarometer.ADC_Channel = 0;
-    AnalogBarometer_ReadData();
-    AnalogBarometer.Data.base_mmHg = AnalogBarometer.Data.mmHg;
+    Communicator.Channel = 0;
+    Communicator.Instance = &hadc1;
+    AnalogBarometer.DeviceName = "AnalogBaro";
+    AnalogBarometer_Calibrate();
 }
 
 void AnalogBarometer_ReadData(){
-    //1. read data using ADC
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 10);
+    uint16_t ADC_Raw = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
+
     //Note: 3.3V supply = 0.2V-2.7V range (0->100 kPa)
-    float Voltage = 1.0f - 0.2f; //put calculation of voltage from ADC value
-    float Range = 100000.0f / (2.7f - 0.2f);
-    float Pressure = Voltage * Range;
-    AnalogBarometer.Data.Pressure = Pressure;
-    AnalogBarometer.Data.mmHg = AnalogBarometer.Data.Pressure * 0.0075006156130264;
-    AnalogBarometer.Data.Altitude = (AnalogBarometer.Data.base_mmHg - AnalogBarometer.Data.mmHg) * 10.5;
+    float Voltage = (float) ADC_Raw * ADC_Resolution - 0.2f; //add 0.2v offset
+    AnalogBaroData.Pressure = VoltageToPressure(Voltage);
+    AnalogBaroData.mmHg = PaToMmHg(AnalogBaroData.Pressure);
+    AnalogBaroData.Altitude = AnalogBaroData.base_mmHg - AnalogBaroData.mmHg *10.5;
     GenerateDataRepresentation();
 }

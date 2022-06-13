@@ -27,7 +27,7 @@
 #define BMP280_REGISTER_DIG_P8 							0x9C
 #define BMP280_REGISTER_DIG_P9 							0x9E
 
-/** Value to reset BMP280 and value to detect updating status **/
+/** Device Values **/
 #define BMP280_SOFTRESET 								0xB6
 #define BMP280_IS_UPDATING								0x01    //BMP280 updating flag
 

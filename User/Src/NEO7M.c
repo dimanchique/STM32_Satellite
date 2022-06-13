@@ -1,5 +1,4 @@
 #include "NEO7M.h"
-#include "Logger.h"
 
 //------------------------------------------------
 extern UART_HandleTypeDef huart1;
@@ -7,71 +6,61 @@ volatile uint8_t ReceivingEnd = 0;
 static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
 static uint8_t hh, mm, ss;
 GPS_TypeDef NEO7M = {0};
+typedef void (*FunctionsArray)(char*);
 
-//------------------------------------------------
 static uint8_t IsValid(char *packet) {
-    char *gap = strstr(packet, ",,,");
-    return gap == NULL;
+    char *gapV = strstr(packet, "V");
+    char *gapN = strstr(packet, "N");
+    return gapV == NULL && gapN == NULL;
 }
 
-//------------------------------------------------
-static void ConvertTime(GPSProtocol *GPSProtocol) {
+static void ConvertData(GPSProtocol *GPSProtocol) {
+    GPSProtocol->LatitudeDegrees = (float) ((int) (GPSProtocol->RawLatitude / 100) +
+                                            ((GPSProtocol->RawLatitude / 100 -
+                                            (int) (GPSProtocol->RawLatitude / 100)) * 100 / 60));
+    GPSProtocol->LongitudeDegrees = (float) ((int) (GPSProtocol->RawLongitude / 100) +
+                                            ((GPSProtocol->RawLongitude / 100 -
+                                            (int) (GPSProtocol->RawLongitude / 100)) * 100 / 60));
     hh = (uint16_t) (GPSProtocol->RawTime) / 10000;
     if (hh >= 21) hh = hh - 21; //convert from UTC to UTC+3
     mm = (uint8_t) (GPSProtocol->RawTime) / 100 % 100;
     ss = (uint8_t) (GPSProtocol->RawTime) % 100;
-    sprintf(GPSProtocol->TimeRepr, "%i:%i:%i", hh, mm, ss);
+    sprintf(GPSProtocol->TimeRepr, "%d:%d:%d", hh, mm, ss);
 }
 
-//------------------------------------------------
-static void ConvertData(GPSProtocol *GPSProtocol) {
-    GPSProtocol->LatitudeDegrees = (float) ((int) (GPSProtocol->RawLatitude / 100) +
-                                            ((GPSProtocol->RawLatitude / 100 - (int) (GPSProtocol->RawLatitude / 100)) *
-                                             100 / 60));
-    GPSProtocol->LongitudeDegrees = (float) ((int) (GPSProtocol->RawLongitude / 100) +
-                                             ((GPSProtocol->RawLongitude / 100 -
-                                               (int) (GPSProtocol->RawLongitude / 100)) * 100 / 60));
-    ConvertTime(GPSProtocol);
-}
-
-//------------------------------------------------
 static void GenerateDataRepresentation() {
     if (NEO7M.GPGGA.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[%s] Lat:%f%c Long:%f%c Altitude:%f%c Source:%s;",
+                "[GPS] Time:%s Lat:%f%c Long:%f%c Altitude:%f%c Source:GPGGA;",
                 NEO7M.GPGGA.TimeRepr,
                 NEO7M.GPGGA.LatitudeDegrees,
                 NEO7M.GPGGA.LatitudeDirection,
                 NEO7M.GPGGA.LongitudeDegrees,
                 NEO7M.GPGGA.LongitudeDirection,
                 NEO7M.GPGGA.Extras.Altitude,
-                NEO7M.GPGGA.Extras.AltitudeUnits,
-                Keys[0]);
+                NEO7M.GPGGA.Extras.AltitudeUnits);
     }
     else if (NEO7M.GPRMC.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[%s] Lat:%f%c Long:%f%c Speed:%f Source:%s;",
+                "[GPS] Time:%s Lat:%f%c Long:%f%c Speed:%f Source:GPRMC;",
                 NEO7M.GPRMC.TimeRepr,
                 NEO7M.GPRMC.LatitudeDegrees,
                 NEO7M.GPRMC.LatitudeDirection,
                 NEO7M.GPRMC.LongitudeDegrees,
                 NEO7M.GPRMC.LongitudeDirection,
-                NEO7M.GPGGA.Extras.SpeedInKnots,
-                Keys[1]);
+                NEO7M.GPGGA.Extras.SpeedInKnots);
     }
     else if (NEO7M.GPGLL.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[%s] Lat:%f%c Long:%f%c Source:%s;",
+                "[GPS] Time:%s Lat:%f%c Long:%f%c Source:GPGLL;",
                 NEO7M.GPGLL.TimeRepr,
                 NEO7M.GPGLL.LatitudeDegrees,
                 NEO7M.GPGLL.LatitudeDirection,
                 NEO7M.GPGLL.LongitudeDegrees,
-                NEO7M.GPGLL.LongitudeDirection,
-                Keys[2]);
-    } else strcpy(NEO7M.PayloadMessage, "GPS UNAVAILABLE;");
+                NEO7M.GPGLL.LongitudeDirection);
+    } else sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
 }
 
-//------------------------------------------------
 static void ParceGPGGA(char *packet) {
     NEO7M.GPGGA.IsValid = IsValid(packet);
     if (NEO7M.GPGGA.IsValid) {
@@ -91,7 +80,6 @@ static void ParceGPGGA(char *packet) {
     }
 }
 
-//------------------------------------------------
 static void ParceGPRMC(char *packet) {
     NEO7M.GPRMC.IsValid = IsValid(packet);
     if (NEO7M.GPRMC.IsValid) {
@@ -108,7 +96,6 @@ static void ParceGPRMC(char *packet) {
     }
 }
 
-//------------------------------------------------
 static void ParceGPGLL(char *packet) {
     NEO7M.GPGLL.IsValid = IsValid(packet);
     if (NEO7M.GPGLL.IsValid) {
@@ -123,7 +110,8 @@ static void ParceGPGLL(char *packet) {
     }
 }
 
-//------------------------------------------------
+FunctionsArray func_arr[3] = {&ParceGPGGA, &ParceGPRMC, &ParceGPGLL};
+
 void ProcessResponse() {
     char *token, *packet;
     int pack;
@@ -132,19 +120,8 @@ void ProcessResponse() {
         token = strstr(NEO7M.TempMessage, Keys[pack]);
         if (token) {
             packet = strtok(token, "$");
-            switch (pack) {
-                case 0:
-                    ParceGPGGA(packet);
-                    break;
-                case 1:
-                    ParceGPRMC(packet);
-                    break;
-                case 2:
-                    ParceGPGLL(packet);
-                    break;
-                default:
-                    break;
-            }
+            if (packet != NULL)
+                func_arr[pack](packet);
         }
     }
     GenerateDataRepresentation();
@@ -154,7 +131,10 @@ void GPS_ReadData()
 {
     ReceivingEnd = 1;
     if (HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, NULL, 1000) == HAL_TIMEOUT)
+    {
+        sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
         return;
+    }
     HAL_UARTEx_ReceiveToIdle_IT(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE);
     while (ReceivingEnd==1);
     if(IsValid(NEO7M.Message))
