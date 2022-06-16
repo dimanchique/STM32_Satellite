@@ -29,39 +29,26 @@ static void SetFileName(uint8_t file_number){
     Logger.LinesCount = 0;
 }
 
-static FRESULT OpenFile(void){
-    return f_open(&SDFile, Logger.FileName, FA_CREATE_ALWAYS | FA_WRITE);
+static FRESULT OpenFile(uint8_t mode){
+    return f_open(&SDFile, Logger.FileName, mode);
 }
 
 static void WriteLog() {
     if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
         return;
 
-    if (Logger.CurrentMessageSlot < QUEUE_SLOTS) {
-        strcpy(Logger.Queue[Logger.CurrentMessageSlot++], Logger.Message);
-        if (Logger.CurrentMessageSlot < QUEUE_SLOTS)
-            return;
-    }
-
-    strcpy(Logger.Message, "");
-    for (uint8_t i = 0; i < QUEUE_SLOTS; i++) {
-        strcat(Logger.Message, Logger.Queue[i]);
-        strcpy(Logger.Queue[i], "");
-        Logger.LinesCount++;
-    }
-    Logger.CurrentMessageSlot = 0;
     NVIC_EnableIRQ(TIM17_IRQn);
-
-    Logger.FatFsStatus = OpenFile();
+    Logger.FatFsStatus = OpenFile(FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FileOpened = 1;
-        Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char *) Logger.Message), NULL);
+        Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char*)Logger.Message), NULL);
         Logger.FatFsStatus = f_close(&SDFile);
     }
     if (Logger.FatFsStatus == FR_OK)
         Logger.FileOpened = 0;
 
     strcpy(Logger.Message, "");
+    Logger.LinesCount++;
 
     if (Logger.LinesCount >= LINES_COUNT)
         SetFileName(++Logger.FileCount);
@@ -157,7 +144,7 @@ static void MX_SDMMC1_SD_Init(void) {
 static void MountDisk() {
     Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
     if (Logger.FatFsStatus == FR_OK) {
-        Logger.FatFsStatus = OpenFile();
+        Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
         if (Logger.FatFsStatus == FR_OK)
         {
             Logger.FatFsStatus = f_close(&SDFile);
@@ -170,7 +157,6 @@ void InitSDSystem() {
     MX_SDMMC1_SD_Init();
     MX_FATFS_Init();
     strcpy(Logger.Message, "");
-    Logger.CurrentMessageSlot = 0;
     Logger.DiskMounted = 0;
     Logger.FileOpened = 0;
     Logger.FileCount = 0;

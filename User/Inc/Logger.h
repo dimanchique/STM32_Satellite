@@ -2,15 +2,12 @@
 #include "fatfs.h"
 
 //#define ENABLE_DEBUG
-#define QUEUE_SLOTS     4
-#define MESSAGE_LENGTH  300
+#define MESSAGE_LENGTH  400
 #define LINES_COUNT     400
 
 /** Logger Struct **/
 typedef struct {
-    char Message[(QUEUE_SLOTS) * MESSAGE_LENGTH];
-    char Queue[QUEUE_SLOTS][MESSAGE_LENGTH];
-    uint8_t CurrentMessageSlot;
+    char Message[MESSAGE_LENGTH];
     uint16_t LinesCount;
     uint8_t FileCount;
     char FileName[15];
