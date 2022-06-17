@@ -35,7 +35,7 @@ void AnalogBarometer_ReadData(){
     //Note: 3.3V supply = 0.2V-2.7V range (0->100 kPa)
     float Voltage = (float) ADC_Raw * ADC_Resolution - 0.2f; //add 0.2v offset
     AnalogBaroData.Pressure = VoltageToPressure(Voltage);
-    AnalogBaroData.mmHg = PaToMmHg(AnalogBaroData.Pressure);
+    AnalogBaroData.mmHg = Pa_to_mmHg(AnalogBaroData.Pressure);
     AnalogBaroData.Altitude = AnalogBaroData.base_mmHg - AnalogBaroData.mmHg *10.5;
     GenerateDataRepresentation();
 }

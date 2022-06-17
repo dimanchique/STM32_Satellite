@@ -19,9 +19,9 @@ extern DeviceTypeDef BMP280;
 extern DeviceTypeDef ADXL345;
 extern DeviceTypeDef MPU6050;
 extern GPS_TypeDef NEO7M;
-extern DeviceTypeDef TroykaAccelerometer;
-extern DeviceTypeDef TroykaBarometer;
-extern DeviceTypeDef TroykaGyroscope;
+extern DeviceTypeDef TrAcc;
+extern DeviceTypeDef TrBaro;
+extern DeviceTypeDef TrGyro;
 extern DeviceTypeDef AnalogBarometer;
 
 static void SetFileName(uint8_t file_number){
@@ -121,24 +121,15 @@ void ForceDataLogging() {
             HAL_GetTick(),
             NEO7M.PayloadMessage,
             BMP280.DataRepr,
-            TroykaBarometer.DataRepr,
+            TrBaro.DataRepr,
             AnalogBarometer.DataRepr,
             ADXL345.DataRepr,
-            TroykaAccelerometer.DataRepr,
+            TrAcc.DataRepr,
             MPU6050.DataRepr,
-            TroykaGyroscope.DataRepr);
+            TrGyro.DataRepr);
     NVIC_EnableIRQ(TIM17_IRQn);
     WriteLog();
     NVIC_EnableIRQ(TIM6_DAC_IRQn);
-}
-
-static void MX_SDMMC1_SD_Init(void) {
-    hsd1.Instance = SDMMC1;
-    hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
-    hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
-    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv = 0;
 }
 
 static void MountDisk() {
@@ -154,7 +145,6 @@ static void MountDisk() {
 }
 
 void InitSDSystem() {
-    MX_SDMMC1_SD_Init();
     MX_FATFS_Init();
     strcpy(Logger.Message, "");
     Logger.DiskMounted = 0;

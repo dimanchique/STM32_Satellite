@@ -31,7 +31,7 @@ static void ConvertData(GPSProtocol *GPSProtocol) {
 static void GenerateDataRepresentation() {
     if (NEO7M.GPGGA.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[GPS] Time:%s Lat:%f%c Long:%f%c Altitude:%f%c Source:GPGGA;",
+                "[GPS] %s %f%c %f%c %f%c GPGGA;",
                 NEO7M.GPGGA.TimeRepr,
                 NEO7M.GPGGA.LatitudeDegrees,
                 NEO7M.GPGGA.LatitudeDirection,
@@ -42,7 +42,7 @@ static void GenerateDataRepresentation() {
     }
     else if (NEO7M.GPRMC.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[GPS] Time:%s Lat:%f%c Long:%f%c Speed:%f Source:GPRMC;",
+                "[GPS] %s %f%c %f%c %f GPRMC;",
                 NEO7M.GPRMC.TimeRepr,
                 NEO7M.GPRMC.LatitudeDegrees,
                 NEO7M.GPRMC.LatitudeDirection,
@@ -52,7 +52,7 @@ static void GenerateDataRepresentation() {
     }
     else if (NEO7M.GPGLL.IsValid) {
         sprintf(NEO7M.PayloadMessage,
-                "[GPS] Time:%s Lat:%f%c Long:%f%c Source:GPGLL;",
+                "[GPS] %s %f%c %f%c GPGLL;",
                 NEO7M.GPGLL.TimeRepr,
                 NEO7M.GPGLL.LatitudeDegrees,
                 NEO7M.GPGLL.LatitudeDirection,

@@ -91,7 +91,7 @@ static void BMP_GetPressureAndTemperature(void) {
     pres_int = ((p >> 8) * 1000) + (((p & 0xff) * 390625) / 100000);
     press_float = (float) pres_int / 1000.0f;
     BMP_BaroData.Pressure = (double) press_float;
-    BMP_BaroData.mmHg = PaToMmHg(BMP_BaroData.Pressure);
+    BMP_BaroData.mmHg = Pa_to_mmHg(BMP_BaroData.Pressure);
     BMP_BaroData.Altitude = (BMP_BaroData.base_mmHg - BMP_BaroData.mmHg) * 10.5;
 }
 

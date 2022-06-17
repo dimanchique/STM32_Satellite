@@ -12,19 +12,19 @@
 #define MPU6050_ACCEL_CONFIG 		0x1C
 #define MPU6050_ACC 				0x3B    //Accelerometer XYZ MSB-LSB 6 bytes
 #define MPU6050_TEMP 				0x41    //Temperature MSB-LSB 2 bytes
-#define MPU6050_GYRO 				0x43    //TroykaGyroscope XYZ MSB-LSB 6 bytes
+#define MPU6050_GYRO 				0x43    //TrGyro XYZ MSB-LSB 6 bytes
 #define MPU6050_PWR_MGMT_1 			0x6B
 
 /** Device Values **/
 #define MPU6050_RESET				0x00
 
-/** Accelerometer/TroykaGyroscope Self-Test Settings **/
+/** Accelerometer/TrGyro Self-Test Settings **/
 //#define MPU6050_TEST_ACC			0xE0
 #define MPU6050_TEST_ACC			0x00
 //#define MPU6050_TEST_GYRO			0xE0
 #define MPU6050_TEST_GYRO			0x00
 
-/** TroykaGyroscope Resolution Settings **/
+/** TrGyro Resolution Settings **/
 //#define MPU6050_GYRO_RESOLUTION	0x00        //250°/sec
 //#define MPU6050_GYRO_SCALE		131.0       //250°/sec
 #define MPU6050_GYRO_RESOLUTION		0x08        //500°/sec

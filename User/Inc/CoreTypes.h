@@ -8,9 +8,9 @@
 #define be24_to_word24(a)           ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
 #define VoltageToPressure(x)        x * (100000.0f / (2.7f - 0.2f))
 #define ADC_Resolution              (3.3f / 65535)
-#define PaToMmHg(x)                 (x * 0.0075006156130264)
-#define MILLIBARS_TO_PASCALS        100
-#define MILLIBARS_TO_MMHG           0.75f
+#define Pa_to_mmHg(x)               (x * 0.0075006156130264)
+#define mB_to_Pa                    100
+#define mB_to_mmHg                  0.75f
 #define GSM_MESSAGE_SIZE            100
 #define GSM_RESPONSE_SIZE           40
 #define GPS_DATA_SIZE               500

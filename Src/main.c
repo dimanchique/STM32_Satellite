@@ -84,9 +84,9 @@ void DWT_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 static void InitSensors(void) {
-    TroykaBarometer_Init();
-    TroykaAccelerometer_Init();
-    TroykaGyroscope_Init();
+    TrBaro_Init();
+    TrAcc_Init();
+    TrGyro_Init();
     BMP_Init();
     ADXL_Init();
     MPU_Init();
@@ -147,9 +147,9 @@ int main(void)
         BMP_ReadData();
         ADXL_ReadData();
         MPU_ReadData();
-        TroykaBarometer_ReadData();
-        TroykaAccelerometer_ReadData();
-        TroykaGyroscope_ReadData();
+        TrBaro_ReadData();
+        TrAcc_ReadData();
+        TrGyro_ReadData();
         AnalogBarometer_ReadData();
         GPS_ReadData();
     /* USER CODE END WHILE */
