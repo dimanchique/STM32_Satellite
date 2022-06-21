@@ -5,7 +5,7 @@ DeviceTypeDef ADXL345 = {0};
 static I2C_CommunicatorStruct ADXL_Communicator = {0};
 static struct AccelerometerData ADXL_Data = {0};
 
-static void GenerateDataRepresentation() {
+static void GenerateDataRepresentation(void) {
     if (ADXL_Communicator.ConnectionStatus == HAL_OK)
         sprintf(ADXL345.DataRepr,
                 "[%s] %.4f %.4f %.4f;",

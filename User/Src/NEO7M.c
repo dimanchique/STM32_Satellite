@@ -112,7 +112,7 @@ static void ParceGPGLL(char *packet) {
 
 FunctionsArray func_arr[3] = {&ParceGPGGA, &ParceGPRMC, &ParceGPGLL};
 
-void ProcessResponse() {
+static void ProcessResponse(void) {
     char *token, *packet;
     int pack;
     for (pack = 0; pack < 3; pack++) {
@@ -127,7 +127,15 @@ void ProcessResponse() {
     GenerateDataRepresentation();
 }
 
-void GPS_ReadData()
+void GPS_Init(void){
+    if (HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, NULL, 1000) == HAL_TIMEOUT)
+    {
+        sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
+        return;
+    }
+}
+
+void GPS_ReadData(void)
 {
     ReceivingEnd = 1;
     if (HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, NULL, 1000) == HAL_TIMEOUT)

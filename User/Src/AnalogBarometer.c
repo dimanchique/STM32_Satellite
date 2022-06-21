@@ -5,7 +5,7 @@ ADC_CommunicatorStruct Communicator = {0};
 struct BarometerData AnalogBaroData;
 extern ADC_HandleTypeDef hadc1;
 
-static void GenerateDataRepresentation() {
+static void GenerateDataRepresentation(void) {
     sprintf(AnalogBarometer.DataRepr,
             "[%s] %.3f %.3f %.3f;",
             AnalogBarometer.DeviceName,
@@ -23,10 +23,11 @@ void AnalogBarometer_Init(void) {
     Communicator.Channel = 0;
     Communicator.Instance = &hadc1;
     AnalogBarometer.DeviceName = "AnalogBaro";
+    HAL_ADCEx_Calibration_Start(Communicator.Instance, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED);
     AnalogBarometer_Calibrate();
 }
 
-void AnalogBarometer_ReadData(){
+void AnalogBarometer_ReadData(void){
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 10);
     uint16_t ADC_Raw = HAL_ADC_GetValue(&hadc1);

@@ -10,7 +10,7 @@ static float MPU_Temperature = 0;
 static double ACC_ERROR_X, ACC_ERROR_Y, ACC_ERROR_Z, GYRO_ERROR_X, GYRO_ERROR_Y, GYRO_ERROR_Z = 0;
 static uint16_t CalibrationCycles = 500;
 
-static void GenerateDataRepresentation() {
+static void GenerateDataRepresentation(void) {
     if (MPU_Communicator.ConnectionStatus == HAL_OK)
         sprintf(MPU6050.DataRepr,
                 "[%s] %.3f %.3f %.3f %.3f %.3f %.3f %.3f;",
@@ -64,7 +64,7 @@ static void MPU_Calibrate(void) {
     GYRO_ERROR_Z = GYRO_ERROR_Z / CalibrationCycles;
 }
 
-void MPU_Init() {
+void MPU_Init(void) {
     MPU6050.Communicator = &MPU_Communicator;
     MPU6050.DeviceName = "MPU6050";
     /** Communication Section **/
@@ -129,7 +129,7 @@ static void MPU_Read_Temperature(void) {
     MPU_Temperature = 36.53f + (float) (int16_t) ((data[0] << 8) | data[1]) / 340.0f;
 }
 
-void MPU_ReadData() {
+void MPU_ReadData(void) {
     if (MPU_Communicator.ConnectionStatus == HAL_OK) {
         MPU_Read_Acceleration();
         MPU_Read_Gyroscope();

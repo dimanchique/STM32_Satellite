@@ -24,20 +24,41 @@ extern DeviceTypeDef TrBaro;
 extern DeviceTypeDef TrGyro;
 extern DeviceTypeDef AnalogBarometer;
 
+static FRESULT OpenFile(uint8_t mode){
+    return f_open(&SDFile, Logger.FileName, mode);
+}
+
+static void MountDisk() {
+    Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
+    if (Logger.FatFsStatus == FR_OK) {
+        Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
+        if (Logger.FatFsStatus == FR_OK)
+        {
+            Logger.FatFsStatus = f_close(&SDFile);
+            Logger.DiskMounted = 1;
+        }
+    }
+}
+
 static void SetFileName(uint8_t file_number){
     sprintf(Logger.FileName, "DATA%d.txt", file_number);
     Logger.LinesCount = 0;
 }
 
-static FRESULT OpenFile(uint8_t mode){
-    return f_open(&SDFile, Logger.FileName, mode);
+static HAL_StatusTypeDef CheckDiskAndTryReconnect(){
+    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    {
+        MountDisk();
+        if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+            return HAL_ERROR;
+    }
+    return HAL_OK;
 }
 
 static void WriteLog() {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
-    NVIC_EnableIRQ(TIM17_IRQn);
     Logger.FatFsStatus = OpenFile(FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FileOpened = 1;
@@ -55,7 +76,7 @@ static void WriteLog() {
 }
 
 void LogOperation(I2C_CommunicatorStruct *Instance, OperationType Operation, uint8_t BlockSize) {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
     char log_level[10];
@@ -84,7 +105,7 @@ void LogOperation(I2C_CommunicatorStruct *Instance, OperationType Operation, uin
 }
 
 void LogDeviceState(I2C_CommunicatorStruct *Instance) {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
     char log_level[10];
@@ -112,7 +133,7 @@ void LogDeviceState(I2C_CommunicatorStruct *Instance) {
 }
 
 void ForceDataLogging() {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
     NVIC_DisableIRQ(TIM6_DAC_IRQn);
@@ -130,18 +151,6 @@ void ForceDataLogging() {
     NVIC_EnableIRQ(TIM17_IRQn);
     WriteLog();
     NVIC_EnableIRQ(TIM6_DAC_IRQn);
-}
-
-static void MountDisk() {
-    Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
-    if (Logger.FatFsStatus == FR_OK) {
-        Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
-        if (Logger.FatFsStatus == FR_OK)
-        {
-            Logger.FatFsStatus = f_close(&SDFile);
-            Logger.DiskMounted = 1;
-        }
-    }
 }
 
 void InitSDSystem() {

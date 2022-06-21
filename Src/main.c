@@ -84,6 +84,7 @@ void DWT_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 static void InitSensors(void) {
+    GPS_Init();
     TrBaro_Init();
     TrAcc_Init();
     TrGyro_Init();

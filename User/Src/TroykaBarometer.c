@@ -5,12 +5,12 @@ DeviceTypeDef TrBaro = {0};
 static struct BarometerData TrBaro_Data = {0};
 static I2C_CommunicatorStruct TrBaro_Communicator = {0};
 
-static void TrBaro_Calibrate() {
+static void TrBaro_Calibrate(void) {
     TrBaro_ReadData();
     TrBaro_Data.base_mmHg = TrBaro_Data.mmHg;
 }
 
-static void GenerateDataRepresentation() {
+static void GenerateDataRepresentation(void) {
     if (TrBaro_Communicator.ConnectionStatus == HAL_OK)
         sprintf(TrBaro.DataRepr,
                 "[%s] %.2f %.3f %.3f %.3f;",
@@ -23,7 +23,7 @@ static void GenerateDataRepresentation() {
         sprintf(TrBaro.DataRepr, "[%s] %s;", TrBaro.DeviceName, UNREACHABLE);
 }
 
-static void TrBaro_ReadPressure() {
+static void TrBaro_ReadPressure(void) {
     uint8_t data[3] = {0};
     I2C_ReadData3x8(&TrBaro_Communicator, 0x80 | TR_BARO_POUT, data);
     double millibars = (data[2] << 16 | (uint16_t) data[1] << 8 | data[0]) / 4096.0;
@@ -32,7 +32,7 @@ static void TrBaro_ReadPressure() {
     TrBaro_Data.Altitude = (TrBaro_Data.base_mmHg - TrBaro_Data.mmHg) * 10.5f;
 }
 
-static void TrBaro_ReadTemperature() {
+static void TrBaro_ReadTemperature(void) {
     uint8_t data[2] = {0};
     I2C_ReadData2x8(&TrBaro_Communicator,
                     0x80 | TR_BAR_TOUT,
@@ -40,7 +40,7 @@ static void TrBaro_ReadTemperature() {
     TrBaro_Data.Temperature = 42.5f + (float) (int16_t) ((data[1] << 8) | data[0]) / 480.0f;
 }
 
-void TrBaro_Init() {
+void TrBaro_Init(void) {
     TrBaro.Communicator = &TrBaro_Communicator;
     TrBaro.DeviceName = "TrBaro";
     /** Communication Section **/
@@ -69,7 +69,7 @@ void TrBaro_Init() {
 #endif
 }
 
-void TrBaro_ReadData() {
+void TrBaro_ReadData(void) {
     if (TrBaro_Communicator.ConnectionStatus == HAL_OK) {
         TrBaro_ReadPressure();
         TrBaro_ReadTemperature();

@@ -5,7 +5,7 @@ DeviceTypeDef TrAcc = {0};
 static struct AccelerometerData TrAcc_Data = {0};
 static I2C_CommunicatorStruct TrAcc_Communicator = {0};
 
-static void GenerateDataRepresentation() {
+static void GenerateDataRepresentation(void) {
     if (TrAcc_Communicator.ConnectionStatus == HAL_OK)
         sprintf(TrAcc.DataRepr,
                 "[%s] %.4f %.4f %.4f;",

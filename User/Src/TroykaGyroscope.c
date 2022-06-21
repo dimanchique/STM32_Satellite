@@ -5,7 +5,7 @@ DeviceTypeDef TrGyro = {0};
 static struct GyroscopeData TrGyro_Data = {0};
 static I2C_CommunicatorStruct TrGyro_Communicator = {0};
 
-static void GenerateDataRepresentation() {
+static void GenerateDataRepresentation(void) {
     if (TrGyro_Communicator.ConnectionStatus == HAL_OK)
         sprintf(TrGyro.DataRepr,
                 "[%s] %.3f %.3f %.3f;",
@@ -17,7 +17,7 @@ static void GenerateDataRepresentation() {
         sprintf(TrGyro.DataRepr, "[%s] %s;", TrGyro.DeviceName, UNREACHABLE);
 }
 
-void TrGyro_Init() {
+void TrGyro_Init(void) {
     TrGyro.Communicator = &TrGyro_Communicator;
     TrGyro.DeviceName = "TrGyro";
     /** Communication Section **/
@@ -45,7 +45,7 @@ void TrGyro_Init() {
 #endif
 }
 
-void TrGyro_ReadData() {
+void TrGyro_ReadData(void) {
     if (TrGyro_Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
         I2C_ReadData6x8(&TrGyro_Communicator, 0x80 | TR_GYRO_OUT, data);

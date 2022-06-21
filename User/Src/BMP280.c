@@ -16,7 +16,7 @@ static void BMP_SoftReset(void) {
     I2C_WriteData8(&BMP_Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
 }
 
-static void GenerateDataRepresentation() {
+static void GenerateDataRepresentation(void) {
     if (BMP_Communicator.ConnectionStatus == HAL_OK)
         sprintf(BMP280.DataRepr,
                 "[%s] %.2f %.3f %.3f %.3f;",
