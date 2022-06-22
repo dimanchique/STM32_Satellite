@@ -35,8 +35,14 @@ static void I2C_CheckDeviceState(I2C_CommunicatorStruct *Communicator) {
 }
 
 static void ReportResult(I2C_CommunicatorStruct *Communicator, OperationType Operation, uint8_t BlockSize) {
-    Communicator->ConnectionStatus = I2C_Bus.OperationResult == HAL_OK ? HAL_OK : HAL_ERROR;
-    Communicator->State = I2C_Bus.OperationResult == HAL_OK ? Working : Error;
+    if (I2C_Bus.OperationResult == HAL_OK){
+        Communicator->ConnectionStatus = HAL_OK;
+        Communicator->State = Working;
+    }
+    else{
+        Communicator->ConnectionStatus = HAL_ERROR;
+        Communicator->State = Error;
+    }
 #ifdef ENABLE_DEBUG
     LogOperation(Communicator, Operation, BlockSize);
 #endif
