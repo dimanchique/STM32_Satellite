@@ -24,12 +24,14 @@ static void I2C_CheckDeviceState(I2C_CommunicatorStruct *Communicator) {
                                                            Communicator->CommAddress,
                                                            2,
                                                            0x10);
-    if (Communicator->State == NotInitialized) {
-        Communicator->State = Communicator->ConnectionStatus == HAL_OK ? Initialized :InitializationError;
-    } else if (Communicator->State == Initialized || Communicator->State == Working) {
-        Communicator->State = Communicator->ConnectionStatus == HAL_OK ? Working :ConnectionLost;
-    } else if (Communicator->ConnectionStatus == HAL_OK)
-        Communicator->State = Working; //connection restored?
+    if (Communicator->ConnectionStatus == HAL_OK){
+        if (Communicator->State == NotInitialized) Communicator->State = Initialized;
+        else Communicator->State = Working;
+    }
+    else{
+        if (Communicator->State == NotInitialized) Communicator->State = InitializationError;
+        else Communicator->State = ConnectionLost;
+    }
 }
 
 static void ReportResult(I2C_CommunicatorStruct *Communicator, OperationType Operation, uint8_t BlockSize) {
