@@ -48,7 +48,7 @@ void TrGyro_Init(void) {
 void TrGyro_ReadData(void) {
     if (TrGyro_Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
-        I2C_ReadData6x8(&TrGyro_Communicator, 0x80 | TR_GYRO_OUT, data);
+        I2C_ReadDataNx8(&TrGyro_Communicator, 0x80 | TR_GYRO_OUT, data, 6);
         TrGyro_Data.GyroX = ((int16_t) ((data[1] << 8) | data[0]) * TR_GYRO_SCALE);
         TrGyro_Data.GyroY = ((int16_t) ((data[3] << 8) | data[2]) * TR_GYRO_SCALE);
         TrGyro_Data.GyroZ = ((int16_t) ((data[5] << 8) | data[4]) * TR_GYRO_SCALE);

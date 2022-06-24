@@ -48,7 +48,7 @@ void TrAcc_Init(void) {
 void TrAcc_ReadData(void) {
     if (TrAcc_Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
-        I2C_ReadData6x8(&TrAcc_Communicator, 0x80 | TR_ACC_OUT, data);
+        I2C_ReadDataNx8(&TrAcc_Communicator, 0x80 | TR_ACC_OUT, data, 6);
         TrAcc_Data.AccX = ((int16_t) ((data[1] << 8) | data[0]) * TR_ACC_SCALE);
         TrAcc_Data.AccY = ((int16_t) ((data[3] << 8) | data[2]) * TR_ACC_SCALE);
         TrAcc_Data.AccZ = ((int16_t) ((data[5] << 8) | data[4]) * TR_ACC_SCALE);

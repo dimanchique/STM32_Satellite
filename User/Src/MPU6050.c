@@ -32,7 +32,7 @@ static void MPU_Calibrate(void) {
     int16_t xx, yy, zz;
 
     for (uint16_t n = 0; n < CalibrationCycles; n++) {
-        I2C_ReadData6x8(&MPU_Communicator, MPU6050_ACC, data);
+        I2C_ReadDataNx8(&MPU_Communicator, MPU6050_ACC, data, 6);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
         zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -48,7 +48,7 @@ static void MPU_Calibrate(void) {
     ACC_ERROR_Z = ACC_ERROR_Z / CalibrationCycles;
 
     for (uint16_t n = 0; n < CalibrationCycles; n++) {
-        I2C_ReadData6x8(&MPU_Communicator, MPU6050_GYRO, data);
+        I2C_ReadDataNx8(&MPU_Communicator, MPU6050_GYRO, data, 6);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
         zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -100,7 +100,7 @@ void MPU_Init(void) {
 static void MPU_Read_Acceleration(void) {
     uint8_t data[6] = {0};
     int16_t xx, yy, zz;
-    I2C_ReadData6x8(&MPU_Communicator, MPU6050_ACC, data);
+    I2C_ReadDataNx8(&MPU_Communicator, MPU6050_ACC, data, 6);
     xx = (int16_t) ((data[1] << 8) | data[0]);
     yy = (int16_t) ((data[3] << 8) | data[2]);
     zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -112,7 +112,7 @@ static void MPU_Read_Acceleration(void) {
 static void MPU_Read_Gyroscope(void) {
     uint8_t data[6] = {0};
     int16_t xx, yy, zz;
-    I2C_ReadData6x8(&MPU_Communicator, MPU6050_GYRO, data);
+    I2C_ReadDataNx8(&MPU_Communicator, MPU6050_GYRO, data, 6);
     xx = (int16_t) ((data[1] << 8) | data[0]);
     yy = (int16_t) ((data[3] << 8) | data[2]);
     zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -123,9 +123,7 @@ static void MPU_Read_Gyroscope(void) {
 
 static void MPU_Read_Temperature(void) {
     uint8_t data[2] = {0};
-    I2C_ReadData2x8(&MPU_Communicator,
-                  MPU6050_TEMP,
-                  data);
+    I2C_ReadDataNx8(&MPU_Communicator, MPU6050_TEMP, data, 2);
     MPU_Temperature = 36.53f + (float) (int16_t) ((data[0] << 8) | data[1]) / 340.0f;
 }
 

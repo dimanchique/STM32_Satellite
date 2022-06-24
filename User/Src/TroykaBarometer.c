@@ -25,7 +25,7 @@ static void GenerateDataRepresentation(void) {
 
 static void TrBaro_ReadPressure(void) {
     uint8_t data[3] = {0};
-    I2C_ReadData3x8(&TrBaro_Communicator, 0x80 | TR_BARO_POUT, data);
+    I2C_ReadDataNx8(&TrBaro_Communicator, 0x80 | TR_BARO_POUT, data, 3);
     double millibars = (data[2] << 16 | (uint16_t) data[1] << 8 | data[0]) / 4096.0;
     TrBaro_Data.Pressure = millibars * mB_to_Pa;
     TrBaro_Data.mmHg = millibars * mB_to_mmHg;
@@ -34,9 +34,9 @@ static void TrBaro_ReadPressure(void) {
 
 static void TrBaro_ReadTemperature(void) {
     uint8_t data[2] = {0};
-    I2C_ReadData2x8(&TrBaro_Communicator,
+    I2C_ReadDataNx8(&TrBaro_Communicator,
                     0x80 | TR_BAR_TOUT,
-                    data);
+                    data, 2);
     TrBaro_Data.Temperature = 42.5f + (float) (int16_t) ((data[1] << 8) | data[0]) / 480.0f;
 }
 
