@@ -51,48 +51,8 @@ static void BMP_ReadCoefficients(void) {
     }
 }
 
-static void BMP_GetPressureAndTemperature(void) {
-    uint32_t temper_raw;
-    int32_t temper_int;
-    int32_t val11, val12;
-
-    float press_float;
-    uint32_t press_raw, pres_int;
-    int64_t val1, val2, p;
-
-    /** Reading Temperature First **/
+static void WaitForDataReady(void){
     while (BMP_IsUpdating()) {};
-    I2C_ReadDataU24BE(&BMP_Communicator, BMP280_TEMP_REGISTER, &temper_raw);
-    temper_raw >>= 4;
-    val11 = (int32_t) ((((temper_raw >> 3) - ((int32_t) BMP_CallData.dig_T1 << 1))) *
-                       ((int32_t) BMP_CallData.dig_T2)) >> 11;
-    val12 = (int32_t) (((((temper_raw >> 4) - ((int32_t) BMP_CallData.dig_T1)) *
-                         ((temper_raw >> 4) - ((int32_t) BMP_CallData.dig_T1))) >> 12) *
-                       ((int32_t) BMP_CallData.dig_T3)) >> 14;
-    temper_int = val11 + val12;
-    BMP_BaroData.Temperature = (float) ((temper_int * 5 + 128) >> 8) / 100.0f;
-
-    /** Reading Pressure **/
-    while (BMP_IsUpdating()) {};
-    I2C_ReadDataU24BE(&BMP_Communicator, BMP280_PRESSURE_REGISTER, &press_raw);
-    press_raw >>= 4;
-    val1 = ((int64_t) temper_int) - 128000;
-    val2 = val1 * val1 * (int64_t) BMP_CallData.dig_P6;
-    val2 = val2 + ((val1 * (int64_t) BMP_CallData.dig_P5) << 17);
-    val2 = val2 + ((int64_t) BMP_CallData.dig_P4 << 35);
-    val1 = ((val1 * val1 * (int64_t) BMP_CallData.dig_P3) >> 8) +
-           ((val1 * (int64_t) BMP_CallData.dig_P2) << 12);
-    val1 = (((((int64_t) 1) << 47) + val1)) * ((int64_t) BMP_CallData.dig_P1) >> 33;
-    p = 1048576 - press_raw;
-    p = (((p << 31) - val2) * 3125) / val1;
-    val1 = (((int64_t) BMP_CallData.dig_P9) * (p >> 13) * (p >> 13)) >> 25;
-    val2 = (((int64_t) BMP_CallData.dig_P8) * p) >> 19;
-    p = ((p + val1 + val2) >> 8) + ((int64_t) BMP_CallData.dig_P7 << 4);
-    pres_int = ((p >> 8) * 1000) + (((p & 0xff) * 390625) / 100000);
-    press_float = (float) pres_int / 1000.0f;
-    BMP_BaroData.Pressure = (double) press_float;
-    BMP_BaroData.mmHg = Pa_to_mmHg(BMP_BaroData.Pressure);
-    BMP_BaroData.Altitude = (BMP_BaroData.base_mmHg - BMP_BaroData.mmHg) * 10.5;
 }
 
 void BMP_Init(void) {
@@ -110,7 +70,7 @@ void BMP_Init(void) {
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&BMP_Communicator)) {
         BMP_SoftReset();
-        while (BMP_IsUpdating()) {};
+        WaitForDataReady();
         BMP_ReadCoefficients();
         I2C_WriteData8(&BMP_Communicator,
                        BMP280_CONFIG_REGISTER,
@@ -129,7 +89,49 @@ void BMP_Init(void) {
 }
 
 void BMP_ReadData(void) {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK)
-        BMP_GetPressureAndTemperature();
+    if (BMP_Communicator.ConnectionStatus == HAL_OK){
+        uint32_t temper_raw;
+        int32_t temper_int;
+        int32_t val11, val12;
+
+        float press_float;
+        uint32_t press_raw, pres_int;
+        int64_t val1, val2, p;
+
+        /** Reading Temperature First **/
+        WaitForDataReady();
+        I2C_ReadDataU24BE(&BMP_Communicator, BMP280_TEMP_REGISTER, &temper_raw);
+        temper_raw >>= 4;
+        val11 = (int32_t) ((((temper_raw >> 3) - ((int32_t) BMP_CallData.dig_T1 << 1))) *
+                           ((int32_t) BMP_CallData.dig_T2)) >> 11;
+        val12 = (int32_t) (((((temper_raw >> 4) - ((int32_t) BMP_CallData.dig_T1)) *
+                             ((temper_raw >> 4) - ((int32_t) BMP_CallData.dig_T1))) >> 12) *
+                           ((int32_t) BMP_CallData.dig_T3)) >> 14;
+        temper_int = val11 + val12;
+        BMP_BaroData.Temperature = (float) ((temper_int * 5 + 128) >> 8) / 100.0f;
+
+        /** Reading Pressure **/
+        WaitForDataReady();
+        I2C_ReadDataU24BE(&BMP_Communicator, BMP280_PRESSURE_REGISTER, &press_raw);
+        press_raw >>= 4;
+        val1 = ((int64_t) temper_int) - 128000;
+        val2 = val1 * val1 * (int64_t) BMP_CallData.dig_P6;
+        val2 = val2 + ((val1 * (int64_t) BMP_CallData.dig_P5) << 17);
+        val2 = val2 + ((int64_t) BMP_CallData.dig_P4 << 35);
+        val1 = ((val1 * val1 * (int64_t) BMP_CallData.dig_P3) >> 8) +
+               ((val1 * (int64_t) BMP_CallData.dig_P2) << 12);
+        val1 = (((((int64_t) 1) << 47) + val1)) * ((int64_t) BMP_CallData.dig_P1) >> 33;
+        p = 1048576 - press_raw;
+        p = (((p << 31) - val2) * 3125) / val1;
+        val1 = (((int64_t) BMP_CallData.dig_P9) * (p >> 13) * (p >> 13)) >> 25;
+        val2 = (((int64_t) BMP_CallData.dig_P8) * p) >> 19;
+        p = ((p + val1 + val2) >> 8) + ((int64_t) BMP_CallData.dig_P7 << 4);
+        pres_int = ((p >> 8) * 1000) + (((p & 0xff) * 390625) / 100000);
+        press_float = (float) pres_int / 1000.0f;
+        BMP_BaroData.Pressure = (double) press_float;
+        BMP_BaroData.mmHg = Pa_to_mmHg(BMP_BaroData.Pressure);
+        BMP_BaroData.Altitude = (BMP_BaroData.base_mmHg - BMP_BaroData.mmHg) * 10.5;
+    }
+
     GenerateDataRepresentation();
 }

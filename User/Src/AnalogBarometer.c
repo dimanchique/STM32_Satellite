@@ -1,4 +1,4 @@
-#include "AnalogDevice.h"
+#include "AnalogBarometer.h"
 
 DeviceTypeDef AnalogBarometer = {0};
 ADC_CommunicatorStruct Communicator = {0};
@@ -14,20 +14,20 @@ static void GenerateDataRepresentation(void) {
             AnalogBaroData.Altitude);
 }
 
-static void AnalogBarometer_Calibrate(void){
-    AnalogBarometer_ReadData();
+static void AnalogBaro_Calibrate(void){
+    AnalogBaro_ReadData();
     AnalogBaroData.base_mmHg = AnalogBaroData.mmHg;
 }
 
-void AnalogBarometer_Init(void) {
+void AnalogBaro_Init(void) {
     Communicator.Channel = 0;
     Communicator.Instance = &hadc1;
     AnalogBarometer.DeviceName = "AnalogBaro";
     HAL_ADCEx_Calibration_Start(Communicator.Instance, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED);
-    AnalogBarometer_Calibrate();
+    AnalogBaro_Calibrate();
 }
 
-void AnalogBarometer_ReadData(void){
+void AnalogBaro_ReadData(void){
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, 10);
     uint16_t ADC_Raw = HAL_ADC_GetValue(&hadc1);

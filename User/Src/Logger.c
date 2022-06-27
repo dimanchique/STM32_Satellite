@@ -24,14 +24,10 @@ extern DeviceTypeDef TrBaro;
 extern DeviceTypeDef TrGyro;
 extern DeviceTypeDef AnalogBarometer;
 
-static FRESULT OpenFile(uint8_t mode){
-    return f_open(&SDFile, Logger.FileName, mode);
-}
-
 static void MountDisk() {
     Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
     if (Logger.FatFsStatus == FR_OK) {
-        Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
+        Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_CREATE_ALWAYS | FA_WRITE);
         if (Logger.FatFsStatus == FR_OK)
         {
             Logger.FatFsStatus = f_close(&SDFile);
@@ -59,7 +55,7 @@ static void WriteLog() {
     if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
-    Logger.FatFsStatus = OpenFile(FA_OPEN_APPEND | FA_WRITE);
+    Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FileOpened = 1;
         Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char*)Logger.Message), NULL);

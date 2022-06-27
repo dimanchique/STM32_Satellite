@@ -32,7 +32,7 @@
 #include "MPU6050.h"
 #include "NEO7M.h"
 #include "SIM900.h"
-#include "AnalogDevice.h"
+#include "AnalogBarometer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,7 +92,7 @@ static void InitSensors(void) {
     ADXL_Init();
     MPU_Init();
     SIM900_Init();
-    AnalogBarometer_Init();
+    AnalogBaro_Init();
 }
 /* USER CODE END 0 */
 
@@ -151,7 +151,7 @@ int main(void)
         TrBaro_ReadData();
         TrAcc_ReadData();
         TrGyro_ReadData();
-        AnalogBarometer_ReadData();
+      AnalogBaro_ReadData();
         GPS_ReadData();
     /* USER CODE END WHILE */
 
