@@ -9,7 +9,7 @@
 /** Registers Addresses **/
 #define TR_BARO_CR1                         0x20
 #define TR_BARO_POUT                        0x28 //Pressure XLSB-LSB-MSB 3 bytes
-#define TR_BAR_TOUT                         0x2B //Temperature LSB-MSB 2 bytes
+#define TR_BARO_TOUT                         0x2B //Temperature LSB-MSB 2 bytes
 
 /** Device Values **/
 #define TR_BARO_ODR1                        0x20

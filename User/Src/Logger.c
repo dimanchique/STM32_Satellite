@@ -44,6 +44,10 @@ void InitSDSystem() {
     }
 }
 
+static FRESULT OpenFile(uint8_t mode) {
+    return f_open(&SDFile, Logger.FileName, mode);
+}
+
 static void MountDisk() {
     Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
     if (Logger.FatFsStatus == FR_OK) {

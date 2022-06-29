@@ -11,7 +11,7 @@ static void BMP_SoftReset();
 static void GenerateDataRepresentation();
 static void BMP_Calibrate();
 static void BMP_ReadCoefficients();
-static void BMP_GetPressureAndTemperature();
+static void WaitForDataReady();
 
 void BMP_Init(void) {
     BMP280.Communicator = &BMP_Communicator;
@@ -46,60 +46,6 @@ void BMP_Init(void) {
 #endif
 }
 
-void BMP_ReadData(void) {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK)
-        BMP_GetPressureAndTemperature();
-    GenerateDataRepresentation();
-}
-
-static uint8_t BMP_IsUpdating() {
-    uint8_t status;
-    I2C_ReadData8(&BMP_Communicator, BMP280_STATUS_REGISTER, &status);
-    return (status & 0x09) & BMP280_IS_UPDATING;
-}
-
-static void BMP_SoftReset() {
-    I2C_WriteData8(&BMP_Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
-}
-
-static void GenerateDataRepresentation() {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK)
-        sprintf(BMP280.DataRepr,
-                "[%s] %.2f %.3f %.3f %.3f;",
-                BMP280.DeviceName,
-                BMP_BaroData.Temperature,
-                BMP_BaroData.Pressure,
-                BMP_BaroData.mmHg,
-                BMP_BaroData.Altitude);
-    else
-        sprintf(BMP280.DataRepr, "[%s] %s;", BMP280.DeviceName, UNREACHABLE);
-}
-
-static void BMP_Calibrate() {
-    BMP_ReadData();
-    BMP_BaroData.base_mmHg = BMP_BaroData.mmHg;
-}
-
-static void BMP_ReadCoefficients() {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK) {
-        I2C_ReadDataU16(&BMP_Communicator, BMP280_REGISTER_DIG_T1, &BMP_CallData.dig_T1);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_T2, &BMP_CallData.dig_T2);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_T3, &BMP_CallData.dig_T3);
-        I2C_ReadDataU16(&BMP_Communicator, BMP280_REGISTER_DIG_P1, &BMP_CallData.dig_P1);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P2, &BMP_CallData.dig_P2);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P3, &BMP_CallData.dig_P3);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P4, &BMP_CallData.dig_P4);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P5, &BMP_CallData.dig_P5);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P6, &BMP_CallData.dig_P6);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P7, &BMP_CallData.dig_P7);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P8, &BMP_CallData.dig_P8);
-        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P9, &BMP_CallData.dig_P9);
-    }
-}
-
-static void WaitForDataReady(void){
-    while (BMP_IsUpdating()) {};
-}
 
 void BMP_ReadData(void) {
     if (BMP_Communicator.ConnectionStatus == HAL_OK){
@@ -147,4 +93,54 @@ void BMP_ReadData(void) {
     }
 
     GenerateDataRepresentation();
+}
+
+
+static uint8_t BMP_IsUpdating() {
+    uint8_t status;
+    I2C_ReadData8(&BMP_Communicator, BMP280_STATUS_REGISTER, &status);
+    return (status & 0x09) & BMP280_IS_UPDATING;
+}
+
+static void BMP_SoftReset() {
+    I2C_WriteData8(&BMP_Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
+}
+
+static void GenerateDataRepresentation() {
+    if (BMP_Communicator.ConnectionStatus == HAL_OK)
+        sprintf(BMP280.DataRepr,
+                "[%s] %.2f %.3f %.3f %.3f;",
+                BMP280.DeviceName,
+                BMP_BaroData.Temperature,
+                BMP_BaroData.Pressure,
+                BMP_BaroData.mmHg,
+                BMP_BaroData.Altitude);
+    else
+        sprintf(BMP280.DataRepr, "[%s] %s;", BMP280.DeviceName, UNREACHABLE);
+}
+
+static void BMP_Calibrate() {
+    BMP_ReadData();
+    BMP_BaroData.base_mmHg = BMP_BaroData.mmHg;
+}
+
+static void BMP_ReadCoefficients() {
+    if (BMP_Communicator.ConnectionStatus == HAL_OK) {
+        I2C_ReadDataU16(&BMP_Communicator, BMP280_REGISTER_DIG_T1, &BMP_CallData.dig_T1);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_T2, &BMP_CallData.dig_T2);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_T3, &BMP_CallData.dig_T3);
+        I2C_ReadDataU16(&BMP_Communicator, BMP280_REGISTER_DIG_P1, &BMP_CallData.dig_P1);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P2, &BMP_CallData.dig_P2);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P3, &BMP_CallData.dig_P3);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P4, &BMP_CallData.dig_P4);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P5, &BMP_CallData.dig_P5);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P6, &BMP_CallData.dig_P6);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P7, &BMP_CallData.dig_P7);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P8, &BMP_CallData.dig_P8);
+        I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_P9, &BMP_CallData.dig_P9);
+    }
+}
+
+static void WaitForDataReady() {
+    while (BMP_IsUpdating()) {};
 }

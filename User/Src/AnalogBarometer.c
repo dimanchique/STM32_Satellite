@@ -6,9 +6,9 @@ struct BarometerData AnalogBaroData;
 extern ADC_HandleTypeDef hadc1;
 
 static void GenerateDataRepresentation();
-static void AnalogBarometer_Calibrate();
+static void AnalogBaro_Calibrate();
 
-void AnalogBarometer_Init() {
+void AnalogBaro_Init() {
     Communicator.Channel = 0;
     Communicator.Instance = &hadc1;
     AnalogBarometer.DeviceName = "AnalogBaro";
@@ -39,7 +39,7 @@ static void GenerateDataRepresentation() {
             AnalogBaroData.Altitude);
 }
 
-static void AnalogBarometer_Calibrate() {
-    AnalogBarometer_ReadData();
+static void AnalogBaro_Calibrate() {
+    AnalogBaro_ReadData();
     AnalogBaroData.base_mmHg = AnalogBaroData.mmHg;
 }

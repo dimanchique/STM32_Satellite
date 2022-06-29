@@ -49,12 +49,12 @@ void TrAcc_ReadData(void) {
 
 static void GenerateDataRepresentation() {
     if (TrAcc_Communicator.ConnectionStatus == HAL_OK)
-        sprintf(TroykaAccelerometer.DataRepr,
+        sprintf(TrAcc.DataRepr,
                 "[%s] %.4f %.4f %.4f;",
-                TroykaAccelerometer.DeviceName,
+                TrAcc.DeviceName,
                 TrAcc_Data.AccX,
                 TrAcc_Data.AccY,
                 TrAcc_Data.AccZ);
     else
-        sprintf(TroykaAccelerometer.DataRepr, "[%s] %s;", TroykaAccelerometer.DeviceName, UNREACHABLE);
+        sprintf(TrAcc.DataRepr, "[%s] %s;", TrAcc.DeviceName, UNREACHABLE);
 }

@@ -14,22 +14,15 @@ static void GenerateDataRepresentation();
 static void ParseGPGGA(char *packet);
 static void ParseGPRMC(char *packet);
 static void ParseGPGLL(char *packet);
+static void ProcessResponse();
 
 static FunctionsArray func_arr[3] = {&ParseGPGGA, &ParseGPRMC, &ParseGPGLL};
 
-void ProcessResponse() {
-    char *token, *packet;
-    int pack;
-    for (pack = 0; pack < 3; pack++) {
-        strcpy(NEO7M.TempMessage, NEO7M.Message);
-        token = strstr(NEO7M.TempMessage, Keys[pack]);
-        if (token) {
-            packet = strtok(token, "$");
-            if (packet != NULL)
-                func_arr[pack](packet);
-        }
-    }
-    GenerateDataRepresentation();
+void GPS_Init(){
+    if (HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t*)NEO7M.Message, GPS_DATA_SIZE, NULL, 1000) == HAL_TIMEOUT)
+        sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
+    else
+        sprintf(NEO7M.PayloadMessage, "[GPS] Connectiong;");
 }
 
 void GPS_ReadData()
@@ -44,6 +37,21 @@ void GPS_ReadData()
     while (ReceivingEnd==1);
     if(IsValid(NEO7M.Message))
         ProcessResponse();
+}
+
+static void ProcessResponse() {
+    char *token, *packet;
+    int pack;
+    for (pack = 0; pack < 3; pack++) {
+        strcpy(NEO7M.TempMessage, NEO7M.Message);
+        token = strstr(NEO7M.TempMessage, Keys[pack]);
+        if (token) {
+            packet = strtok(token, "$");
+            if (packet != NULL)
+                func_arr[pack](packet);
+        }
+    }
+    GenerateDataRepresentation();
 }
 
 static uint8_t IsValid(char *packet) {
