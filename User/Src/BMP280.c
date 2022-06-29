@@ -6,13 +6,59 @@ static I2C_CommunicatorStruct BMP_Communicator = {0};
 static struct CalibrationData BMP_CallData = {0};
 static struct BarometerData BMP_BaroData = {0};
 
-static uint8_t BMP_IsUpdating(void) {
+static uint8_t BMP_IsUpdating();
+static void BMP_SoftReset();
+static void GenerateDataRepresentation();
+static void BMP_Calibrate();
+static void BMP_ReadCoefficients();
+static void BMP_GetPressureAndTemperature();
+
+void BMP_Init(void) {
+    BMP280.Communicator = &BMP_Communicator;
+    BMP280.DeviceName = "BMP280";
+    /** Communication Section **/
+    I2C_SetupCommunicator(&BMP_Communicator,
+                          BMP280.DeviceName,
+                          BMP280_ADDRESS,
+                          BMP280_ID,
+                          BMP280_ID_REGISTER);
+#ifdef ENABLE_DEBUG
+    LogDeviceState(&BMP_Communicator);
+#endif
+    /** Setup Section **/
+    if (I2C_DeviceCheckedAndVerified(&BMP_Communicator)) {
+        BMP_SoftReset();
+        while (BMP_IsUpdating()) {};
+        BMP_ReadCoefficients();
+        I2C_WriteData8(&BMP_Communicator,
+                       BMP280_CONFIG_REGISTER,
+                       BMP280_STANDBYTIME << 5 | BMP280_FILTERING_TYPE << 2);
+        I2C_WriteData8(&BMP_Communicator,
+                       BMP280_CTRL_REGISTER,
+                       BMP280_TEMPERATURE_OVERSAMPLING << 5 | BMP280_PRESSURE_OVERSAMPLING << 2 | BMP280_POWER_MODE);
+        HAL_Delay(50);
+        BMP_Calibrate();
+        if (BMP_Communicator.ConnectionStatus == HAL_OK)
+            BMP_Communicator.State = Initialized;
+    }
+#ifdef ENABLE_DEBUG
+    LogDeviceState(&BMP_Communicator);
+#endif
+}
+
+void BMP_ReadData(void) {
+    if (BMP_Communicator.ConnectionStatus == HAL_OK)
+        BMP_GetPressureAndTemperature();
+    GenerateDataRepresentation();
+}
+
+static uint8_t BMP_IsUpdating() {
     uint8_t status;
     I2C_ReadData8(&BMP_Communicator, BMP280_STATUS_REGISTER, &status);
     return (status & 0x09) & BMP280_IS_UPDATING;
 }
 
-static void BMP_SoftReset(void) {
+static void BMP_SoftReset() {
     I2C_WriteData8(&BMP_Communicator, BMP280_RESET_REGISTER, BMP280_SOFTRESET);
 }
 
@@ -29,12 +75,12 @@ static void GenerateDataRepresentation() {
         sprintf(BMP280.DataRepr, "[%s] %s;", BMP280.DeviceName, UNREACHABLE);
 }
 
-static void BMP_Calibrate(void) {
+static void BMP_Calibrate() {
     BMP_ReadData();
     BMP_BaroData.base_mmHg = BMP_BaroData.mmHg;
 }
 
-static void BMP_ReadCoefficients(void) {
+static void BMP_ReadCoefficients() {
     if (BMP_Communicator.ConnectionStatus == HAL_OK) {
         I2C_ReadDataU16(&BMP_Communicator, BMP280_REGISTER_DIG_T1, &BMP_CallData.dig_T1);
         I2C_ReadDataS16(&BMP_Communicator, BMP280_REGISTER_DIG_T2, &BMP_CallData.dig_T2);
@@ -51,7 +97,7 @@ static void BMP_ReadCoefficients(void) {
     }
 }
 
-static void BMP_GetPressureAndTemperature(void) {
+static void BMP_GetPressureAndTemperature() {
     uint32_t temper_raw;
     int32_t temper_int;
     int32_t val11, val12;
@@ -93,43 +139,4 @@ static void BMP_GetPressureAndTemperature(void) {
     BMP_BaroData.Pressure = (double) press_float;
     BMP_BaroData.mmHg = PaToMmHg(BMP_BaroData.Pressure);
     BMP_BaroData.Altitude = (BMP_BaroData.base_mmHg - BMP_BaroData.mmHg) * 10.5;
-}
-
-void BMP_Init(void) {
-    BMP280.Communicator = &BMP_Communicator;
-    BMP280.DeviceName = "BMP280";
-    /** Communication Section **/
-    I2C_SetupCommunicator(&BMP_Communicator,
-                          BMP280.DeviceName,
-                          BMP280_ADDRESS,
-                          BMP280_ID,
-                          BMP280_ID_REGISTER);
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&BMP_Communicator);
-#endif
-    /** Setup Section **/
-    if (I2C_DeviceCheckedAndVerified(&BMP_Communicator)) {
-        BMP_SoftReset();
-        while (BMP_IsUpdating()) {};
-        BMP_ReadCoefficients();
-        I2C_WriteData8(&BMP_Communicator,
-                       BMP280_CONFIG_REGISTER,
-                       BMP280_STANDBYTIME << 5 | BMP280_FILTERING_TYPE << 2);
-        I2C_WriteData8(&BMP_Communicator,
-                       BMP280_CTRL_REGISTER,
-                       BMP280_TEMPERATURE_OVERSAMPLING << 5 | BMP280_PRESSURE_OVERSAMPLING << 2 | BMP280_POWER_MODE);
-        HAL_Delay(50);
-        BMP_Calibrate();
-        if (BMP_Communicator.ConnectionStatus == HAL_OK)
-            BMP_Communicator.State = Initialized;
-    }
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&BMP_Communicator);
-#endif
-}
-
-void BMP_ReadData(void) {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK)
-        BMP_GetPressureAndTemperature();
-    GenerateDataRepresentation();
 }

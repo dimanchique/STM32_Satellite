@@ -5,21 +5,10 @@ ADC_CommunicatorStruct Communicator = {0};
 struct BarometerData AnalogBaroData;
 extern ADC_HandleTypeDef hadc1;
 
-static void GenerateDataRepresentation() {
-    sprintf(AnalogBarometer.DataRepr,
-            "[%s] %.3f %.3f %.3f;",
-            AnalogBarometer.DeviceName,
-            AnalogBaroData.Pressure,
-            AnalogBaroData.mmHg,
-            AnalogBaroData.Altitude);
-}
+static void GenerateDataRepresentation();
+static void AnalogBarometer_Calibrate();
 
-static void AnalogBarometer_Calibrate(void){
-    AnalogBarometer_ReadData();
-    AnalogBaroData.base_mmHg = AnalogBaroData.mmHg;
-}
-
-void AnalogBarometer_Init(void) {
+void AnalogBarometer_Init() {
     Communicator.Channel = 0;
     Communicator.Instance = &hadc1;
     AnalogBarometer.DeviceName = "AnalogBaro";
@@ -38,4 +27,18 @@ void AnalogBarometer_ReadData(){
     AnalogBaroData.mmHg = PaToMmHg(AnalogBaroData.Pressure);
     AnalogBaroData.Altitude = AnalogBaroData.base_mmHg - AnalogBaroData.mmHg *10.5;
     GenerateDataRepresentation();
+}
+
+static void GenerateDataRepresentation() {
+    sprintf(AnalogBarometer.DataRepr,
+            "[%s] %.3f %.3f %.3f;",
+            AnalogBarometer.DeviceName,
+            AnalogBaroData.Pressure,
+            AnalogBaroData.mmHg,
+            AnalogBaroData.Altitude);
+}
+
+static void AnalogBarometer_Calibrate() {
+    AnalogBarometer_ReadData();
+    AnalogBaroData.base_mmHg = AnalogBaroData.mmHg;
 }

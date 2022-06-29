@@ -5,27 +5,8 @@ DeviceTypeDef ADXL345 = {0};
 static I2C_CommunicatorStruct ADXL_Communicator = {0};
 static struct AccelerometerData ADXL_Data = {0};
 
-static void GenerateDataRepresentation() {
-    if (ADXL_Communicator.ConnectionStatus == HAL_OK)
-        sprintf(ADXL345.DataRepr,
-                "[%s] %.4f %.4f %.4f;",
-                ADXL345.DeviceName,
-                ADXL_Data.AccX,
-                ADXL_Data.AccY,
-                ADXL_Data.AccZ);
-    else
-        sprintf(ADXL345.DataRepr, "[%s] %s;", ADXL345.DeviceName, UNREACHABLE);
-}
-
-static void ADXL_Calibrate(void) {
-    ADXL_ReadData();
-    ADXL_Data.AccX /= ADXL345_ACC_SCALE;
-    ADXL_Data.AccY /= ADXL345_ACC_SCALE;
-    ADXL_Data.AccZ /= ADXL345_ACC_SCALE;
-    I2C_WriteData8(&ADXL_Communicator, ADXL345_OFSX, (uint8_t) ((ADXL_Data.AccX - ADXL345_ACC_SCALE) / 4));
-    I2C_WriteData8(&ADXL_Communicator, ADXL345_OFSY, (uint8_t) ((ADXL_Data.AccY - ADXL345_ACC_SCALE) / 4));
-    I2C_WriteData8(&ADXL_Communicator, ADXL345_OFSZ, (uint8_t) ((ADXL_Data.AccZ - ADXL345_ACC_SCALE) / 4));
-}
+static void GenerateDataRepresentation();
+static void ADXL_Calibrate(void);
 
 void ADXL_Init(void) {
     ADXL345.Communicator = &ADXL_Communicator;
@@ -64,4 +45,26 @@ void ADXL_ReadData(void) {
         ADXL_Data.AccZ = ((int16_t) ((data[5] << 8) | data[4]) * ADXL345_ACC_SCALE);
     }
     GenerateDataRepresentation();
+}
+
+static void GenerateDataRepresentation() {
+    if (ADXL_Communicator.ConnectionStatus == HAL_OK)
+        sprintf(ADXL345.DataRepr,
+                "[%s] %.4f %.4f %.4f;",
+                ADXL345.DeviceName,
+                ADXL_Data.AccX,
+                ADXL_Data.AccY,
+                ADXL_Data.AccZ);
+    else
+        sprintf(ADXL345.DataRepr, "[%s] %s;", ADXL345.DeviceName, UNREACHABLE);
+}
+
+static void ADXL_Calibrate(void) {
+    ADXL_ReadData();
+    ADXL_Data.AccX /= ADXL345_ACC_SCALE;
+    ADXL_Data.AccY /= ADXL345_ACC_SCALE;
+    ADXL_Data.AccZ /= ADXL345_ACC_SCALE;
+    I2C_WriteData8(&ADXL_Communicator, ADXL345_OFSX, (uint8_t) ((ADXL_Data.AccX - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL_Communicator, ADXL345_OFSY, (uint8_t) ((ADXL_Data.AccY - ADXL345_ACC_SCALE) / 4));
+    I2C_WriteData8(&ADXL_Communicator, ADXL345_OFSZ, (uint8_t) ((ADXL_Data.AccZ - ADXL345_ACC_SCALE) / 4));
 }

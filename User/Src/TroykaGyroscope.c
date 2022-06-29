@@ -5,17 +5,7 @@ DeviceTypeDef TroykaGyroscope = {0};
 static struct GyroscopeData TrGyro_Data = {0};
 static I2C_CommunicatorStruct TrGyro_Communicator = {0};
 
-static void GenerateDataRepresentation() {
-    if (TrGyro_Communicator.ConnectionStatus == HAL_OK)
-        sprintf(TroykaGyroscope.DataRepr,
-                "[%s] %.3f %.3f %.3f;",
-                TroykaGyroscope.DeviceName,
-                TrGyro_Data.GyroX,
-                TrGyro_Data.GyroY,
-                TrGyro_Data.GyroZ);
-    else
-        sprintf(TroykaGyroscope.DataRepr, "[%s] %s;", TroykaGyroscope.DeviceName, UNREACHABLE);
-}
+static void GenerateDataRepresentation();
 
 void TroykaGyroscope_Init() {
     TroykaGyroscope.Communicator = &TrGyro_Communicator;
@@ -60,4 +50,16 @@ void TroykaGyroscope_ReadData() {
         TrGyro_Data.GyroZ = ((int16_t) ((data[5] << 8) | data[4]) * TROYKA_GYROSCOPE_SCALE);
     }
     GenerateDataRepresentation();
+}
+
+static void GenerateDataRepresentation() {
+    if (TrGyro_Communicator.ConnectionStatus == HAL_OK)
+        sprintf(TroykaGyroscope.DataRepr,
+                "[%s] %.3f %.3f %.3f;",
+                TroykaGyroscope.DeviceName,
+                TrGyro_Data.GyroX,
+                TrGyro_Data.GyroY,
+                TrGyro_Data.GyroZ);
+    else
+        sprintf(TroykaGyroscope.DataRepr, "[%s] %s;", TroykaGyroscope.DeviceName, UNREACHABLE);
 }

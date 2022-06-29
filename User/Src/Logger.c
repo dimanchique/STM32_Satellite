@@ -24,12 +24,44 @@ extern DeviceTypeDef TroykaBarometer;
 extern DeviceTypeDef TroykaGyroscope;
 extern DeviceTypeDef AnalogBarometer;
 
-static void SetFileName(uint8_t file_number){
+static void SetFileName(uint8_t file_number);
+static FRESULT OpenFile(uint8_t mode);
+static void WriteLog();
+static void MountDisk();
+
+void InitSDSystem() {
+    strcpy(Logger.Message, "");
+    Logger.DiskMounted = 0;
+    Logger.FileOpened = 0;
+    Logger.FileCount = 0;
+
+    SetFileName(Logger.FileCount);
+
+    MountDisk();
+    if (Logger.DiskMounted){
+        strcpy(Logger.Message, "[LOG] Initial log created. FatFS status: Initialized\n");
+        WriteLog();
+    }
+}
+
+static void MountDisk() {
+    Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
+    if (Logger.FatFsStatus == FR_OK) {
+        Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
+        if (Logger.FatFsStatus == FR_OK)
+        {
+            Logger.FatFsStatus = f_close(&SDFile);
+            Logger.DiskMounted = 1;
+        }
+    }
+}
+
+static void SetFileName(uint8_t file_number) {
     sprintf(Logger.FileName, "DATA%d.txt", file_number);
     Logger.LinesCount = 0;
 }
 
-static FRESULT OpenFile(uint8_t mode){
+static FRESULT OpenFile(uint8_t mode) {
     return f_open(&SDFile, Logger.FileName, mode);
 }
 
@@ -130,42 +162,4 @@ void ForceDataLogging() {
     NVIC_EnableIRQ(TIM17_IRQn);
     WriteLog();
     NVIC_EnableIRQ(TIM6_DAC_IRQn);
-}
-
-static void MX_SDMMC1_SD_Init(void) {
-    hsd1.Instance = SDMMC1;
-    hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
-    hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
-    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv = 0;
-}
-
-static void MountDisk() {
-    Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
-    if (Logger.FatFsStatus == FR_OK) {
-        Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
-        if (Logger.FatFsStatus == FR_OK)
-        {
-            Logger.FatFsStatus = f_close(&SDFile);
-            Logger.DiskMounted = 1;
-        }
-    }
-}
-
-void InitSDSystem() {
-    MX_SDMMC1_SD_Init();
-    MX_FATFS_Init();
-    strcpy(Logger.Message, "");
-    Logger.DiskMounted = 0;
-    Logger.FileOpened = 0;
-    Logger.FileCount = 0;
-
-    SetFileName(Logger.FileCount);
-
-    MountDisk();
-    if (Logger.DiskMounted){
-        strcpy(Logger.Message, "[LOG] Initial log created. FatFS status: Initialized\n");
-        WriteLog();
-    }
 }

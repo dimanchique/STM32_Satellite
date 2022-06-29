@@ -5,17 +5,7 @@ DeviceTypeDef TroykaAccelerometer = {0};
 static struct AccelerometerData TrAcc_Data = {0};
 static I2C_CommunicatorStruct TrAcc_Communicator = {0};
 
-static void GenerateDataRepresentation() {
-    if (TrAcc_Communicator.ConnectionStatus == HAL_OK)
-        sprintf(TroykaAccelerometer.DataRepr,
-                "[%s] %.4f %.4f %.4f;",
-                TroykaAccelerometer.DeviceName,
-                TrAcc_Data.AccX,
-                TrAcc_Data.AccY,
-                TrAcc_Data.AccZ);
-    else
-        sprintf(TroykaAccelerometer.DataRepr, "[%s] %s;", TroykaAccelerometer.DeviceName, UNREACHABLE);
-}
+static void GenerateDataRepresentation();
 
 void TroykaAccelerometer_Init(void) {
     /** Communication Section **/
@@ -60,4 +50,17 @@ void TroykaAccelerometer_ReadData(void) {
         TrAcc_Data.AccZ = ((int16_t) ((data[5] << 8) | data[4]) * TROYKA_ACCELEROMETER_SCALE);
     }
     GenerateDataRepresentation();
+}
+
+
+static void GenerateDataRepresentation() {
+    if (TrAcc_Communicator.ConnectionStatus == HAL_OK)
+        sprintf(TroykaAccelerometer.DataRepr,
+                "[%s] %.4f %.4f %.4f;",
+                TroykaAccelerometer.DeviceName,
+                TrAcc_Data.AccX,
+                TrAcc_Data.AccY,
+                TrAcc_Data.AccZ);
+    else
+        sprintf(TroykaAccelerometer.DataRepr, "[%s] %s;", TroykaAccelerometer.DeviceName, UNREACHABLE);
 }
