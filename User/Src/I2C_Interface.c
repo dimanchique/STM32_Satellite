@@ -55,37 +55,15 @@ void I2C_ReadData8(I2C_CommunicatorStruct *Communicator, uint8_t RegisterAddress
     ReportResult(Communicator, Reading, 8);
 }
 
-void I2C_ReadData2x8(I2C_CommunicatorStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value) {
+void I2C_ReadDataNx8(I2C_CommunicatorStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value, uint8_t NumberOfBytes) {
     I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance,
                                                Communicator->CommAddress,
                                                RegisterAddress,
                                                I2C_MEMADD_SIZE_8BIT,
                                                (uint8_t *) Value,
-                                               2,
+                                               NumberOfBytes,
                                                0x50);
-    ReportResult(Communicator, Reading, 16);
-}
-
-void I2C_ReadData3x8(I2C_CommunicatorStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value) {
-    I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance,
-                                               Communicator->CommAddress,
-                                               RegisterAddress,
-                                               I2C_MEMADD_SIZE_8BIT,
-                                               (uint8_t *) Value,
-                                               3,
-                                               0x50);
-    ReportResult(Communicator, Reading, 24);
-}
-
-void I2C_ReadData6x8(I2C_CommunicatorStruct *Communicator, uint8_t RegisterAddress, uint8_t *Value) {
-    I2C_Bus.OperationResult = HAL_I2C_Mem_Read(&I2C_Bus.I2C_Instance,
-                                               Communicator->CommAddress,
-                                               RegisterAddress,
-                                               I2C_MEMADD_SIZE_8BIT,
-                                               (uint8_t *) Value,
-                                               6,
-                                               0x50);
-    ReportResult(Communicator, Reading, 48);
+    ReportResult(Communicator, Reading, 8*NumberOfBytes);
 }
 
 void I2C_ReadDataU16(I2C_CommunicatorStruct *Communicator, uint8_t RegisterAddress, uint16_t *Value) {

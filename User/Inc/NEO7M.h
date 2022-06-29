@@ -8,5 +8,5 @@
 #define DisableVTGPacket    "181\n98\n6\n1\n8\n0\n240\n5\n0\n0\n0\n0\n0\n1\n5\n71\n181\n98\n6\n1\n2\n0\n240\n5\n254\n22\n"
 
 /** Functions Prototypes **/
-void ProcessResponse(void);
+void GPS_Init(void);
 void GPS_ReadData(void);

@@ -7,7 +7,7 @@ static struct AccelerometerData MPU_AccData = {0};
 static struct GyroscopeData MPU_GyroData = {0};
 static float MPU_Temperature = 0;
 
-static double ACC_ERROR_X, ACC_ERROR_Y, ACC_ERROR_Z, GYRO_ERROR_X, GYRO_ERROR_Y, GYRO_ERROR_Z = 0;
+static double ACC_ERROR_X, ACC_ERROR_Y, ACC_ERROR_Z, GYRO_ERROR_X, GYRO_ERROR_Y, GYRO_ERROR_Z;
 static uint16_t CalibrationCycles = 500;
 
 static void GenerateDataRepresentation();
@@ -78,44 +78,44 @@ static void MPU_Calibrate() {
     double AccX, AccY, AccZ, GyroX, GyroY, GyroZ;
     uint8_t data[6] = {0};
     int16_t xx, yy, zz;
+    ACC_ERROR_X = 0;
+    ACC_ERROR_Y = 0;
+    ACC_ERROR_Z = 0;
+    GYRO_ERROR_X = 0;
+    GYRO_ERROR_Y = 0;
+    GYRO_ERROR_Z = 0;
 
     for (uint16_t n = 0; n < CalibrationCycles; n++) {
-        I2C_ReadData6x8(&MPU_Communicator, MPU6050_ACC, data);
+        I2C_ReadDataNx8(&MPU_Communicator, MPU6050_ACC, data, 6);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
         zz = (int16_t) ((data[5] << 8) | data[4]);
-        AccX = xx / MPU6050_ACC_SCALE;
-        AccY = yy / MPU6050_ACC_SCALE;
-        AccZ = zz / MPU6050_ACC_SCALE;
-        ACC_ERROR_X = ACC_ERROR_X + AccX;
-        ACC_ERROR_Y = ACC_ERROR_Y + AccY;
-        ACC_ERROR_Z = ACC_ERROR_Z + AccZ;
+        ACC_ERROR_X += xx / MPU6050_ACC_SCALE;
+        ACC_ERROR_Y += yy / MPU6050_ACC_SCALE;
+        ACC_ERROR_Z += zz / MPU6050_ACC_SCALE;
     }
-    ACC_ERROR_X = ACC_ERROR_X / CalibrationCycles;
-    ACC_ERROR_Y = ACC_ERROR_Y / CalibrationCycles;
-    ACC_ERROR_Z = ACC_ERROR_Z / CalibrationCycles;
+    ACC_ERROR_X /= CalibrationCycles;
+    ACC_ERROR_Y /= CalibrationCycles;
+    ACC_ERROR_Z /= CalibrationCycles;
 
     for (uint16_t n = 0; n < CalibrationCycles; n++) {
-        I2C_ReadData6x8(&MPU_Communicator, MPU6050_GYRO, data);
+        I2C_ReadDataNx8(&MPU_Communicator, MPU6050_GYRO, data, 6);
         xx = (int16_t) ((data[1] << 8) | data[0]);
         yy = (int16_t) ((data[3] << 8) | data[2]);
         zz = (int16_t) ((data[5] << 8) | data[4]);
-        GyroX = xx / MPU6050_GYRO_SCALE;
-        GyroY = yy / MPU6050_GYRO_SCALE;
-        GyroZ = zz / MPU6050_GYRO_SCALE;
-        GYRO_ERROR_X = GYRO_ERROR_X + GyroX;
-        GYRO_ERROR_Y = GYRO_ERROR_Y + GyroY;
-        GYRO_ERROR_Z = GYRO_ERROR_Z + GyroZ;
+        GYRO_ERROR_X += xx / MPU6050_GYRO_SCALE;
+        GYRO_ERROR_Y += yy / MPU6050_GYRO_SCALE;
+        GYRO_ERROR_Z += zz / MPU6050_GYRO_SCALE;
     }
-    GYRO_ERROR_X = GYRO_ERROR_X / CalibrationCycles;
-    GYRO_ERROR_Y = GYRO_ERROR_Y / CalibrationCycles;
-    GYRO_ERROR_Z = GYRO_ERROR_Z / CalibrationCycles;
+    GYRO_ERROR_X /= CalibrationCycles;
+    GYRO_ERROR_Y /= CalibrationCycles;
+    GYRO_ERROR_Z /= CalibrationCycles;
 }
 
 static void MPU_Read_Acceleration() {
     uint8_t data[6] = {0};
     int16_t xx, yy, zz;
-    I2C_ReadData6x8(&MPU_Communicator, MPU6050_ACC, data);
+    I2C_ReadDataNx8(&MPU_Communicator, MPU6050_ACC, data, 6);
     xx = (int16_t) ((data[1] << 8) | data[0]);
     yy = (int16_t) ((data[3] << 8) | data[2]);
     zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -127,7 +127,7 @@ static void MPU_Read_Acceleration() {
 static void MPU_Read_Gyroscope() {
     uint8_t data[6] = {0};
     int16_t xx, yy, zz;
-    I2C_ReadData6x8(&MPU_Communicator, MPU6050_GYRO, data);
+    I2C_ReadDataNx8(&MPU_Communicator, MPU6050_GYRO, data, 6);
     xx = (int16_t) ((data[1] << 8) | data[0]);
     yy = (int16_t) ((data[3] << 8) | data[2]);
     zz = (int16_t) ((data[5] << 8) | data[4]);
@@ -138,8 +138,6 @@ static void MPU_Read_Gyroscope() {
 
 static void MPU_Read_Temperature() {
     uint8_t data[2] = {0};
-    I2C_ReadData2x8(&MPU_Communicator,
-                  MPU6050_TEMP,
-                  data);
+    I2C_ReadDataNx8(&MPU_Communicator, MPU6050_TEMP, data, 2);
     MPU_Temperature = 36.53f + (float) (int16_t) ((data[0] << 8) | data[1]) / 340.0f;
 }

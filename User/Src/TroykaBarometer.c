@@ -1,7 +1,7 @@
 #include "TroykaBarometer.h"
 #include "Logger.h"
 
-DeviceTypeDef TroykaBarometer = {0};
+DeviceTypeDef TrBaro = {0};
 static struct BarometerData TrBaro_Data = {0};
 static I2C_CommunicatorStruct TrBaro_Communicator = {0};
 
@@ -10,27 +10,27 @@ static void GenerateDataRepresentation();
 static void TroykaBarometer_ReadPressure();
 static void TroykaBarometer_ReadTemperature();
 
-void TroykaBarometer_Init() {
-    TroykaBarometer.Communicator = &TrBaro_Communicator;
-    TroykaBarometer.DeviceName = "TrBaro";
+void TrBaro_Init() {
+    TrBaro.Communicator = &TrBaro_Communicator;
+    TrBaro.DeviceName = "TrBaro";
     /** Communication Section **/
     I2C_SetupCommunicator(&TrBaro_Communicator,
-                          TroykaBarometer.DeviceName,
-                          TROYKA_BAROMETER_ADDRESS,
-                          TROYKA_BAROMETER_ID,
-                          TROYKA_BAROMETER_ID_REGISTER);
+                          TrBaro.DeviceName,
+                          TR_BARO_ADDR,
+                          TR_BARO_ID,
+                          TR_BARO_ID_REG);
 #ifdef ENABLE_DEBUG
     LogDeviceState(&TrBaro_Communicator);
 #endif
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&TrBaro_Communicator)){
         I2C_WriteData8(&TrBaro_Communicator,
-                       TROYKA_BAROMETER_CTRL_REG1,
-                       TROYKA_BAROMETER_REG1_ODR1 |
-                       TROYKA_BAROMETER_REG1_ODR2 |
-                       TROYKA_BAROMETER_REG1_PD);
+                       TR_BARO_CR1,
+                       TR_BARO_ODR1 |
+                       TR_BARO_ODR2 |
+                       TR_BARO_PD);
         HAL_Delay(50);
-        TroykaBarometer_Calibrate();
+        TrBaro_Calibrate();
         if (TrBaro_Communicator.ConnectionStatus == HAL_OK)
             TrBaro_Communicator.State = Working;
     }
@@ -39,10 +39,10 @@ void TroykaBarometer_Init() {
 #endif
 }
 
-void TroykaBarometer_ReadData() {
+void TrBaro_ReadData() {
     if (TrBaro_Communicator.ConnectionStatus == HAL_OK) {
-        TroykaBarometer_ReadPressure();
-        TroykaBarometer_ReadTemperature();
+        TrBaro_ReadPressure();
+        TrBaro_ReadTemperature();
     }
     GenerateDataRepresentation();
 }

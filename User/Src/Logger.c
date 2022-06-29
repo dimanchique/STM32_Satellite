@@ -19,9 +19,9 @@ extern DeviceTypeDef BMP280;
 extern DeviceTypeDef ADXL345;
 extern DeviceTypeDef MPU6050;
 extern GPS_TypeDef NEO7M;
-extern DeviceTypeDef TroykaAccelerometer;
-extern DeviceTypeDef TroykaBarometer;
-extern DeviceTypeDef TroykaGyroscope;
+extern DeviceTypeDef TrAcc;
+extern DeviceTypeDef TrBaro;
+extern DeviceTypeDef TrGyro;
 extern DeviceTypeDef AnalogBarometer;
 
 static void SetFileName(uint8_t file_number);
@@ -61,16 +61,21 @@ static void SetFileName(uint8_t file_number) {
     Logger.LinesCount = 0;
 }
 
-static FRESULT OpenFile(uint8_t mode) {
-    return f_open(&SDFile, Logger.FileName, mode);
+static HAL_StatusTypeDef CheckDiskAndTryReconnect(){
+    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    {
+        MountDisk();
+        if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+            return HAL_ERROR;
+    }
+    return HAL_OK;
 }
 
 static void WriteLog() {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
-    NVIC_EnableIRQ(TIM17_IRQn);
-    Logger.FatFsStatus = OpenFile(FA_OPEN_APPEND | FA_WRITE);
+    Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FileOpened = 1;
         Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char*)Logger.Message), NULL);
@@ -87,7 +92,7 @@ static void WriteLog() {
 }
 
 void LogOperation(I2C_CommunicatorStruct *Instance, OperationType Operation, uint8_t BlockSize) {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
     char log_level[10];
@@ -116,7 +121,7 @@ void LogOperation(I2C_CommunicatorStruct *Instance, OperationType Operation, uin
 }
 
 void LogDeviceState(I2C_CommunicatorStruct *Instance) {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
     char log_level[10];
@@ -144,7 +149,7 @@ void LogDeviceState(I2C_CommunicatorStruct *Instance) {
 }
 
 void ForceDataLogging() {
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+    if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
     NVIC_DisableIRQ(TIM6_DAC_IRQn);
@@ -153,12 +158,12 @@ void ForceDataLogging() {
             HAL_GetTick(),
             NEO7M.PayloadMessage,
             BMP280.DataRepr,
-            TroykaBarometer.DataRepr,
+            TrBaro.DataRepr,
             AnalogBarometer.DataRepr,
             ADXL345.DataRepr,
-            TroykaAccelerometer.DataRepr,
+            TrAcc.DataRepr,
             MPU6050.DataRepr,
-            TroykaGyroscope.DataRepr);
+            TrGyro.DataRepr);
     NVIC_EnableIRQ(TIM17_IRQn);
     WriteLog();
     NVIC_EnableIRQ(TIM6_DAC_IRQn);

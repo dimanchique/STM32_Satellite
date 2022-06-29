@@ -32,7 +32,7 @@
 #include "MPU6050.h"
 #include "NEO7M.h"
 #include "SIM900.h"
-#include "AnalogDevice.h"
+#include "AnalogBarometer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,14 +84,15 @@ void DWT_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 static void InitSensors(void) {
-    TroykaBarometer_Init();
-    TroykaAccelerometer_Init();
-    TroykaGyroscope_Init();
+    GPS_Init();
+    TrBaro_Init();
+    TrAcc_Init();
+    TrGyro_Init();
     BMP_Init();
     ADXL_Init();
     MPU_Init();
     SIM900_Init();
-    AnalogBarometer_Init();
+    AnalogBaro_Init();
 }
 /* USER CODE END 0 */
 
@@ -147,10 +148,10 @@ int main(void)
         BMP_ReadData();
         ADXL_ReadData();
         MPU_ReadData();
-        TroykaBarometer_ReadData();
-        TroykaAccelerometer_ReadData();
-        TroykaGyroscope_ReadData();
-        AnalogBarometer_ReadData();
+        TrBaro_ReadData();
+        TrAcc_ReadData();
+        TrGyro_ReadData();
+      AnalogBaro_ReadData();
         GPS_ReadData();
     /* USER CODE END WHILE */
 

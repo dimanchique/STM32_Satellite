@@ -39,7 +39,7 @@ void ADXL_Init(void) {
 void ADXL_ReadData(void) {
     if (ADXL_Communicator.ConnectionStatus == HAL_OK) {
         uint8_t data[6] = {0};
-        I2C_ReadData6x8(&ADXL_Communicator, ADXL345_DATA, data);
+        I2C_ReadDataNx8(&ADXL_Communicator, ADXL345_DATA, data, 6);
         ADXL_Data.AccX = ((int16_t) ((data[1] << 8) | data[0]) * ADXL345_ACC_SCALE);
         ADXL_Data.AccY = ((int16_t) ((data[3] << 8) | data[2]) * ADXL345_ACC_SCALE);
         ADXL_Data.AccZ = ((int16_t) ((data[5] << 8) | data[4]) * ADXL345_ACC_SCALE);
