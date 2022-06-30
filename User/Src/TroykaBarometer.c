@@ -56,7 +56,7 @@ static void TrBaro_Calibrate() {
 static void GenerateDataRepresentation() {
     if (TrBaro_Communicator.ConnectionStatus == HAL_OK)
         sprintf(TrBaro.DataRepr,
-                "[%s] %.2f; %.3f; %.3f; %.3f;",
+                "[%s] %.2f %.3f %.3f %.3f;",
                 TrBaro.DeviceName,
                 TrBaro_Data.Temperature,
                 TrBaro_Data.Pressure,

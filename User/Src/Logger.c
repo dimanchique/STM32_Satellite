@@ -38,10 +38,6 @@ void InitSDSystem() {
     SetFileName(Logger.FileCount);
 
     MountDisk();
-    if (Logger.DiskMounted){
-        strcpy(Logger.Message, "[LOG] Initial log created. FatFS status: Initialized\n");
-        WriteLog();
-    }
 }
 
 static FRESULT OpenFile(uint8_t mode) {

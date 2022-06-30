@@ -124,6 +124,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_SPI2_Init();
@@ -140,6 +141,7 @@ int main(void)
     I2C_Init();
     InitSensors();
     HAL_TIM_Base_Start_IT(&htim6);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -151,8 +153,8 @@ int main(void)
         TrBaro_ReadData();
         TrAcc_ReadData();
         TrGyro_ReadData();
-      AnalogBaro_ReadData();
-        GPS_ReadData();
+        AnalogBaro_ReadData();
+        //GPS_ReadData();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
