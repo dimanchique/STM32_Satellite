@@ -16,7 +16,7 @@
 #define ADXL345_DATA_FORMAT                         0x31        //Data format control
 #define ADXL345_DATA                                0x32        //Accelerometer XYZ LSB-MSB 6 bytes
 
-/** Datarate Settings **/
+/** Data rate Settings **/
 //#define ADXL345_DATARATE                          0x09        //5Hz
 #define ADXL345_DATARATE                            0x0A        //100Hz
 //#define ADXL345_DATARATE                          0x0B        //200Hz

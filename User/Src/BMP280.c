@@ -28,7 +28,7 @@ void BMP_Init(void) {
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&BMP_Communicator)) {
         BMP_SoftReset();
-        while (BMP_IsUpdating()) {};
+        while (BMP_IsUpdating()) {}
         BMP_ReadCoefficients();
         I2C_WriteData8(&BMP_Communicator,
                        BMP280_CONFIG_REGISTER,
@@ -142,5 +142,5 @@ static void BMP_ReadCoefficients() {
 }
 
 static void WaitForDataReady() {
-    while (BMP_IsUpdating()) {};
+    while (BMP_IsUpdating()) {}
 }

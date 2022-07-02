@@ -9,7 +9,6 @@ static void TrBaro_Calibrate();
 static void GenerateDataRepresentation();
 static void TrBaro_ReadPressure();
 static void TrBaro_ReadTemperature();
-static void TrBaro_Calibrate();
 
 void TrBaro_Init() {
     TrBaro.Communicator = &TrBaro_Communicator;

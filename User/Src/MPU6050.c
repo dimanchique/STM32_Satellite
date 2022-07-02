@@ -75,7 +75,6 @@ static void GenerateDataRepresentation() {
 }
 
 static void MPU_Calibrate() {
-    double AccX, AccY, AccZ, GyroX, GyroY, GyroZ;
     uint8_t data[6] = {0};
     int16_t xx, yy, zz;
     ACC_ERROR_X = 0;
