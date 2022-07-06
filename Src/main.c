@@ -59,6 +59,7 @@ TIM_HandleTypeDef htim6;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
 
@@ -71,8 +72,9 @@ static void MX_I2C1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SDMMC1_SD_Init(void);
-static void MX_TIM6_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 void DWT_Init(void);
 /* USER CODE END PFP */
@@ -98,8 +100,8 @@ static void InitSensors(void) {
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-  /* USER CODE END 1 */
+    /* USER CODE BEGIN 1 */
+    /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
 
@@ -119,14 +121,17 @@ int main(void)
     MX_GPIO_Init();
     MX_I2C1_Init();
     MX_ADC2_Init();
+    MX_DMA_Init();
     MX_USART1_UART_Init();
     MX_SDMMC1_SD_Init();
     MX_FATFS_Init();
-    MX_TIM6_Init();
     MX_USART2_UART_Init();
+    MX_TIM6_Init();
     /* USER CODE BEGIN 2 */
     NVIC_SetPriority(TIM17_IRQn, 5);
     NVIC_SetPriority(TIM6_DAC_IRQn, 10);
+    NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+    USART1->CR1 |= USART_CR1_IDLEIE;
     DWT_Init();
     InitSDSystem();
     I2C_Init();
@@ -145,7 +150,7 @@ int main(void)
         TrAcc_ReadData();
         TrGyro_ReadData();
         AnalogBaro_ReadData();
-        //GPS_ReadData();
+        GPS_ReadData();
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -157,7 +162,8 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
@@ -169,7 +175,7 @@ void SystemClock_Config(void) {
     */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
-    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+    while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
     /** Macro to configure the PLL clock source
     */
@@ -191,15 +197,16 @@ void SystemClock_Config(void) {
     RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
     RCC_OscInitStruct.PLL.PLLFRACN = 0;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
         Error_Handler();
     }
 
     /** Initializes the CPU, AHB and APB buses clocks
     */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
-                                  | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2
-                                  | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2
+                                  |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
     RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV1;
@@ -208,7 +215,8 @@ void SystemClock_Config(void) {
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+    {
         Error_Handler();
     }
 }
@@ -218,7 +226,8 @@ void SystemClock_Config(void) {
   * @param None
   * @retval None
   */
-static void MX_ADC2_Init(void) {
+static void MX_ADC2_Init(void)
+{
 
     /* USER CODE BEGIN ADC2_Init 0 */
 
@@ -246,7 +255,8 @@ static void MX_ADC2_Init(void) {
     hadc2.Init.Overrun = ADC_OVR_DATA_PRESERVED;
     hadc2.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
     hadc2.Init.OversamplingMode = DISABLE;
-    if (HAL_ADC_Init(&hadc2) != HAL_OK) {
+    if (HAL_ADC_Init(&hadc2) != HAL_OK)
+    {
         Error_Handler();
     }
 
@@ -259,7 +269,8 @@ static void MX_ADC2_Init(void) {
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset = 0;
     sConfig.OffsetSignedSaturation = DISABLE;
-    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK) {
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN ADC2_Init 2 */
@@ -273,7 +284,8 @@ static void MX_ADC2_Init(void) {
   * @param None
   * @retval None
   */
-static void MX_I2C1_Init(void) {
+static void MX_I2C1_Init(void)
+{
 
     /* USER CODE BEGIN I2C1_Init 0 */
 
@@ -291,19 +303,22 @@ static void MX_I2C1_Init(void) {
     hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
     hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-    if (HAL_I2C_Init(&hi2c1) != HAL_OK) {
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+    {
         Error_Handler();
     }
 
     /** Configure Analogue filter
     */
-    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+    {
         Error_Handler();
     }
 
     /** Configure Digital filter
     */
-    if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK) {
+    if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN I2C1_Init 2 */
@@ -317,7 +332,8 @@ static void MX_I2C1_Init(void) {
   * @param None
   * @retval None
   */
-static void MX_SDMMC1_SD_Init(void) {
+static void MX_SDMMC1_SD_Init(void)
+{
 
     /* USER CODE BEGIN SDMMC1_Init 0 */
 
@@ -343,7 +359,8 @@ static void MX_SDMMC1_SD_Init(void) {
   * @param None
   * @retval None
   */
-static void MX_TIM6_Init(void) {
+static void MX_TIM6_Init(void)
+{
 
     /* USER CODE BEGIN TIM6_Init 0 */
 
@@ -359,12 +376,14 @@ static void MX_TIM6_Init(void) {
     htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim6.Init.Period = 799;
     htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim6) != HAL_OK) {
+    if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+    {
         Error_Handler();
     }
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK) {
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN TIM6_Init 2 */
@@ -378,7 +397,8 @@ static void MX_TIM6_Init(void) {
   * @param None
   * @retval None
   */
-static void MX_USART1_UART_Init(void) {
+static void MX_USART1_UART_Init(void)
+{
 
     /* USER CODE BEGIN USART1_Init 0 */
 
@@ -398,20 +418,23 @@ static void MX_USART1_UART_Init(void) {
     huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
     huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart1) != HAL_OK) {
+    if (HAL_UART_Init(&huart1) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetTxFifoThreshold(&huart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK) {
+    if (HAL_UARTEx_SetTxFifoThreshold(&huart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetRxFifoThreshold(&huart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK) {
+    if (HAL_UARTEx_SetRxFifoThreshold(&huart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart1) != HAL_OK) {
+    if (HAL_UARTEx_DisableFifoMode(&huart1) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN USART1_Init 2 */
-
     /* USER CODE END USART1_Init 2 */
 
 }
@@ -421,7 +444,8 @@ static void MX_USART1_UART_Init(void) {
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void) {
+static void MX_USART2_UART_Init(void)
+{
 
     /* USER CODE BEGIN USART2_Init 0 */
 
@@ -441,16 +465,20 @@ static void MX_USART2_UART_Init(void) {
     huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart2.Init.ClockPrescaler = UART_PRESCALER_DIV1;
     huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart2) != HAL_OK) {
+    if (HAL_UART_Init(&huart2) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetTxFifoThreshold(&huart2, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK) {
+    if (HAL_UARTEx_SetTxFifoThreshold(&huart2, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetRxFifoThreshold(&huart2, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK) {
+    if (HAL_UARTEx_SetRxFifoThreshold(&huart2, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK) {
+    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+    {
         Error_Handler();
     }
     /* USER CODE BEGIN USART2_Init 2 */
@@ -460,11 +488,21 @@ static void MX_USART2_UART_Init(void) {
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void) {
+static void MX_GPIO_Init(void)
+{
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     /* GPIO Ports Clock Enable */
@@ -500,7 +538,8 @@ void DWT_Init(void) {
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
     /* USER CODE BEGIN Callback 0 */
     //if (htim->Instance == TIM6){
     //	}
@@ -517,7 +556,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();

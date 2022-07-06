@@ -53,7 +53,7 @@ include_directories(User/Inc Inc Drivers/STM32H7xx_HAL_Driver/Inc Drivers/STM32H
 
 add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32H750xx)
 
-file(GLOB_RECURSE SOURCES "Startup/*.*" "Src/*.*" "Middlewares/*.*" "Drivers/*.*" "User/Src/*.*")
+file(GLOB_RECURSE SOURCES "User/Src/*.*" "Startup/*.*" "Src/*.*" "Middlewares/*.*" "Drivers/*.*")
 
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32H750VBTX_FLASH.ld)
 

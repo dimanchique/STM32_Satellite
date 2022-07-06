@@ -11,7 +11,7 @@
 #define mB_to_mmHg                  0.75f
 #define GSM_MESSAGE_SIZE            100
 #define GSM_RESPONSE_SIZE           40
-#define GPS_DATA_SIZE               500
+#define GPS_DATA_SIZE               300
 #define GPS_PAYLOAD_SIZE            100
 
 /** Operation Type Enum **/
@@ -124,7 +124,7 @@ typedef struct {
     char PacketName[5];
     int IsValid;
     float RawTime;
-    char TimeRepr[8];
+    char TimeRepr[11];
     float RawLatitude;
     char LatitudeDirection;
     float RawLongitude;
@@ -136,6 +136,7 @@ typedef struct {
 
 /** NEO7M Device Struct **/
 typedef struct {
+    uint8_t ReceivingFinished;
     char Message[GPS_DATA_SIZE];
     char TempMessage[GPS_DATA_SIZE];
     char PayloadMessage[GPS_PAYLOAD_SIZE];

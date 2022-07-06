@@ -43,6 +43,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 extern volatile uint8_t ReceivingEnd;
+extern GPS_TypeDef NEO7M;
+extern char ReceivedData[GPS_DATA_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,6 +60,7 @@ extern volatile uint8_t ReceivingEnd;
 /* External variables --------------------------------------------------------*/
 extern SD_HandleTypeDef hsd1;
 extern TIM_HandleTypeDef htim6;
+extern DMA_HandleTypeDef hdma_usart1_rx;
 extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim17;
 
@@ -204,16 +207,36 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 stream3 global interrupt.
+  */
+void DMA1_Stream3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream3_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart1_rx);
+  /* USER CODE BEGIN DMA1_Stream3_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream3_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-    ReceivingEnd = 0;
+  USART1->ICR |= USART_ICR_IDLECF;
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
-
+  DMA1_Stream3->CR &= ~DMA_SxCR_EN;
+  memset(NEO7M.Message, 0, GPS_DATA_SIZE);
+  strcpy(NEO7M.Message, NEO7M.TempMessage);
+  memset(NEO7M.TempMessage, 0, GPS_DATA_SIZE);
+  NEO7M.ReceivingFinished = 1;
+  DMA1_Stream3->NDTR = GPS_DATA_SIZE;
+  DMA1_Stream3->CR |= DMA_SxCR_EN;
   /* USER CODE END USART1_IRQn 1 */
 }
 
