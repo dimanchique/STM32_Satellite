@@ -4,7 +4,7 @@
 #include "string.h"
 #include "stdio.h"
 
-#define UNREACHABLE "UNREACHABLE"
+#define UNREACHABLE "NO CONNECTION"
 #define be24_to_word24(a)           ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
 #define Pa_to_mmHg(x)               ((x) * 0.0075006156130264)
 #define mB_to_Pa                    100
@@ -67,11 +67,6 @@ struct GyroscopeData {
 /**     **/
 /** I2C **/
 /**     **/
-/** I2C Bus Struct **/
-typedef struct {
-    I2C_HandleTypeDef I2C_Instance;
-    HAL_StatusTypeDef OperationResult;
-} I2C_BusStruct;
 
 /** I2C Communication Bus Struct **/
 typedef struct {
@@ -82,32 +77,6 @@ typedef struct {
     uint8_t ID_Register;
     HAL_StatusTypeDef ConnectionStatus;
 } I2C_CommunicatorStruct;
-
-/** ADC Communication Bus Struct **/
-typedef struct {
-    ADC_HandleTypeDef *Instance;
-    HAL_StatusTypeDef State;
-    uint8_t Channel;
-} ADC_CommunicatorStruct;
-
-/**         **/
-/** DEVICES **/
-/**         **/
-/** BMP280 Calibration Data Struct **/
-struct CalibrationData {
-    uint16_t dig_T1;
-    int16_t dig_T2;
-    int16_t dig_T3;
-    uint16_t dig_P1;
-    int16_t dig_P2;
-    int16_t dig_P3;
-    int16_t dig_P4;
-    int16_t dig_P5;
-    int16_t dig_P6;
-    int16_t dig_P7;
-    int16_t dig_P8;
-    int16_t dig_P9;
-};
 
 /**     **/
 /** GPS **/
@@ -154,6 +123,7 @@ typedef struct {
 /** SIM900 Device Struct **/
 typedef struct {
     HAL_StatusTypeDef Status;
+    HAL_StatusTypeDef CommandStatus;
     char Message[GSM_MESSAGE_SIZE];
     char Response[GSM_RESPONSE_SIZE];
 } GSM_TypeDef;

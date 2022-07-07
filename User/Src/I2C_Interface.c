@@ -1,7 +1,10 @@
 #include "I2C_Interface.h"
 #include "Logger.h"
 
-I2C_BusStruct I2C_Bus = {0};
+static struct {
+    I2C_HandleTypeDef I2C_Instance;
+    HAL_StatusTypeDef OperationResult;
+} I2C_Bus = {0};
 extern I2C_HandleTypeDef hi2c1;
 
 static void I2C_VerifyDevice(I2C_CommunicatorStruct *Communicator);

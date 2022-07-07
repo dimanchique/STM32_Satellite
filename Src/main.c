@@ -81,7 +81,9 @@ void DWT_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void InitSensors(void) {
+static void InitPeripheries(void) {
+    InitSDSystem();
+    I2C_Init();
     GPS_Init();
     TrBaro_Init();
     TrAcc_Init();
@@ -133,9 +135,7 @@ int main(void)
     NVIC_EnableIRQ(DMA1_Stream3_IRQn);
     USART1->CR1 |= USART_CR1_IDLEIE;
     DWT_Init();
-    InitSDSystem();
-    I2C_Init();
-    InitSensors();
+    InitPeripheries();
     HAL_TIM_Base_Start_IT(&htim6);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
     /* USER CODE END 2 */

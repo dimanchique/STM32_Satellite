@@ -3,7 +3,20 @@
 
 DeviceTypeDef BMP280 = {0};
 static I2C_CommunicatorStruct BMP_Communicator = {0};
-static struct CalibrationData BMP_CallData = {0};
+static struct {
+    uint16_t dig_T1;
+    int16_t dig_T2;
+    int16_t dig_T3;
+    uint16_t dig_P1;
+    int16_t dig_P2;
+    int16_t dig_P3;
+    int16_t dig_P4;
+    int16_t dig_P5;
+    int16_t dig_P6;
+    int16_t dig_P7;
+    int16_t dig_P8;
+    int16_t dig_P9;
+} BMP_CallData = {0};
 static struct BarometerData BMP_BaroData = {0};
 
 static uint8_t BMP_IsUpdating();

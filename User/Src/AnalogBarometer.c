@@ -1,7 +1,11 @@
 #include "AnalogBarometer.h"
 
 DeviceTypeDef AnalogBarometer = {0};
-ADC_CommunicatorStruct Communicator = {0};
+static struct {
+    ADC_HandleTypeDef *Instance;
+    HAL_StatusTypeDef State;
+    uint8_t Channel;
+} Communicator = {0};
 struct BarometerData AnalogBaroData;
 extern ADC_HandleTypeDef hadc2;
 
