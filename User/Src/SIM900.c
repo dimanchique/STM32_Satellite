@@ -1,6 +1,7 @@
 #include "SIM900.h"
 
-GSM_TypeDef SIM900 = {0};
+GSM_TypeDefStruct SIM900 = {0};
+
 extern UART_HandleTypeDef huart2;
 
 static void Send(char *Command);

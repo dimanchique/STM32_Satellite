@@ -1,8 +1,9 @@
 #include "ADXL345.h"
 #include "Logger.h"
 
-DeviceTypeDef ADXL345 = {0};
-static I2C_CommunicatorStruct ADXL_Communicator = {0};
+Device_TypeDefStruct ADXL345 = {0};
+
+static I2C_TypeDefStruct ADXL_Communicator = {0};
 static struct AccelerometerData ADXL_Data = {0};
 
 static void GenerateDataRepresentation();

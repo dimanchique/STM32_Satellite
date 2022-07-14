@@ -1,9 +1,10 @@
 #include "TroykaGyroscope.h"
 #include "Logger.h"
 
-DeviceTypeDef TrGyro = {0};
+Device_TypeDefStruct TrGyro = {0};
+
 static struct GyroscopeData TrGyro_Data = {0};
-static I2C_CommunicatorStruct TrGyro_Communicator = {0};
+static I2C_TypeDefStruct TrGyro_Communicator = {0};
 
 static void GenerateDataRepresentation();
 

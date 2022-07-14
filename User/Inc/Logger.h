@@ -14,10 +14,12 @@ typedef struct {
     FRESULT FatFsStatus;
     uint8_t DiskMounted;
     uint8_t FileOpened;
-} DiskWriter;
+} Logger_TypeDefStruct;
 
 /** Functions Prototypes **/
 void InitSDSystem(void);
+#ifdef ENABLE_DEBUG
 void LogDeviceState(I2C_CommunicatorStruct *Instance);
-void LogOperation(I2C_CommunicatorStruct *Instance, OperationType Operation, uint8_t BlockSize);
+void LogOperation(I2C_TypeDefStruct *Instance, OperationType Operation, uint8_t BlockSize);
+#endif
 void ForceDataLogging(void);

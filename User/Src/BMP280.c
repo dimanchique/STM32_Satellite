@@ -1,8 +1,9 @@
 #include "BMP280.h"
 #include "Logger.h"
 
-DeviceTypeDef BMP280 = {0};
-static I2C_CommunicatorStruct BMP_Communicator = {0};
+Device_TypeDefStruct BMP280 = {0};
+
+static I2C_TypeDefStruct BMP_Communicator = {0};
 static struct {
     uint16_t dig_T1;
     int16_t dig_T2;

@@ -1,9 +1,10 @@
 #include "TroykaAccelerometer.h"
 #include "Logger.h"
 
-DeviceTypeDef TrAcc = {0};
+Device_TypeDefStruct TrAcc = {0};
+
 static struct AccelerometerData TrAcc_Data = {0};
-static I2C_CommunicatorStruct TrAcc_Communicator = {0};
+static I2C_TypeDefStruct TrAcc_Communicator = {0};
 
 static void GenerateDataRepresentation();
 

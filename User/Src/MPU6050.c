@@ -1,8 +1,9 @@
 #include "MPU6050.h"
 #include "Logger.h"
 
-DeviceTypeDef MPU6050 = {0};
-static I2C_CommunicatorStruct MPU_Communicator = {0};
+Device_TypeDefStruct MPU6050 = {0};
+
+static I2C_TypeDefStruct MPU_Communicator = {0};
 static struct AccelerometerData MPU_AccData = {0};
 static struct GyroscopeData MPU_GyroData = {0};
 static float MPU_Temperature = 0;

@@ -1,9 +1,10 @@
 #include "TroykaBarometer.h"
 #include "Logger.h"
 
-DeviceTypeDef TrBaro = {0};
+Device_TypeDefStruct TrBaro = {0};
+
 static struct BarometerData TrBaro_Data = {0};
-static I2C_CommunicatorStruct TrBaro_Communicator = {0};
+static I2C_TypeDefStruct TrBaro_Communicator = {0};
 
 static void TrBaro_Calibrate();
 static void GenerateDataRepresentation();

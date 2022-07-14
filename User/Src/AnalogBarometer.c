@@ -1,6 +1,7 @@
 #include "AnalogBarometer.h"
 
-DeviceTypeDef AnalogBarometer = {0};
+Device_TypeDefStruct AnalogBarometer = {0};
+
 static struct {
     ADC_HandleTypeDef *Instance;
     HAL_StatusTypeDef State;
