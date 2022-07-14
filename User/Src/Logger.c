@@ -1,6 +1,10 @@
 #include "Logger.h"
 #include "CoreTypes.h"
 
+Logger_TypeDefStruct Logger = {0};
+
+extern SD_HandleTypeDef hsd1;
+
 static char* LogStatus[] = {"NotInitialized",
                             "Initialized",
                             "Initialization Error",
@@ -12,17 +16,14 @@ static char* LogStatus[] = {"NotInitialized",
                             "Success Reading",
                             "ID Check Error"};
 
-extern SD_HandleTypeDef hsd1;
-DiskWriter Logger = {0};
-
-extern DeviceTypeDef BMP280;
-extern DeviceTypeDef ADXL345;
-extern DeviceTypeDef MPU6050;
-extern GPS_TypeDef NEO7M;
-extern DeviceTypeDef TrAcc;
-extern DeviceTypeDef TrBaro;
-extern DeviceTypeDef TrGyro;
-extern DeviceTypeDef AnalogBarometer;
+extern Device_TypeDefStruct BMP280;
+extern Device_TypeDefStruct ADXL345;
+extern Device_TypeDefStruct MPU6050;
+extern GPS_TypeDefStruct NEO7M;
+extern Device_TypeDefStruct TrAcc;
+extern Device_TypeDefStruct TrBaro;
+extern Device_TypeDefStruct TrGyro;
+extern Device_TypeDefStruct AnalogBarometer;
 
 static void SetFileName(uint8_t file_number);
 static FRESULT OpenFile(uint8_t mode);
@@ -91,7 +92,8 @@ static void WriteLog() {
         SetFileName(++Logger.FileCount);
 }
 
-void LogOperation(I2C_CommunicatorStruct *Instance, OperationType Operation, uint8_t BlockSize) {
+#ifdef ENABLE_DEBUG
+void LogOperation(I2C_TypeDefStruct *Instance, OperationType Operation, uint8_t BlockSize) {
     if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
@@ -120,7 +122,7 @@ void LogOperation(I2C_CommunicatorStruct *Instance, OperationType Operation, uin
     WriteLog();
 }
 
-void LogDeviceState(I2C_CommunicatorStruct *Instance) {
+void LogDeviceState(I2C_TypeDefStruct *Instance) {
     if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
@@ -147,6 +149,7 @@ void LogDeviceState(I2C_CommunicatorStruct *Instance) {
             LogStatus[Instance->State]);
     WriteLog();
 }
+#endif
 
 void ForceDataLogging() {
     if (CheckDiskAndTryReconnect() != HAL_OK)
