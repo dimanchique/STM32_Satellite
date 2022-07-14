@@ -42,9 +42,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern volatile uint8_t ReceivingEnd;
-extern GPS_TypeDef NEO7M;
-extern char ReceivedData[GPS_DATA_SIZE];
+extern GPS_TypeDefStruct NEO7M;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
