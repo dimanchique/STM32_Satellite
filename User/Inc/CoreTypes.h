@@ -1,5 +1,4 @@
 #pragma once
-
 #include "stm32h7xx_hal.h"
 #include "string.h"
 #include "stdio.h"
@@ -36,7 +35,7 @@ typedef struct {
     void* Communicator;
     char* DeviceName;
     char DataRepr[60];
-} DeviceTypeDef;
+} Device_TypeDefStruct;
 
 /**         **/
 /** SENSORS **/
@@ -76,7 +75,7 @@ typedef struct {
     uint8_t Device_ID;
     uint8_t ID_Register;
     HAL_StatusTypeDef ConnectionStatus;
-} I2C_CommunicatorStruct;
+} I2C_TypeDefStruct;
 
 /**     **/
 /** GPS **/
@@ -112,10 +111,11 @@ typedef struct {
     GPSProtocol GPGGA;
     GPSProtocol GPGLL;
     GPSProtocol GPRMC;
+    uint8_t MinimalDataReceived;
     float SkipFloat;
     int SkipInt;
     char SkipChar;
-} GPS_TypeDef;
+} GPS_TypeDefStruct;
 
 /**     **/
 /** GSM **/
@@ -126,4 +126,4 @@ typedef struct {
     HAL_StatusTypeDef CommandStatus;
     char Message[GSM_MESSAGE_SIZE];
     char Response[GSM_RESPONSE_SIZE];
-} GSM_TypeDef;
+} GSM_TypeDefStruct;
