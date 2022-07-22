@@ -21,7 +21,7 @@ void TrGyro_Init(void) {
     LogDeviceState(&TrGyro_Communicator);
 #endif
     /** Setup Section **/
-    if (I2C_DeviceCheckedAndVerified(&TrGyro_Communicator)){
+    if (I2C_DeviceCheckedAndVerified(&TrGyro_Communicator)) {
         I2C_WriteData8(&TrGyro_Communicator, TR_GYRO_CR1, TR_GYR_CR1_XYZ_EN);
         uint8_t data;
         I2C_ReadData8(&TrGyro_Communicator, TR_GYRO_CR4, &data);

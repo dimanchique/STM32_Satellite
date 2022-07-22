@@ -12,9 +12,13 @@ static double ACC_ERROR_X, ACC_ERROR_Y, ACC_ERROR_Z, GYRO_ERROR_X, GYRO_ERROR_Y,
 static uint16_t CalibrationCycles = 500;
 
 static void GenerateDataRepresentation();
+
 static void MPU_Calibrate();
+
 static void MPU_Read_Acceleration();
+
 static void MPU_Read_Gyroscope();
+
 static void MPU_Read_Temperature();
 
 void MPU_Init() {
@@ -30,16 +34,16 @@ void MPU_Init() {
     LogDeviceState(&MPU_Communicator);
 #endif
     /** Setup Section **/
-    if (I2C_DeviceCheckedAndVerified(&MPU_Communicator)){
+    if (I2C_DeviceCheckedAndVerified(&MPU_Communicator)) {
         I2C_WriteData8(&MPU_Communicator,
                        MPU6050_PWR_MGMT_1,
                        MPU6050_RESET);
         I2C_WriteData8(&MPU_Communicator,
                        MPU6050_ACCEL_CONFIG,
-                       (uint8_t)(MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC));
+                       (uint8_t) (MPU6050_ACC_RESOLUTION | MPU6050_TEST_ACC));
         I2C_WriteData8(&MPU_Communicator,
                        MPU6050_GYRO_CONFIG,
-                       (uint8_t)(MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO));
+                       (uint8_t) (MPU6050_GYRO_RESOLUTION | MPU6050_TEST_GYRO));
         HAL_Delay(50);
         MPU_Calibrate();
         if (MPU_Communicator.ConnectionStatus == HAL_OK)

@@ -21,7 +21,7 @@ void TrAcc_Init(void) {
     LogDeviceState(&TrAcc_Communicator);
 #endif
     /** Setup Section **/
-    if (I2C_DeviceCheckedAndVerified(&TrAcc_Communicator)){
+    if (I2C_DeviceCheckedAndVerified(&TrAcc_Communicator)) {
         I2C_WriteData8(&TrAcc_Communicator, TR_ACC_CR1, TR_ACC_CR1_XYZ_EN | TR_ACC_PM0);
         uint8_t data;
         I2C_ReadData8(&TrAcc_Communicator, TR_ACC_CR4, &data);

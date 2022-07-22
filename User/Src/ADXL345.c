@@ -7,6 +7,7 @@ static I2C_TypeDefStruct ADXL_Communicator = {0};
 static struct AccelerometerData ADXL_Data = {0};
 
 static void GenerateDataRepresentation();
+
 static void ADXL_Calibrate(void);
 
 void ADXL_Init(void) {
@@ -22,7 +23,7 @@ void ADXL_Init(void) {
     LogDeviceState(&ADXL_Communicator);
 #endif
     /** Setup Section **/
-    if (I2C_DeviceCheckedAndVerified(&ADXL_Communicator)){
+    if (I2C_DeviceCheckedAndVerified(&ADXL_Communicator)) {
         I2C_WriteData8(&ADXL_Communicator, ADXL345_BW_RATE, ADXL345_DATARATE);
         I2C_WriteData8(&ADXL_Communicator, ADXL345_DATA_FORMAT, ADXL345_ACC_RESOLUTION);
         I2C_WriteData8(&ADXL_Communicator, ADXL345_POWER_CTL, 0x00);

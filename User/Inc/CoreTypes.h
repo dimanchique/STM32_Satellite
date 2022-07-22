@@ -1,4 +1,5 @@
 #pragma once
+
 #include "stm32h7xx_hal.h"
 #include "string.h"
 #include "stdio.h"
@@ -6,8 +7,9 @@
 #define UNREACHABLE "NO CONNECTION"
 #define be24_to_word24(a)           ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
 #define Pa_to_mmHg(x)               ((x) * 0.0075006156130264)
-#define mB_to_Pa                    100
-#define mB_to_mmHg                  0.75f
+#define mB_to_Pa(x)                 ((x)*100)
+#define mB_to_mmHg(x)               ((x)*0.75f)
+#define mmHg_to_Altitude(ref, mmHg) (((ref)-(mmHg)) * 10.5f)
 #define GSM_MESSAGE_SIZE            100
 #define GSM_RESPONSE_SIZE           40
 #define GPS_DATA_SIZE               300
@@ -15,37 +17,30 @@
 
 /** Operation Type Enum **/
 typedef enum {
-    Reading,
-    Writing
+    Reading, Writing
 } OperationType;
 
 /** Connection Status Enum **/
 typedef enum {
-    NotInitialized,
-    Initialized,
-    InitializationError,
-    Working,
-    Error,
-    ConnectionLost,
-    ID_Check_Error
-} ConnectionStatusType;
+    NotInitialized, Initialized, InitializationError, Working, Error, ConnectionLost, ID_Check_Error
+} ConnectionStatusTypeDef;
 
 /** Device Struct **/
 typedef struct {
-    void* Communicator;
-    char* DeviceName;
+    void *Communicator;
+    char *DeviceName;
     char DataRepr[60];
 } Device_TypeDefStruct;
 
-/**         **/
-/** SENSORS **/
-/**         **/
+/**              **/
+/** SENSORS DATA **/
+/**              **/
 /** Barometer Data Struct **/
 struct BarometerData {
     double Pressure;
     double Altitude;
     double mmHg;
-    double base_mmHg;
+    double mmHg_ref;
     float Temperature;
 };
 
@@ -66,11 +61,10 @@ struct GyroscopeData {
 /**     **/
 /** I2C **/
 /**     **/
-
 /** I2C Communication Bus Struct **/
 typedef struct {
-    ConnectionStatusType State;
-    char* Name;
+    ConnectionStatusTypeDef State;
+    char *Name;
     uint8_t CommAddress;
     uint8_t Device_ID;
     uint8_t ID_Register;
@@ -122,7 +116,7 @@ typedef struct {
 /**     **/
 /** SIM900 Device Struct **/
 typedef struct {
-    HAL_StatusTypeDef Status;
+    HAL_StatusTypeDef DeviceStatus;
     HAL_StatusTypeDef CommandStatus;
     char Message[GSM_MESSAGE_SIZE];
     char Response[GSM_RESPONSE_SIZE];

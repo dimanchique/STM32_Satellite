@@ -21,10 +21,15 @@ static struct {
 static struct BarometerData BMP_BaroData = {0};
 
 static uint8_t BMP_IsUpdating();
+
 static void BMP_SoftReset();
+
 static void GenerateDataRepresentation();
+
 static void BMP_Calibrate();
+
 static void BMP_ReadCoefficients();
+
 static void WaitForDataReady();
 
 void BMP_Init(void) {
@@ -62,7 +67,7 @@ void BMP_Init(void) {
 
 
 void BMP_ReadData(void) {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK){
+    if (BMP_Communicator.ConnectionStatus == HAL_OK) {
         uint32_t temper_raw;
         int32_t temper_int;
         int32_t val11, val12;
@@ -103,7 +108,7 @@ void BMP_ReadData(void) {
         press_float = (float) pres_int / 1000.0f;
         BMP_BaroData.Pressure = (double) press_float;
         BMP_BaroData.mmHg = Pa_to_mmHg(BMP_BaroData.Pressure);
-        BMP_BaroData.Altitude = (BMP_BaroData.base_mmHg - BMP_BaroData.mmHg) * 10.5;
+        BMP_BaroData.Altitude = mmHg_to_Altitude(BMP_BaroData.mmHg_ref, BMP_BaroData.mmHg);
     }
 
     GenerateDataRepresentation();
@@ -135,7 +140,7 @@ static void GenerateDataRepresentation() {
 
 static void BMP_Calibrate() {
     BMP_ReadData();
-    BMP_BaroData.base_mmHg = BMP_BaroData.mmHg;
+    BMP_BaroData.mmHg_ref = BMP_BaroData.mmHg;
 }
 
 static void BMP_ReadCoefficients() {

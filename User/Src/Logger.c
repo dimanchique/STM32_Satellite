@@ -5,7 +5,7 @@ Logger_TypeDefStruct Logger = {0};
 
 extern SD_HandleTypeDef hsd1;
 
-static char* LogStatus[] = {"NotInitialized",
+static char *LogStatus[] = {"NotInitialized",
                             "Initialized",
                             "Initialization Error",
                             "Working",
@@ -26,8 +26,11 @@ extern Device_TypeDefStruct TrGyro;
 extern Device_TypeDefStruct AnalogBarometer;
 
 static void SetFileName(uint8_t file_number);
+
 static FRESULT OpenFile(uint8_t mode);
+
 static void WriteLog();
+
 static void MountDisk();
 
 void InitSDSystem() {
@@ -49,8 +52,7 @@ static void MountDisk() {
     Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
-        if (Logger.FatFsStatus == FR_OK)
-        {
+        if (Logger.FatFsStatus == FR_OK) {
             Logger.FatFsStatus = f_close(&SDFile);
             Logger.DiskMounted = 1;
         }
@@ -62,9 +64,8 @@ static void SetFileName(uint8_t file_number) {
     Logger.LinesCount = 0;
 }
 
-static HAL_StatusTypeDef CheckDiskAndTryReconnect(){
-    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
-    {
+static HAL_StatusTypeDef CheckDiskAndTryReconnect() {
+    if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted) {
         MountDisk();
         if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
             return HAL_ERROR;
@@ -79,7 +80,7 @@ static void WriteLog() {
     Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FileOpened = 1;
-        Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char*)Logger.Message), NULL);
+        Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char *) Logger.Message), NULL);
         Logger.FatFsStatus = f_close(&SDFile);
     }
     if (Logger.FatFsStatus == FR_OK)

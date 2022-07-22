@@ -11,6 +11,7 @@ struct BarometerData AnalogBaroData;
 extern ADC_HandleTypeDef hadc2;
 
 static void GenerateDataRepresentation();
+
 static void AnalogBaro_Calibrate();
 
 void AnalogBaro_Init() {
@@ -21,7 +22,7 @@ void AnalogBaro_Init() {
     AnalogBaro_Calibrate();
 }
 
-void AnalogBaro_ReadData(void){
+void AnalogBaro_ReadData(void) {
     HAL_ADC_Start(Communicator.Instance);
     HAL_ADC_PollForConversion(Communicator.Instance, 10);
     uint16_t ADC_Raw = HAL_ADC_GetValue(Communicator.Instance);
@@ -31,7 +32,7 @@ void AnalogBaro_ReadData(void){
     float Voltage = (float) ADC_Raw * ADC_Resolution - 0.2f; //add 0.2v offset
     AnalogBaroData.Pressure = VoltageToPressure(Voltage);
     AnalogBaroData.mmHg = Pa_to_mmHg(AnalogBaroData.Pressure);
-    AnalogBaroData.Altitude = AnalogBaroData.base_mmHg - AnalogBaroData.mmHg *10.5;
+    AnalogBaroData.Altitude = mmHg_to_Altitude(AnalogBaroData.mmHg_ref, AnalogBaroData.mmHg);
     GenerateDataRepresentation();
 }
 
@@ -46,5 +47,5 @@ static void GenerateDataRepresentation() {
 
 static void AnalogBaro_Calibrate() {
     AnalogBaro_ReadData();
-    AnalogBaroData.base_mmHg = AnalogBaroData.mmHg;
+    AnalogBaroData.mmHg_ref = AnalogBaroData.mmHg;
 }

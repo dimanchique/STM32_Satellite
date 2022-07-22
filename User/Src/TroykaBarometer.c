@@ -7,8 +7,11 @@ static struct BarometerData TrBaro_Data = {0};
 static I2C_TypeDefStruct TrBaro_Communicator = {0};
 
 static void TrBaro_Calibrate();
+
 static void GenerateDataRepresentation();
+
 static void TrBaro_ReadPressure();
+
 static void TrBaro_ReadTemperature();
 
 void TrBaro_Init() {
@@ -24,7 +27,7 @@ void TrBaro_Init() {
     LogDeviceState(&TrBaro_Communicator);
 #endif
     /** Setup Section **/
-    if (I2C_DeviceCheckedAndVerified(&TrBaro_Communicator)){
+    if (I2C_DeviceCheckedAndVerified(&TrBaro_Communicator)) {
         I2C_WriteData8(&TrBaro_Communicator,
                        TR_BARO_CR1,
                        TR_BARO_ODR1 |
@@ -50,7 +53,7 @@ void TrBaro_ReadData() {
 
 static void TrBaro_Calibrate() {
     TrBaro_ReadData();
-    TrBaro_Data.base_mmHg = TrBaro_Data.mmHg;
+    TrBaro_Data.mmHg_ref = TrBaro_Data.mmHg;
 }
 
 static void GenerateDataRepresentation() {
@@ -72,9 +75,9 @@ static void TrBaro_ReadPressure() {
                     0x80 | TR_BARO_POUT,
                     data, 3);
     double millibars = (data[2] << 16 | (uint16_t) data[1] << 8 | data[0]) / 4096.0;
-    TrBaro_Data.Pressure = millibars * mB_to_Pa;
-    TrBaro_Data.mmHg = millibars * mB_to_mmHg;
-    TrBaro_Data.Altitude = (TrBaro_Data.base_mmHg - TrBaro_Data.mmHg) * 10.5f;
+    TrBaro_Data.Pressure = mB_to_Pa(millibars);
+    TrBaro_Data.mmHg = mB_to_mmHg(millibars);
+    TrBaro_Data.Altitude = mmHg_to_Altitude(TrBaro_Data.mmHg_ref, TrBaro_Data.mmHg);
 }
 
 static void TrBaro_ReadTemperature() {

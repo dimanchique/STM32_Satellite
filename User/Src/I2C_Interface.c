@@ -9,9 +9,13 @@ static struct {
 extern I2C_HandleTypeDef hi2c1;
 
 static void I2C_VerifyDevice(I2C_TypeDefStruct *Communicator);
+
 static void I2C_CheckDeviceState(I2C_TypeDefStruct *Communicator);
+
 static void ReportResult(I2C_TypeDefStruct *Communicator, OperationType Operation, uint8_t BlockSize);
+
 static void I2C_ReadData16(uint8_t DeviceAddress, uint8_t RegisterAddress, uint16_t *Value);
+
 static void I2C_ReadData24(uint8_t DeviceAddress, uint8_t RegisterAddress, uint32_t *Value);
 
 void I2C_Init(void) {
@@ -19,15 +23,16 @@ void I2C_Init(void) {
     I2C_Bus.OperationResult = HAL_OK;
 }
 
-void I2C_SetupCommunicator(I2C_TypeDefStruct *Communicator, char* DeviceName, uint8_t DeviceAddress, uint8_t DeviceID, uint8_t DeviceIDRegister){
+void I2C_SetupCommunicator(I2C_TypeDefStruct *Communicator, char *DeviceName, uint8_t DeviceAddress, uint8_t DeviceID,
+                           uint8_t DeviceIDRegister) {
     Communicator->Name = DeviceName;
     Communicator->State = NotInitialized;
-    Communicator->CommAddress = DeviceAddress<<1;
+    Communicator->CommAddress = DeviceAddress << 1;
     Communicator->Device_ID = DeviceID;
     Communicator->ID_Register = DeviceIDRegister;
 }
 
-uint8_t I2C_DeviceCheckedAndVerified(I2C_TypeDefStruct *Communicator){
+uint8_t I2C_DeviceCheckedAndVerified(I2C_TypeDefStruct *Communicator) {
     I2C_CheckDeviceState(Communicator);
     if (Communicator->ConnectionStatus == HAL_OK) {
         I2C_VerifyDevice(Communicator);
@@ -67,7 +72,7 @@ void I2C_ReadDataNx8(I2C_TypeDefStruct *Communicator, uint8_t RegisterAddress, u
                                                (uint8_t *) Value,
                                                NumberOfBytes,
                                                0x50);
-    ReportResult(Communicator, Reading, 8*NumberOfBytes);
+    ReportResult(Communicator, Reading, 8 * NumberOfBytes);
 }
 
 void I2C_ReadDataU16(I2C_TypeDefStruct *Communicator, uint8_t RegisterAddress, uint16_t *Value) {
@@ -97,7 +102,7 @@ static void I2C_VerifyDevice(I2C_TypeDefStruct *Communicator) {
                                                1,
                                                0x10);
     if (I2C_Bus.OperationResult == HAL_OK) {
-        Communicator->ConnectionStatus = ReceivedID == Communicator->Device_ID ? HAL_OK: HAL_ERROR;
+        Communicator->ConnectionStatus = ReceivedID == Communicator->Device_ID ? HAL_OK : HAL_ERROR;
         Communicator->State = ReceivedID == Communicator->Device_ID ? Working : ID_Check_Error;
     }
 }
@@ -108,9 +113,9 @@ static void I2C_CheckDeviceState(I2C_TypeDefStruct *Communicator) {
                                                            2,
                                                            0x10);
     if (Communicator->State == NotInitialized) {
-        Communicator->State = Communicator->ConnectionStatus == HAL_OK ? Initialized :InitializationError;
+        Communicator->State = Communicator->ConnectionStatus == HAL_OK ? Initialized : InitializationError;
     } else if (Communicator->State == Initialized || Communicator->State == Working) {
-        Communicator->State = Communicator->ConnectionStatus == HAL_OK ? Working :ConnectionLost;
+        Communicator->State = Communicator->ConnectionStatus == HAL_OK ? Working : ConnectionLost;
     } else if (Communicator->ConnectionStatus == HAL_OK)
         Communicator->State = Working; //connection restored?
 }
