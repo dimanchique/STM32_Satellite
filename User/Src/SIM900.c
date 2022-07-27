@@ -1,31 +1,32 @@
 #include "SIM900.h"
 
 GSM_TypeDefStruct SIM900 = {0};
-
 extern UART_HandleTypeDef huart2;
 
 static void Send(char *Command);
-
 static uint8_t ResponseIs(char *WantedResponse);
-
 static uint16_t ReceivedDataSize;
 
 void SIM900_Init(void) {
-    Send("AT");
-    if (ResponseIs("AT"))
-        Send("AT+CSQ");
-    if (ResponseIs("OK"))
-        Send("AT+CCID");
-    if (ResponseIs("OK"))
-        Send("AT+CREG?");
-    if (ResponseIs("OK"))
-        Send("AT+CMGF=1");
-    if (ResponseIs("OK"))
-        Send("AT+CMGS=\"+79879922773\"");
+    Send("AT\n");
+    if (ResponseIs("OK")) {
+        SIM900.DeviceStatus = HAL_OK;
+        SendMessage("SIM900 Module Connected");
+        return;
+    }
+    SIM900.DeviceStatus = HAL_ERROR;
+}
+
+void SendMessage(char *Message) {
+    Send("AT+CMGF=1\n");
+    Send("AT+CMGS=\"+79879922773\"\n");
+    Send(Message);
+    Send("\n");
+    Send((char *) 26);
 }
 
 static void Send(char *Command) {
-    HAL_UART_Transmit(&huart2, (uint8_t *) Command, strlen(Command), 200);
+    HAL_UART_Transmit(&huart2, (uint8_t *) Command, strlen(Command), 300);
     SIM900.CommandStatus = HAL_UARTEx_ReceiveToIdle(&huart2,
                                                     (uint8_t *) SIM900.Response,
                                                     GSM_RESPONSE_SIZE,
@@ -35,10 +36,7 @@ static void Send(char *Command) {
 
 static uint8_t ResponseIs(char *WantedResponse) {
     if (SIM900.CommandStatus == HAL_OK)
-        if (strstr(SIM900.Response, WantedResponse)) {
-            SIM900.DeviceStatus = HAL_OK;
+        if (strstr(SIM900.Response, WantedResponse))
             return 1;
-        }
-    SIM900.DeviceStatus = HAL_ERROR;
     return 0;
 }
