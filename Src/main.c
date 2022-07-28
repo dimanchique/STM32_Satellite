@@ -62,7 +62,7 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
-
+extern GPS_TypeDefStruct NEO7M;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,6 +94,9 @@ static void InitPeripheries(void) {
     SIM900_Init();
     AnalogBaro_Init();
 }
+
+static uint8_t WriteCount = 0;
+static uint16_t SendGPSCount = 0;
 /* USER CODE END 0 */
 
 /**
@@ -128,10 +131,10 @@ int main(void)
     MX_SDMMC1_SD_Init();
     MX_FATFS_Init();
     MX_USART2_UART_Init();
-    MX_TIM6_Init();
+    //MX_TIM6_Init();
     /* USER CODE BEGIN 2 */
     NVIC_SetPriority(TIM17_IRQn, 5);
-    NVIC_SetPriority(TIM6_DAC_IRQn, 10);
+    //NVIC_SetPriority(TIM6_DAC_IRQn, 10);
     NVIC_EnableIRQ(DMA1_Stream3_IRQn);
     USART1->CR1 |= USART_CR1_IDLEIE;
     DWT_Init();
@@ -151,6 +154,17 @@ int main(void)
         TrGyro_ReadData();
         AnalogBaro_ReadData();
         GPS_ReadData();
+        if (WriteCount++ >= 2)
+        {
+            WriteCount = 0;
+            ForceDataLogging();
+        }
+        if (SendGPSCount++ >= 6000)
+        {
+            SendGPSCount = 0;
+            if (NEO7M.GPGGA.IsValid)
+                SendMessageUsingSIM(NEO7M.PayloadMessage);
+        }
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */

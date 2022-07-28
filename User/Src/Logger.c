@@ -156,7 +156,6 @@ void ForceDataLogging() {
     if (CheckDiskAndTryReconnect() != HAL_OK)
         return;
 
-    NVIC_DisableIRQ(TIM6_DAC_IRQn);
     NVIC_DisableIRQ(TIM17_IRQn);
     sprintf(Logger.Message, "%lu [DATA] %s %s %s %s %s %s %s %s\n",
             HAL_GetTick(),
@@ -170,5 +169,4 @@ void ForceDataLogging() {
             TrGyro.DataRepr);
     NVIC_EnableIRQ(TIM17_IRQn);
     WriteLog();
-    NVIC_EnableIRQ(TIM6_DAC_IRQn);
 }

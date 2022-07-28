@@ -11,13 +11,13 @@ void SIM900_Init(void) {
     Send("AT\n");
     if (ResponseIs("OK")) {
         SIM900.DeviceStatus = HAL_OK;
-        SendMessage("SIM900 Module Connected");
+        SendMessageUsingSIM("SIM900 Module Connected");
         return;
     }
     SIM900.DeviceStatus = HAL_ERROR;
 }
 
-void SendMessage(char *Message) {
+void SendMessageUsingSIM(char *Message) {
     Send("AT+CMGF=1\n");
     Send("AT+CMGS=\"+79879922773\"\n");
     Send(Message);
