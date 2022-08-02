@@ -2,24 +2,18 @@
 
 GPS_TypeDefStruct NEO7M = {0};
 
+static uint16_t DeviceLED = GPS_PIN;
+static GPIO_TypeDef *DeviceLED_Port = GPS_PORT;
 extern UART_HandleTypeDef huart1;
-
 static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
 
 typedef void (*FunctionsArray)(char *);
-
 static uint8_t IsValid(char *packet);
-
 static void ConvertData(GPSProtocol *GPSProtocol);
-
 static void GenerateDataRepresentation();
-
 static void ParseGPGGA(char *packet);
-
 static void ParseGPRMC(char *packet);
-
 static void ParseGPGLL(char *packet);
-
 static void ProcessResponse();
 
 static FunctionsArray ParsingFunctions[3] = {&ParseGPGGA, &ParseGPRMC, &ParseGPGLL};
@@ -57,10 +51,14 @@ void GPS_Init() {
 void GPS_ReadData() {
     if (NEO7M.ReceivingFinished) {
         NEO7M.ReceivingFinished = 0;
-        if (IsValid(NEO7M.Message))
+        if (IsValid(NEO7M.Message)) {
             ProcessResponse();
-        else
+            SetDeviceStateOK(GPS_PORT, DeviceLED);
+        }
+        else {
             sprintf(NEO7M.PayloadMessage, "[GPS] %s", UNREACHABLE);
+            SetDeviceStateError(GPS_PORT, DeviceLED);
+        }
     }
 }
 

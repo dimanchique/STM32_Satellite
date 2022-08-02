@@ -3,6 +3,8 @@
 
 Device_TypeDefStruct BMP280 = {0};
 
+static uint16_t DeviceLED = BMP_PIN;
+static GPIO_TypeDef *DeviceLED_Port = BMP_PORT;
 static I2C_TypeDefStruct BMP_Communicator = {0};
 static struct {
     uint16_t dig_T1;
@@ -21,15 +23,10 @@ static struct {
 static struct BarometerData BMP_BaroData = {0};
 
 static uint8_t BMP_IsUpdating();
-
 static void BMP_SoftReset();
-
 static void GenerateDataRepresentation();
-
 static void BMP_Calibrate();
-
 static void BMP_ReadCoefficients();
-
 static void WaitForDataReady();
 
 void BMP_Init(void) {
@@ -126,7 +123,7 @@ static void BMP_SoftReset() {
 }
 
 static void GenerateDataRepresentation() {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK)
+    if (BMP_Communicator.ConnectionStatus == HAL_OK) {
         sprintf(BMP280.DataRepr,
                 "[%s] %.2f %.3f %.3f %.3f;",
                 BMP280.DeviceName,
@@ -134,8 +131,11 @@ static void GenerateDataRepresentation() {
                 BMP_BaroData.Pressure,
                 BMP_BaroData.mmHg,
                 BMP_BaroData.Altitude);
-    else
+        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+    } else {
         sprintf(BMP280.DataRepr, "[%s] %s;", BMP280.DeviceName, UNREACHABLE);
+        SetDeviceStateError(DeviceLED_Port, DeviceLED);
+    }
 }
 
 static void BMP_Calibrate() {

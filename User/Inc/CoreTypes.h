@@ -5,15 +5,34 @@
 #include "stdio.h"
 
 #define UNREACHABLE "NO CONNECTION"
-#define be24_to_word24(a)           ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
-#define Pa_to_mmHg(x)               ((x) * 0.0075006156130264)
-#define mB_to_Pa(x)                 ((x)*100)
-#define mB_to_mmHg(x)               ((x)*0.75f)
-#define mmHg_to_Altitude(ref, mmHg) (((ref)-(mmHg)) * 10.5f)
-#define GSM_MESSAGE_SIZE            100
-#define GSM_RESPONSE_SIZE           40
-#define GPS_DATA_SIZE               300
-#define GPS_PAYLOAD_SIZE            100
+#define be24_to_word24(a)               ((((a)>>16)&0x000000ff)|((a)&0x0000ff00)|(((a)<<16)&0x00ff0000)) //flip MSB and LSB
+#define Pa_to_mmHg(x)                   ((x) * 0.0075006156130264)
+#define mB_to_Pa(x)                     ((x)*100)
+#define mB_to_mmHg(x)                   ((x)*0.75f)
+#define mmHg_to_Altitude(ref, mmHg)     (((ref)-(mmHg)) * 10.5f)
+#define GSM_MESSAGE_SIZE                100
+#define GSM_RESPONSE_SIZE               40
+#define GPS_DATA_SIZE                   300
+#define GPS_PAYLOAD_SIZE                100
+#define SetDeviceStateOK(PORT, PIN)     HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_SET)
+#define SetDeviceStateError(PORT, PIN)  HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_RESET)
+
+#define ADXL_PIN                        GPIO_PIN_11
+#define ADXL_PORT                       GPIOD
+#define Logger_PIN                      GPIO_PIN_13
+#define Logger_PORT                     GPIOD
+#define BMP_PIN                         GPIO_PIN_15
+#define BMP_PORT                        GPIOD
+#define MPU_PIN                         GPIO_PIN_11
+#define MPU_PORT                        GPIOC
+#define GPS_PIN                         GPIO_PIN_2
+#define GPS_PORT                        GPIOD
+#define TroykaAcc_PIN                   GPIO_PIN_4
+#define TroykaAcc_PORT                  GPIOD
+#define TroykaBaro_PIN                  GPIO_PIN_6
+#define TroykaBaro_PORT                 GPIOD
+#define TroykaGyro_PIN                  GPIO_PIN_3
+#define TroykaGyro_PORT                 GPIOB
 
 /** Operation Type Enum **/
 typedef enum {

@@ -3,6 +3,9 @@
 
 Logger_TypeDefStruct Logger = {0};
 
+static uint16_t DeviceLED = Logger_PIN;
+static GPIO_TypeDef *DeviceLED_Port = Logger_PORT;
+
 extern SD_HandleTypeDef hsd1;
 
 static char *LogStatus[] = {"NotInitialized",
@@ -26,11 +29,7 @@ extern Device_TypeDefStruct TrGyro;
 extern Device_TypeDefStruct AnalogBarometer;
 
 static void SetFileName(uint8_t file_number);
-
-static FRESULT OpenFile(uint8_t mode);
-
 static void WriteLog();
-
 static void MountDisk();
 
 void InitSDSystem() {
@@ -44,19 +43,18 @@ void InitSDSystem() {
     MountDisk();
 }
 
-static FRESULT OpenFile(uint8_t mode) {
-    return f_open(&SDFile, Logger.FileName, mode);
-}
-
 static void MountDisk() {
     Logger.FatFsStatus = f_mount(&SDFatFS, (TCHAR const *) SDPath, 0);
     if (Logger.FatFsStatus == FR_OK) {
-        Logger.FatFsStatus = OpenFile(FA_CREATE_ALWAYS | FA_WRITE);
+        Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_CREATE_ALWAYS | FA_WRITE);
         if (Logger.FatFsStatus == FR_OK) {
             Logger.FatFsStatus = f_close(&SDFile);
             Logger.DiskMounted = 1;
+            SetDeviceStateOK(Logger_PORT, Logger_PIN);
+            return;
         }
     }
+    SetDeviceStateError(Logger_PORT, Logger_PIN);
 }
 
 static void SetFileName(uint8_t file_number) {
@@ -67,24 +65,28 @@ static void SetFileName(uint8_t file_number) {
 static HAL_StatusTypeDef CheckDiskAndTryReconnect() {
     if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted) {
         MountDisk();
-        if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted)
+        if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted) {
+            SetDeviceStateError(Logger_PORT, Logger_PIN);
             return HAL_ERROR;
+        }
     }
+    SetDeviceStateOK(Logger_PORT, Logger_PIN);
     return HAL_OK;
 }
 
 static void WriteLog() {
-    if (CheckDiskAndTryReconnect() != HAL_OK)
-        return;
-
     Logger.FatFsStatus = f_open(&SDFile, Logger.FileName, FA_OPEN_APPEND | FA_WRITE);
     if (Logger.FatFsStatus == FR_OK) {
         Logger.FileOpened = 1;
         Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char *) Logger.Message), NULL);
         Logger.FatFsStatus = f_close(&SDFile);
     }
-    if (Logger.FatFsStatus == FR_OK)
+    if (Logger.FatFsStatus == FR_OK){
         Logger.FileOpened = 0;
+        SetDeviceStateOK(Logger_PORT, Logger_PIN);
+    }
+    else
+        SetDeviceStateError(Logger_PORT, Logger_PIN);
 
     strcpy(Logger.Message, "");
     Logger.LinesCount++;

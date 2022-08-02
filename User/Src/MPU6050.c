@@ -3,6 +3,8 @@
 
 Device_TypeDefStruct MPU6050 = {0};
 
+static uint16_t DeviceLED = MPU_PIN;
+static GPIO_TypeDef *DeviceLED_Port = MPU_PORT;
 static I2C_TypeDefStruct MPU_Communicator = {0};
 static struct AccelerometerData MPU_AccData = {0};
 static struct GyroscopeData MPU_GyroData = {0};
@@ -12,13 +14,9 @@ static double ACC_ERROR_X, ACC_ERROR_Y, ACC_ERROR_Z, GYRO_ERROR_X, GYRO_ERROR_Y,
 static uint16_t CalibrationCycles = 500;
 
 static void GenerateDataRepresentation();
-
 static void MPU_Calibrate();
-
 static void MPU_Read_Acceleration();
-
 static void MPU_Read_Gyroscope();
-
 static void MPU_Read_Temperature();
 
 void MPU_Init() {
@@ -64,7 +62,7 @@ void MPU_ReadData() {
 }
 
 static void GenerateDataRepresentation() {
-    if (MPU_Communicator.ConnectionStatus == HAL_OK)
+    if (MPU_Communicator.ConnectionStatus == HAL_OK) {
         sprintf(MPU6050.DataRepr,
                 "[%s] %.3f %.3f %.3f %.3f %.3f %.3f %.3f;",
                 MPU6050.DeviceName,
@@ -75,8 +73,11 @@ static void GenerateDataRepresentation() {
                 MPU_GyroData.GyroY,
                 MPU_GyroData.GyroZ,
                 MPU_Temperature);
-    else
+        SetDeviceStateOK(MPU_PORT, DeviceLED);
+    } else {
         sprintf(MPU6050.DataRepr, "[%s] %s;", MPU6050.DeviceName, UNREACHABLE);
+        SetDeviceStateError(MPU_PORT, DeviceLED);
+    }
 }
 
 static void MPU_Calibrate() {
