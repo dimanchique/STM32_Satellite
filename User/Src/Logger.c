@@ -80,19 +80,17 @@ static void WriteLog() {
         Logger.FileOpened = 1;
         Logger.FatFsStatus = f_write(&SDFile, Logger.Message, strlen((char *) Logger.Message), NULL);
         Logger.FatFsStatus = f_close(&SDFile);
+        if (Logger.FatFsStatus == FR_OK){
+            Logger.FileOpened = 0;
+            strcpy(Logger.Message, "");
+            Logger.LinesCount++;
+            if (Logger.LinesCount >= LINES_COUNT)
+                SetFileName(++Logger.FileCount);
+            SetDeviceStateOK(Logger_PORT, Logger_PIN);
+            return;
+        }
     }
-    if (Logger.FatFsStatus == FR_OK){
-        Logger.FileOpened = 0;
-        SetDeviceStateOK(Logger_PORT, Logger_PIN);
-    }
-    else
-        SetDeviceStateError(Logger_PORT, Logger_PIN);
-
-    strcpy(Logger.Message, "");
-    Logger.LinesCount++;
-
-    if (Logger.LinesCount >= LINES_COUNT)
-        SetFileName(++Logger.FileCount);
+    SetDeviceStateError(Logger_PORT, Logger_PIN);
 }
 
 #ifdef ENABLE_DEBUG
