@@ -3,8 +3,7 @@
 
 Device_TypeDefStruct TrBaro = {0};
 
-static uint16_t DeviceLED = TroykaBaro_PIN;
-static GPIO_TypeDef *DeviceLED_Port = TroykaBaro_PORT;
+//static uint16_t DeviceLED = TroykaBaro_PIN;
 static struct BarometerData TrBaro_Data = {0};
 static I2C_TypeDefStruct TrBaro_Communicator = {0};
 
@@ -64,10 +63,10 @@ static void GenerateDataRepresentation() {
                 TrBaro_Data.Pressure,
                 TrBaro_Data.mmHg,
                 TrBaro_Data.Altitude);
-        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
     } else {
         sprintf(TrBaro.DataRepr, "[%s] %s;", TrBaro.DeviceName, UNREACHABLE);
-        SetDeviceStateError(DeviceLED_Port, DeviceLED);
+        //SetDeviceStateError(DeviceLED_Port, DeviceLED);
     }
 }
 

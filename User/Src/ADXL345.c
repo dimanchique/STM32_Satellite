@@ -4,7 +4,6 @@
 Device_TypeDefStruct ADXL345 = {0};
 
 static uint16_t DeviceLED = ADXL_PIN;
-static GPIO_TypeDef *DeviceLED_Port = ADXL_PORT;
 static I2C_TypeDefStruct ADXL_Communicator = {0};
 static struct AccelerometerData ADXL_Data = {0};
 
@@ -59,10 +58,10 @@ static void GenerateDataRepresentation() {
                 ADXL_Data.AccX,
                 ADXL_Data.AccY,
                 ADXL_Data.AccZ);
-        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+        SetDeviceStateOK(LED_PORT, DeviceLED);
     } else {
         sprintf(ADXL345.DataRepr, "[%s] %s;", ADXL345.DeviceName, UNREACHABLE);
-        SetDeviceStateError(DeviceLED_Port, DeviceLED);
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
 }
 

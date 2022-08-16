@@ -4,7 +4,6 @@
 Device_TypeDefStruct BMP280 = {0};
 
 static uint16_t DeviceLED = BMP_PIN;
-static GPIO_TypeDef *DeviceLED_Port = BMP_PORT;
 static I2C_TypeDefStruct BMP_Communicator = {0};
 static struct {
     uint16_t dig_T1;
@@ -131,10 +130,10 @@ static void GenerateDataRepresentation() {
                 BMP_BaroData.Pressure,
                 BMP_BaroData.mmHg,
                 BMP_BaroData.Altitude);
-        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+        SetDeviceStateOK(LED_PORT, DeviceLED);
     } else {
         sprintf(BMP280.DataRepr, "[%s] %s;", BMP280.DeviceName, UNREACHABLE);
-        SetDeviceStateError(DeviceLED_Port, DeviceLED);
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
 }
 

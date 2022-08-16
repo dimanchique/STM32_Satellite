@@ -4,7 +4,6 @@
 Logger_TypeDefStruct Logger = {0};
 
 static uint16_t DeviceLED = Logger_PIN;
-static GPIO_TypeDef *DeviceLED_Port = Logger_PORT;
 
 extern SD_HandleTypeDef hsd1;
 
@@ -50,11 +49,11 @@ static void MountDisk() {
         if (Logger.FatFsStatus == FR_OK) {
             Logger.FatFsStatus = f_close(&SDFile);
             Logger.DiskMounted = 1;
-            SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+            SetDeviceStateOK(LED_PORT, DeviceLED);
             return;
         }
     }
-    SetDeviceStateError(DeviceLED_Port, DeviceLED);
+    SetDeviceStateError(LED_PORT, DeviceLED);
 }
 
 static void SetFileName(uint8_t file_number) {
@@ -66,11 +65,11 @@ static HAL_StatusTypeDef CheckDiskAndTryReconnect() {
     if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted) {
         MountDisk();
         if (Logger.FatFsStatus != FR_OK || !Logger.DiskMounted) {
-            SetDeviceStateError(DeviceLED_Port, DeviceLED);
+            SetDeviceStateError(LED_PORT, DeviceLED);
             return HAL_ERROR;
         }
     }
-    SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+    SetDeviceStateOK(LED_PORT, DeviceLED);
     return HAL_OK;
 }
 
@@ -86,11 +85,11 @@ static void WriteLog() {
     Logger.LinesCount++;
     if (Logger.LinesCount >= LINES_COUNT)
         SetFileName(++Logger.FileCount);
-            SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+            SetDeviceStateOK(LED_PORT, DeviceLED);
             return;
         }
     }
-    SetDeviceStateError(DeviceLED_Port, DeviceLED);
+    SetDeviceStateError(LED_PORT, DeviceLED);
 }
 
 #ifdef ENABLE_DEBUG

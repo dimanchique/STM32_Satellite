@@ -2,8 +2,7 @@
 
 GPS_TypeDefStruct NEO7M = {0};
 
-static uint16_t DeviceLED = GPS_PIN;
-static GPIO_TypeDef *DeviceLED_Port = GPS_PORT;
+//static uint16_t DeviceLED = GPS_PIN;
 extern UART_HandleTypeDef huart1;
 static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
 
@@ -53,11 +52,11 @@ void GPS_ReadData() {
         NEO7M.ReceivingFinished = 0;
         if (IsValid(NEO7M.Message)) {
             ProcessResponse();
-            SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+            //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
         }
         else {
             sprintf(NEO7M.PayloadMessage, "[GPS] %s", UNREACHABLE);
-            SetDeviceStateError(DeviceLED_Port, DeviceLED);
+            //SetDeviceStateError(DeviceLED_Port, DeviceLED);
         }
     }
 }

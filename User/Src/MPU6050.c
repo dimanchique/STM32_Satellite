@@ -4,7 +4,6 @@
 Device_TypeDefStruct MPU6050 = {0};
 
 static uint16_t DeviceLED = MPU_PIN;
-static GPIO_TypeDef *DeviceLED_Port = MPU_PORT;
 static I2C_TypeDefStruct MPU_Communicator = {0};
 static struct AccelerometerData MPU_AccData = {0};
 static struct GyroscopeData MPU_GyroData = {0};
@@ -73,10 +72,10 @@ static void GenerateDataRepresentation() {
                 MPU_GyroData.GyroY,
                 MPU_GyroData.GyroZ,
                 MPU_Temperature);
-        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+        SetDeviceStateOK(LED_PORT, DeviceLED);
     } else {
         sprintf(MPU6050.DataRepr, "[%s] %s;", MPU6050.DeviceName, UNREACHABLE);
-        SetDeviceStateError(DeviceLED_Port, DeviceLED);
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
 }
 

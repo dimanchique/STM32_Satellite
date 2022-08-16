@@ -17,22 +17,15 @@
 #define SetDeviceStateOK(PORT, PIN)     HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_SET)
 #define SetDeviceStateError(PORT, PIN)  HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_RESET)
 
+#define LED_PORT                        GPIOD
+#define Logger_PIN                      GPIO_PIN_4
+#define BMP_PIN                         GPIO_PIN_6
 #define ADXL_PIN                        GPIO_PIN_11
-#define ADXL_PORT                       GPIOD
-#define Logger_PIN                      GPIO_PIN_13
-#define Logger_PORT                     GPIOD
-#define BMP_PIN                         GPIO_PIN_15
-#define BMP_PORT                        GPIOD
-#define MPU_PIN                         GPIO_PIN_11
-#define MPU_PORT                        GPIOC
-#define GPS_PIN                         GPIO_PIN_2
-#define GPS_PORT                        GPIOD
-#define TroykaAcc_PIN                   GPIO_PIN_4
-#define TroykaAcc_PORT                  GPIOD
-#define TroykaBaro_PIN                  GPIO_PIN_6
-#define TroykaBaro_PORT                 GPIOD
-#define TroykaGyro_PIN                  GPIO_PIN_3
-#define TroykaGyro_PORT                 GPIOB
+#define MPU_PIN                         GPIO_PIN_13
+#define TroykaAcc_PIN                   GPIO_PIN_15
+//#define GPS_PIN                         GPIO_PIN_2
+//#define TroykaBaro_PIN                  GPIO_PIN_6
+//#define TroykaGyro_PIN                  GPIO_PIN_3
 
 /** Operation Type Enum **/
 typedef enum {
