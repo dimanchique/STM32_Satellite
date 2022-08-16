@@ -48,18 +48,16 @@ void GPS_Init() {
 }
 
 void GPS_ReadData() {
-        if (IsValid(NEO7M.TempMessage)) {
-            strcpy(NEO7M.Message, NEO7M.TempMessage);
-            DMA1_Stream3->CR &= ~DMA_SxCR_EN;
-            DMA1_Stream3->NDTR = GPS_DATA_SIZE;
-            DMA1_Stream3->CR |= DMA_SxCR_EN;
+    if (NEO7M.ReceivingFinished) {
+        NEO7M.ReceivingFinished = 0;
+        if (IsValid(NEO7M.Message)) {
             ProcessResponse();
             //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
-        }
-        else {
+        } else {
             sprintf(NEO7M.PayloadMessage, "[GPS] %s", UNREACHABLE);
             //SetDeviceStateError(DeviceLED_Port, DeviceLED);
         }
+    }
 }
 
 static void ProcessResponse() {
@@ -101,17 +99,18 @@ static void ConvertData(GPSProtocol *GPSProtocol) {
 }
 
 static void GenerateDataRepresentation() {
-    if (NEO7M.GPGGA.IsValid) {
-        sprintf(NEO7M.PayloadMessage,
-                "[GPS] %s %.5f%c %.5f%c %.3f%c GPGGA;",
-                NEO7M.GPGGA.TimeRepr,
-                NEO7M.GPGGA.LatitudeDegrees,
-                NEO7M.GPGGA.LatitudeDirection,
-                NEO7M.GPGGA.LongitudeDegrees,
-                NEO7M.GPGGA.LongitudeDirection,
-                NEO7M.GPGGA.Extras.Altitude,
-                NEO7M.GPGGA.Extras.AltitudeUnits);
-    } else if (NEO7M.GPRMC.IsValid) {
+    if (NEO7M.MinimalDataReceived) {
+        if (NEO7M.GPGGA.IsValid) {
+            sprintf(NEO7M.PayloadMessage,
+                    "[GPS] %s %.5f%c %.5f%c %.3f%c GPGGA;",
+                    NEO7M.GPGGA.TimeRepr,
+                    NEO7M.GPGGA.LatitudeDegrees,
+                    NEO7M.GPGGA.LatitudeDirection,
+                    NEO7M.GPGGA.LongitudeDegrees,
+                    NEO7M.GPGGA.LongitudeDirection,
+                    NEO7M.GPGGA.Extras.Altitude,
+                    NEO7M.GPGGA.Extras.AltitudeUnits);
+        } else if (NEO7M.GPRMC.IsValid) {
             sprintf(NEO7M.PayloadMessage,
                     "[GPS] %s %f%c %f%c %f GPRMC;",
                     NEO7M.GPRMC.TimeRepr,
@@ -128,7 +127,9 @@ static void GenerateDataRepresentation() {
                     NEO7M.GPGLL.LatitudeDirection,
                     NEO7M.GPGLL.LongitudeDegrees,
                     NEO7M.GPGLL.LongitudeDirection);
-    } else sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
+        }
+    } else
+        sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
 }
 
 static void ParseGPGGA(char *packet) {
