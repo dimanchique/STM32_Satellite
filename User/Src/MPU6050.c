@@ -1,5 +1,4 @@
 #include "MPU6050.h"
-#include "Logger.h"
 
 Device_TypeDefStruct MPU6050 = {0};
 
@@ -27,9 +26,6 @@ void MPU_Init() {
                           MPU6050_ADDRESS,
                           MPU6050_ID,
                           MPU6050_ID_REGISTER);
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&MPU_Communicator);
-#endif
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&MPU_Communicator)) {
         I2C_WriteData8(&MPU_Communicator,
@@ -44,11 +40,13 @@ void MPU_Init() {
         HAL_Delay(50);
         MPU_Calibrate();
         if (MPU_Communicator.ConnectionStatus == HAL_OK)
+        {
             MPU_Communicator.State = Working;
+            SetDeviceStateOK(LED_PORT, DeviceLED);
+            return;
+        }
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&MPU_Communicator);
-#endif
 }
 
 void MPU_ReadData() {

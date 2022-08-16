@@ -1,5 +1,4 @@
 #include "ADXL345.h"
-#include "Logger.h"
 
 Device_TypeDefStruct ADXL345 = {0};
 
@@ -19,10 +18,6 @@ void ADXL_Init(void) {
                           ADXL345_ADDRESS,
                           ADXL345_ID,
                           ADXL345_ID_REGISTER);
-
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&ADXL_Communicator);
-#endif
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&ADXL_Communicator)) {
         I2C_WriteData8(&ADXL_Communicator, ADXL345_BW_RATE, ADXL345_DATARATE);
@@ -32,11 +27,13 @@ void ADXL_Init(void) {
         HAL_Delay(50);
         ADXL_Calibrate();
         if (ADXL_Communicator.ConnectionStatus == HAL_OK)
+        {
             ADXL_Communicator.State = Initialized;
+            SetDeviceStateOK(LED_PORT, DeviceLED);
+            return;
+        }
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&ADXL_Communicator);
-#endif
 }
 
 void ADXL_ReadData(void) {

@@ -1,5 +1,4 @@
 #include "BMP280.h"
-#include "Logger.h"
 
 Device_TypeDefStruct BMP280 = {0};
 
@@ -37,9 +36,6 @@ void BMP_Init(void) {
                           BMP280_ADDRESS,
                           BMP280_ID,
                           BMP280_ID_REGISTER);
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&BMP_Communicator);
-#endif
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&BMP_Communicator)) {
         BMP_SoftReset();
@@ -54,11 +50,13 @@ void BMP_Init(void) {
         HAL_Delay(50);
         BMP_Calibrate();
         if (BMP_Communicator.ConnectionStatus == HAL_OK)
+        {
             BMP_Communicator.State = Initialized;
+            SetDeviceStateOK(LED_PORT, DeviceLED);
+            return;
+        }
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&BMP_Communicator);
-#endif
 }
 
 

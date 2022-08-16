@@ -1,5 +1,4 @@
 #include "TroykaAccelerometer.h"
-#include "Logger.h"
 
 Device_TypeDefStruct TrAcc = {0};
 
@@ -18,9 +17,6 @@ void TrAcc_Init(void) {
                           TR_ACC_ADDR,
                           TR_ACC_ID,
                           TR_ACC_ID_REG);
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&TrAcc_Communicator);
-#endif
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&TrAcc_Communicator)) {
         I2C_WriteData8(&TrAcc_Communicator, TR_ACC_CR1, TR_ACC_CR1_XYZ_EN | TR_ACC_PM0);
@@ -30,11 +26,13 @@ void TrAcc_Init(void) {
         data |= TR_ACC_RANGE;
         I2C_WriteData8(&TrAcc_Communicator, TR_ACC_CR4, data);
         if (TrAcc_Communicator.ConnectionStatus == HAL_OK)
+        {
             TrAcc_Communicator.State = Initialized;
+            SetDeviceStateOK(LED_PORT, DeviceLED);
+            return;
+        }
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&TrAcc_Communicator);
-#endif
 }
 
 void TrAcc_ReadData(void) {
@@ -57,9 +55,9 @@ static void GenerateDataRepresentation() {
                 TrAcc_Data.AccX,
                 TrAcc_Data.AccY,
                 TrAcc_Data.AccZ);
-        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+        SetDeviceStateOK(LED_PORT, DeviceLED);
     } else {
         sprintf(TrAcc.DataRepr, "[%s] %s;", TrAcc.DeviceName, UNREACHABLE);
-        //SetDeviceStateError(DeviceLED_Port, DeviceLED);
+        SetDeviceStateError(LED_PORT, DeviceLED);
     }
 }

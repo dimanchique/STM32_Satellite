@@ -9,12 +9,7 @@ static uint16_t ReceivedDataSize;
 
 void SIM900_Init(void) {
     Send("AT\n");
-    if (ResponseIs("OK")) {
-        SIM900.DeviceStatus = HAL_OK;
-        SendMessageUsingSIM("SIM900 Module Connected");
-        return;
-    }
-    SIM900.DeviceStatus = HAL_ERROR;
+    SendMessageUsingSIM("SIM900 Module Connected");
 }
 
 void SendMessageUsingSIM(char *Message) {
