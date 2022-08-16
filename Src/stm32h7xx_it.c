@@ -230,10 +230,10 @@ void USART1_IRQHandler(void)
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
   DMA1_Stream3->CR &= ~DMA_SxCR_EN;
-  memset(NEO7M.Message, 0, GPS_DATA_SIZE);
-  strcpy(NEO7M.Message, NEO7M.TempMessage);
-  memset(NEO7M.TempMessage, 0, GPS_DATA_SIZE);
-  NEO7M.ReceivingFinished = 1;
+//  memset(NEO7M.Message, 0, GPS_DATA_SIZE);
+//  strcpy(NEO7M.Message, NEO7M.TempMessage);
+//  memset(NEO7M.TempMessage, 0, GPS_DATA_SIZE);
+//  NEO7M.ReceivingFinished = 1;
   DMA1_Stream3->NDTR = GPS_DATA_SIZE;
   DMA1_Stream3->CR |= DMA_SxCR_EN;
   /* USER CODE END USART1_IRQn 1 */

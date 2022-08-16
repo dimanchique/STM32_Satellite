@@ -12,7 +12,7 @@
 #define mmHg_to_Altitude(ref, mmHg)     (((ref)-(mmHg)) * 10.5f)
 #define GSM_MESSAGE_SIZE                100
 #define GSM_RESPONSE_SIZE               40
-#define GPS_DATA_SIZE                   300
+#define GPS_DATA_SIZE                   400
 #define GPS_PAYLOAD_SIZE                100
 #define SetDeviceStateOK(PORT, PIN)     HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_SET)
 #define SetDeviceStateError(PORT, PIN)  HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_RESET)

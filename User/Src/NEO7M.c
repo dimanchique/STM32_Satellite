@@ -39,18 +39,20 @@ void GPS_Init() {
                               0x1, 0x0, 0x1, 0x0, 0xde, 0x6a, 0xb5, 0x62,
                               0x6, 0x8, 0x0, 0x0, 0xe, 0x30, 0x0}; //Set 5 Hz Rate
 
-    HAL_UART_Transmit(&huart1, (uint8_t *) Message1, sizeof(Message1), 100);
-    HAL_UART_Transmit(&huart1, (uint8_t *) Message2, sizeof(Message2), 100);
-    HAL_UART_Transmit(&huart1, (uint8_t *) Message3, sizeof(Message3), 100);
-    HAL_UART_Transmit(&huart1, (uint8_t *) Message4, sizeof(Message4), 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *) Message1, 37, 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *) Message2, 37, 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *) Message3, 37, 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *) Message4, 31, 100);
     HAL_UART_Receive_DMA(&huart1, (uint8_t *) NEO7M.TempMessage, GPS_DATA_SIZE);
     sprintf(NEO7M.PayloadMessage, "[GPS] Waiting");
 }
 
 void GPS_ReadData() {
-    if (NEO7M.ReceivingFinished) {
-        NEO7M.ReceivingFinished = 0;
-        if (IsValid(NEO7M.Message)) {
+        if (IsValid(NEO7M.TempMessage)) {
+            strcpy(NEO7M.Message, NEO7M.TempMessage);
+            DMA1_Stream3->CR &= ~DMA_SxCR_EN;
+            DMA1_Stream3->NDTR = GPS_DATA_SIZE;
+            DMA1_Stream3->CR |= DMA_SxCR_EN;
             ProcessResponse();
             //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
         }
@@ -58,7 +60,6 @@ void GPS_ReadData() {
             sprintf(NEO7M.PayloadMessage, "[GPS] %s", UNREACHABLE);
             //SetDeviceStateError(DeviceLED_Port, DeviceLED);
         }
-    }
 }
 
 static void ProcessResponse() {
@@ -100,18 +101,17 @@ static void ConvertData(GPSProtocol *GPSProtocol) {
 }
 
 static void GenerateDataRepresentation() {
-    if (NEO7M.MinimalDataReceived) {
-        if (NEO7M.GPGGA.IsValid) {
-            sprintf(NEO7M.PayloadMessage,
-                    "[GPS] %s %.5f%c %.5f%c %.3f%c GPGGA;",
-                    NEO7M.GPGGA.TimeRepr,
-                    NEO7M.GPGGA.LatitudeDegrees,
-                    NEO7M.GPGGA.LatitudeDirection,
-                    NEO7M.GPGGA.LongitudeDegrees,
-                    NEO7M.GPGGA.LongitudeDirection,
-                    NEO7M.GPGGA.Extras.Altitude,
-                    NEO7M.GPGGA.Extras.AltitudeUnits);
-        } else if (NEO7M.GPRMC.IsValid) {
+    if (NEO7M.GPGGA.IsValid) {
+        sprintf(NEO7M.PayloadMessage,
+                "[GPS] %s %.5f%c %.5f%c %.3f%c GPGGA;",
+                NEO7M.GPGGA.TimeRepr,
+                NEO7M.GPGGA.LatitudeDegrees,
+                NEO7M.GPGGA.LatitudeDirection,
+                NEO7M.GPGGA.LongitudeDegrees,
+                NEO7M.GPGGA.LongitudeDirection,
+                NEO7M.GPGGA.Extras.Altitude,
+                NEO7M.GPGGA.Extras.AltitudeUnits);
+    } else if (NEO7M.GPRMC.IsValid) {
             sprintf(NEO7M.PayloadMessage,
                     "[GPS] %s %f%c %f%c %f GPRMC;",
                     NEO7M.GPRMC.TimeRepr,
@@ -128,10 +128,7 @@ static void GenerateDataRepresentation() {
                     NEO7M.GPGLL.LatitudeDirection,
                     NEO7M.GPGLL.LongitudeDegrees,
                     NEO7M.GPGLL.LongitudeDirection);
-        }
-    }
-    else
-        sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
+    } else sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
 }
 
 static void ParseGPGGA(char *packet) {
