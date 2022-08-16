@@ -73,10 +73,10 @@ static void GenerateDataRepresentation() {
                 MPU_GyroData.GyroY,
                 MPU_GyroData.GyroZ,
                 MPU_Temperature);
-        SetDeviceStateOK(MPU_PORT, DeviceLED);
+        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
     } else {
         sprintf(MPU6050.DataRepr, "[%s] %s;", MPU6050.DeviceName, UNREACHABLE);
-        SetDeviceStateError(MPU_PORT, DeviceLED);
+        SetDeviceStateError(DeviceLED_Port, DeviceLED);
     }
 }
 

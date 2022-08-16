@@ -57,9 +57,9 @@ static void GenerateDataRepresentation() {
                 TrGyro_Data.GyroX,
                 TrGyro_Data.GyroY,
                 TrGyro_Data.GyroZ);
-        SetDeviceStateOK(TroykaGyro_PORT, DeviceLED);
+        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
     } else {
         sprintf(TrGyro.DataRepr, "[%s] %s;", TrGyro.DeviceName, UNREACHABLE);
-        SetDeviceStateError(TroykaGyro_PORT, DeviceLED);
+        SetDeviceStateError(DeviceLED_Port, DeviceLED);
     }
 }

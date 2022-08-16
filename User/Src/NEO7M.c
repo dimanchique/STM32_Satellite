@@ -45,7 +45,7 @@ void GPS_Init() {
     HAL_UART_Transmit(&huart1, (uint8_t *) Message3, sizeof(Message3), 100);
     HAL_UART_Transmit(&huart1, (uint8_t *) Message4, sizeof(Message4), 100);
     HAL_UART_Receive_DMA(&huart1, (uint8_t *) NEO7M.TempMessage, GPS_DATA_SIZE);
-    sprintf(NEO7M.PayloadMessage, "[GPS] Setup finished");
+    sprintf(NEO7M.PayloadMessage, "[GPS] Waiting");
 }
 
 void GPS_ReadData() {
@@ -53,11 +53,11 @@ void GPS_ReadData() {
         NEO7M.ReceivingFinished = 0;
         if (IsValid(NEO7M.Message)) {
             ProcessResponse();
-            SetDeviceStateOK(GPS_PORT, DeviceLED);
+            SetDeviceStateOK(DeviceLED_Port, DeviceLED);
         }
         else {
             sprintf(NEO7M.PayloadMessage, "[GPS] %s", UNREACHABLE);
-            SetDeviceStateError(GPS_PORT, DeviceLED);
+            SetDeviceStateError(DeviceLED_Port, DeviceLED);
         }
     }
 }

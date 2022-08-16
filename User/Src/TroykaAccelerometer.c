@@ -58,9 +58,9 @@ static void GenerateDataRepresentation() {
                 TrAcc_Data.AccX,
                 TrAcc_Data.AccY,
                 TrAcc_Data.AccZ);
-        SetDeviceStateOK(TroykaAcc_PORT, DeviceLED);
+        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
     } else {
         sprintf(TrAcc.DataRepr, "[%s] %s;", TrAcc.DeviceName, UNREACHABLE);
-        SetDeviceStateError(TroykaAcc_PORT, DeviceLED);
+        SetDeviceStateError(DeviceLED_Port, DeviceLED);
     }
 }

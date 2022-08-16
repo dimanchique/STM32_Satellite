@@ -64,10 +64,10 @@ static void GenerateDataRepresentation() {
                 TrBaro_Data.Pressure,
                 TrBaro_Data.mmHg,
                 TrBaro_Data.Altitude);
-        SetDeviceStateOK(TroykaBaro_PORT, DeviceLED);
+        SetDeviceStateOK(DeviceLED_Port, DeviceLED);
     } else {
         sprintf(TrBaro.DataRepr, "[%s] %s;", TrBaro.DeviceName, UNREACHABLE);
-        SetDeviceStateError(TroykaBaro_PORT, DeviceLED);
+        SetDeviceStateError(DeviceLED_Port, DeviceLED);
     }
 }
 
