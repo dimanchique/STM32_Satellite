@@ -3,24 +3,24 @@
 GSM_TypeDefStruct SIM900 = {0};
 extern UART_HandleTypeDef huart2;
 
-static void Send(char *Command);
+static void SendCommand(char *Command);
 static uint8_t ResponseIs(char *WantedResponse);
 static uint16_t ReceivedDataSize;
 
 void SIM900_Init(void) {
-    Send("AT\n");
-    SendMessageUsingSIM("SIM900 Module Connected");
+    SendCommand("AT\n");
+    SIM900_SendMessage("SIM900 Module Connected");
 }
 
-void SendMessageUsingSIM(char *Message) {
-    Send("AT+CMGF=1\n");
-    Send("AT+CMGS=\"+79879922773\"\n");
-    Send(Message);
-    Send("\n");
-    Send((char *) 26);
+void SIM900_SendMessage(char *Message) {
+    SendCommand("AT+CMGF=1\n");
+    SendCommand("AT+CMGS=\"+79879922773\"\n");
+    SendCommand(Message);
+    SendCommand("\n");
+    SendCommand((char *) 26);
 }
 
-static void Send(char *Command) {
+static void SendCommand(char *Command) {
     HAL_UART_Transmit(&huart2, (uint8_t *) Command, strlen(Command), 300);
     SIM900.CommandStatus = HAL_UARTEx_ReceiveToIdle(&huart2,
                                                     (uint8_t *) SIM900.Response,

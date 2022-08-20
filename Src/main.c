@@ -91,7 +91,7 @@ static void InitPeripheries(void) {
     BMP_Init();
     ADXL_Init();
     MPU_Init();
-    SIM900_Init();
+    //SIM900_Init();
     AnalogBaro_Init();
 }
 
@@ -160,12 +160,12 @@ int main(void)
             WriteCount = 0;
             ForceDataLogging();
         }
-        if (SendGPSCount++ >= 6000)
-        {
-            SendGPSCount = 0;
-            if (NEO7M.GPGGA.IsValid)
-                SendMessageUsingSIM(NEO7M.PayloadMessage);
-        }
+//        if (SendGPSCount++ >= 6000)
+//        {
+//            SendGPSCount = 0;
+//            if (NEO7M.GPGGA.IsValid)
+//                SendMessageUsingSIM(NEO7M.PayloadMessage);
+//        }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
