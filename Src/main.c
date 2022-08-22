@@ -84,7 +84,7 @@ void DWT_Init(void);
 static void InitPeripheries(void) {
     InitSDSystem();
     I2C_Init();
-    GPS_Init();
+    //GPS_Init();
     TrBaro_Init();
     TrAcc_Init();
     TrGyro_Init();
@@ -154,7 +154,7 @@ int main(void)
         TrAcc_ReadData();
         TrGyro_ReadData();
         AnalogBaro_ReadData();
-        GPS_ReadData();
+        //GPS_ReadData();
         if (WriteCount++ >= 2)
         {
             WriteCount = 0;
