@@ -34,15 +34,10 @@ void GPS_Init() {
                               0xf0, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
                               0x2, 0x38, 0xb5, 0x62, 0x6, 0x1, 0x2, 0x0,
                               0xf0, 0x3, 0xfc, 0x14, 0x0}; //Disable GPGSV
-    static char Message4[] = {0xb5, 0x62, 0x6, 0x8, 0x0, 0x0, 0xe, 0x30, 0x0,
-                              0xb5, 0x62, 0x6, 0x8, 0x6, 0x0, 0xc8, 0x0,
-                              0x1, 0x0, 0x1, 0x0, 0xde, 0x6a, 0xb5, 0x62,
-                              0x6, 0x8, 0x0, 0x0, 0xe, 0x30, 0x0}; //Set 5 Hz Rate
 
     HAL_UART_Transmit(&huart1, (uint8_t *) Message1, 37, 100);
     HAL_UART_Transmit(&huart1, (uint8_t *) Message2, 37, 100);
     HAL_UART_Transmit(&huart1, (uint8_t *) Message3, 37, 100);
-    HAL_UART_Transmit(&huart1, (uint8_t *) Message4, 31, 100);
     HAL_UART_Receive_DMA(&huart1, (uint8_t *) NEO7M.TempMessage, GPS_DATA_SIZE);
     sprintf(NEO7M.PayloadMessage, "[GPS] Waiting");
 }
@@ -50,13 +45,7 @@ void GPS_Init() {
 void GPS_ReadData() {
     if (NEO7M.ReceivingFinished) {
         NEO7M.ReceivingFinished = 0;
-        if (IsValid(NEO7M.Message)) {
-            ProcessResponse();
-            //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
-        } else {
-            sprintf(NEO7M.PayloadMessage, "[GPS] %s", UNREACHABLE);
-            //SetDeviceStateError(DeviceLED_Port, DeviceLED);
-        }
+        ProcessResponse();
     }
 }
 
@@ -128,8 +117,12 @@ static void GenerateDataRepresentation() {
                     NEO7M.GPGLL.LongitudeDegrees,
                     NEO7M.GPGLL.LongitudeDirection);
         }
+        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
     } else
+    {
         sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
+        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
+    }
 }
 
 static void ParseGPGGA(char *packet) {
