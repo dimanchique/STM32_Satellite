@@ -9,7 +9,7 @@
 typedef struct {
     char Message[MESSAGE_LENGTH];
     uint16_t LinesCount;
-    uint8_t FileCount;
+    uint16_t FileCount;
     char FileName[15];
     FRESULT FatFsStatus;
     uint8_t DiskMounted;

@@ -27,7 +27,7 @@ extern Device_TypeDefStruct TrBaro;
 extern Device_TypeDefStruct TrGyro;
 extern Device_TypeDefStruct AnalogBarometer;
 
-static void SetFileName(uint8_t file_number);
+static void SetFileName(uint16_t file_number);
 static void WriteLog();
 static void MountDisk();
 
@@ -56,7 +56,7 @@ static void MountDisk() {
     SetDeviceStateError(LED_PORT, DeviceLED);
 }
 
-static void SetFileName(uint8_t file_number) {
+static void SetFileName(uint16_t file_number) {
     sprintf(Logger.FileName, "DATA%d.txt", file_number);
     Logger.LinesCount = 0;
 }
