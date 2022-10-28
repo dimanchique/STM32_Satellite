@@ -2,7 +2,6 @@
 
 Device_TypeDefStruct TrAcc = {0};
 
-static uint16_t DeviceLED = TroykaAcc_PIN;
 static struct AccelerometerData TrAcc_Data = {0};
 static I2C_TypeDefStruct TrAcc_Communicator = {0};
 
@@ -26,12 +25,7 @@ void TrAcc_Init(void) {
         data |= TR_ACC_RANGE;
         I2C_WriteData8(&TrAcc_Communicator, TR_ACC_CR4, data);
         if (TrAcc_Communicator.ConnectionStatus == HAL_OK)
-        {
             TrAcc_Communicator.State = Initialized;
-            SetDeviceStateOK(LED_PORT, DeviceLED);
-            return;
-        }
-        SetDeviceStateError(LED_PORT, DeviceLED);
     }
 }
 
@@ -48,16 +42,13 @@ void TrAcc_ReadData(void) {
 
 
 static void GenerateDataRepresentation() {
-    if (TrAcc_Communicator.ConnectionStatus == HAL_OK) {
+    if (TrAcc_Communicator.ConnectionStatus == HAL_OK)
         sprintf(TrAcc.DataRepr,
                 "[%s] %.4f %.4f %.4f;",
                 TrAcc.DeviceName,
                 TrAcc_Data.AccX,
                 TrAcc_Data.AccY,
                 TrAcc_Data.AccZ);
-        SetDeviceStateOK(LED_PORT, DeviceLED);
-    } else {
+    else
         sprintf(TrAcc.DataRepr, "[%s] %s;", TrAcc.DeviceName, UNREACHABLE);
-        SetDeviceStateError(LED_PORT, DeviceLED);
-    }
 }

@@ -3,7 +3,6 @@
 
 Device_TypeDefStruct TrGyro = {0};
 
-//static uint16_t DeviceLED = TroykaGyro_PIN;
 static struct GyroscopeData TrGyro_Data = {0};
 static I2C_TypeDefStruct TrGyro_Communicator = {0};
 
@@ -49,16 +48,13 @@ void TrGyro_ReadData(void) {
 }
 
 static void GenerateDataRepresentation() {
-    if (TrGyro_Communicator.ConnectionStatus == HAL_OK) {
+    if (TrGyro_Communicator.ConnectionStatus == HAL_OK)
         sprintf(TrGyro.DataRepr,
                 "[%s] %.3f %.3f %.3f;",
                 TrGyro.DeviceName,
                 TrGyro_Data.GyroX,
                 TrGyro_Data.GyroY,
                 TrGyro_Data.GyroZ);
-        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
-    } else {
+    else
         sprintf(TrGyro.DataRepr, "[%s] %s;", TrGyro.DeviceName, UNREACHABLE);
-        //SetDeviceStateError(DeviceLED_Port, DeviceLED);
-    }
 }

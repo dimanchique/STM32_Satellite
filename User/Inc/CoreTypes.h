@@ -14,18 +14,6 @@
 #define GSM_RESPONSE_SIZE               40
 #define GPS_DATA_SIZE                   500
 #define GPS_PAYLOAD_SIZE                70
-#define SetDeviceStateOK(PORT, PIN)     HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_SET)
-#define SetDeviceStateError(PORT, PIN)  HAL_GPIO_WritePin(PORT, PIN, GPIO_PIN_RESET)
-
-#define LED_PORT                        GPIOD
-#define Logger_PIN                      GPIO_PIN_4
-#define BMP_PIN                         GPIO_PIN_6
-#define ADXL_PIN                        GPIO_PIN_11
-#define MPU_PIN                         GPIO_PIN_13
-#define TroykaAcc_PIN                   GPIO_PIN_15
-//#define GPS_PIN                         GPIO_PIN_2
-//#define TroykaBaro_PIN                  GPIO_PIN_6
-//#define TroykaGyro_PIN                  GPIO_PIN_3
 
 /** Operation Type Enum **/
 typedef enum {

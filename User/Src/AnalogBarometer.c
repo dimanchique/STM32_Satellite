@@ -11,7 +11,6 @@ struct BarometerData AnalogBaroData;
 extern ADC_HandleTypeDef hadc2;
 
 static void GenerateDataRepresentation();
-
 static void AnalogBaro_Calibrate();
 
 void AnalogBaro_Init() {

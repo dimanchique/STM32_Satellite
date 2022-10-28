@@ -2,7 +2,6 @@
 
 GPS_TypeDefStruct NEO7M = {0};
 
-//static uint16_t DeviceLED = GPS_PIN;
 extern UART_HandleTypeDef huart1;
 static char *Keys[3] = {"GPGGA", "GPRMC", "GPGLL"};
 
@@ -68,7 +67,7 @@ static void ProcessResponse() {
 }
 
 static uint8_t IsValid(char *packet) {
-    return strstr(packet, ",,,,") == NULL;
+    return strstr(packet, "V") == NULL;
 }
 
 static void ConvertData(GPSProtocol *GPSProtocol) {
@@ -117,12 +116,9 @@ static void GenerateDataRepresentation() {
                     NEO7M.GPGLL.LongitudeDegrees,
                     NEO7M.GPGLL.LongitudeDirection);
         }
-        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
-    } else
-    {
-        sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
-        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
     }
+    else
+        sprintf(NEO7M.PayloadMessage, "[GPS] %s;", UNREACHABLE);
 }
 
 static void ParseGPGGA(char *packet) {

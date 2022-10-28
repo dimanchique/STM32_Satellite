@@ -3,11 +3,10 @@
 
 Device_TypeDefStruct TrBaro = {0};
 
-//static uint16_t DeviceLED = TroykaBaro_PIN;
 static struct BarometerData TrBaro_Data = {0};
 static I2C_TypeDefStruct TrBaro_Communicator = {0};
 
-static void TrBaro_Calibrate();
+static void TrBaro_SetOffset();
 static void GenerateDataRepresentation();
 static void TrBaro_ReadPressure();
 static void TrBaro_ReadTemperature();
@@ -32,7 +31,7 @@ void TrBaro_Init() {
                        TR_BARO_ODR2 |
                        TR_BARO_PD);
         HAL_Delay(50);
-        TrBaro_Calibrate();
+        TrBaro_SetOffset();
         if (TrBaro_Communicator.ConnectionStatus == HAL_OK)
             TrBaro_Communicator.State = Working;
     }
@@ -49,13 +48,13 @@ void TrBaro_ReadData() {
     GenerateDataRepresentation();
 }
 
-static void TrBaro_Calibrate() {
+static void TrBaro_SetOffset() {
     TrBaro_ReadData();
     TrBaro_Data.mmHg_ref = TrBaro_Data.mmHg;
 }
 
 static void GenerateDataRepresentation() {
-    if (TrBaro_Communicator.ConnectionStatus == HAL_OK) {
+    if (TrBaro_Communicator.ConnectionStatus == HAL_OK)
         sprintf(TrBaro.DataRepr,
                 "[%s] %.2f %.3f %.3f %.3f;",
                 TrBaro.DeviceName,
@@ -63,11 +62,8 @@ static void GenerateDataRepresentation() {
                 TrBaro_Data.Pressure,
                 TrBaro_Data.mmHg,
                 TrBaro_Data.Altitude);
-        //SetDeviceStateOK(DeviceLED_Port, DeviceLED);
-    } else {
+    else
         sprintf(TrBaro.DataRepr, "[%s] %s;", TrBaro.DeviceName, UNREACHABLE);
-        //SetDeviceStateError(DeviceLED_Port, DeviceLED);
-    }
 }
 
 static void TrBaro_ReadPressure() {

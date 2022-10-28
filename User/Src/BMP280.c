@@ -2,7 +2,6 @@
 
 Device_TypeDefStruct BMP280 = {0};
 
-static uint16_t DeviceLED = BMP_PIN;
 static I2C_TypeDefStruct BMP_Communicator = {0};
 static struct {
     uint16_t dig_T1;
@@ -50,12 +49,7 @@ void BMP_Init(void) {
         HAL_Delay(50);
         BMP_Calibrate();
         if (BMP_Communicator.ConnectionStatus == HAL_OK)
-        {
             BMP_Communicator.State = Initialized;
-            SetDeviceStateOK(LED_PORT, DeviceLED);
-            return;
-        }
-        SetDeviceStateError(LED_PORT, DeviceLED);
     }
 }
 
@@ -120,7 +114,7 @@ static void BMP_SoftReset() {
 }
 
 static void GenerateDataRepresentation() {
-    if (BMP_Communicator.ConnectionStatus == HAL_OK) {
+    if (BMP_Communicator.ConnectionStatus == HAL_OK)
         sprintf(BMP280.DataRepr,
                 "[%s] %.2f %.3f %.3f %.3f;",
                 BMP280.DeviceName,
@@ -128,11 +122,8 @@ static void GenerateDataRepresentation() {
                 BMP_BaroData.Pressure,
                 BMP_BaroData.mmHg,
                 BMP_BaroData.Altitude);
-        SetDeviceStateOK(LED_PORT, DeviceLED);
-    } else {
+    else
         sprintf(BMP280.DataRepr, "[%s] %s;", BMP280.DeviceName, UNREACHABLE);
-        SetDeviceStateError(LED_PORT, DeviceLED);
-    }
 }
 
 static void BMP_Calibrate() {

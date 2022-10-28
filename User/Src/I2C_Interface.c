@@ -9,13 +9,9 @@ static struct {
 extern I2C_HandleTypeDef hi2c1;
 
 static void I2C_VerifyDevice(I2C_TypeDefStruct *Communicator);
-
 static void I2C_CheckDeviceState(I2C_TypeDefStruct *Communicator);
-
 static void ReportResult(I2C_TypeDefStruct *Communicator, OperationType Operation, uint8_t BlockSize);
-
 static void I2C_ReadData16(uint8_t DeviceAddress, uint8_t RegisterAddress, uint16_t *Value);
-
 static void I2C_ReadData24(uint8_t DeviceAddress, uint8_t RegisterAddress, uint32_t *Value);
 
 void I2C_Init(void) {
