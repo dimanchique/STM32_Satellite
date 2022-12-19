@@ -5,4 +5,4 @@
 #define ADC_Resolution              (3.3f / 65535)
 
 void AnalogBaro_Init(void);
-void AnalogBaro_ReadData();
+void AnalogBaro_ReadData(void);

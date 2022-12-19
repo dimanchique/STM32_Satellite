@@ -20,9 +20,6 @@ void TrBaro_Init() {
                           TR_BARO_ADDR,
                           TR_BARO_ID,
                           TR_BARO_ID_REG);
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&TrBaro_Communicator);
-#endif
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&TrBaro_Communicator)) {
         I2C_WriteData8(&TrBaro_Communicator,
@@ -35,9 +32,6 @@ void TrBaro_Init() {
         if (TrBaro_Communicator.ConnectionStatus == HAL_OK)
             TrBaro_Communicator.State = Working;
     }
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&TrBaro_Communicator);
-#endif
 }
 
 void TrBaro_ReadData() {

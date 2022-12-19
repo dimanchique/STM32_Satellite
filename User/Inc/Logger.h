@@ -1,7 +1,6 @@
 #pragma once
 #include "fatfs.h"
 
-//#define ENABLE_DEBUG
 #define MESSAGE_LENGTH  400
 #define LINES_COUNT     400
 
@@ -18,8 +17,4 @@ typedef struct {
 
 /** Functions Prototypes **/
 void InitSDSystem(void);
-#ifdef ENABLE_DEBUG
-void LogDeviceState(I2C_CommunicatorStruct *Instance);
-void LogOperation(I2C_TypeDefStruct *Instance, OperationType Operation, uint8_t BlockSize);
-#endif
 void ForceDataLogging(void);

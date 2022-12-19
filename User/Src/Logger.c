@@ -81,65 +81,6 @@ static void WriteLog() {
     }
 }
 
-#ifdef ENABLE_DEBUG
-void LogOperation(I2C_TypeDefStruct *Instance, OperationType Operation, uint8_t BlockSize) {
-    if (CheckDiskAndTryReconnect() != HAL_OK)
-        return;
-
-    char log_level[10];
-    char result[20];
-
-    if (Instance->ConnectionStatus == HAL_OK) {
-        if (Operation==Reading)
-            strcpy(result, "Success reading");
-        else
-            strcpy(result, "Success writing");
-        strcpy(log_level, "[LOG]");
-    }
-    else {
-        if (Operation==Reading)
-            strcpy(result, "Error reading");
-        else
-            strcpy(result, "Error writing");
-        strcpy(log_level, "[WARNING]");
-    }
-    sprintf(Logger.Message, "%s Instance: %s, Instance Message: %s %d bits\n",
-            log_level,
-            Instance->Name,
-            result,
-            BlockSize);
-    WriteLog();
-}
-
-void LogDeviceState(I2C_TypeDefStruct *Instance) {
-    if (CheckDiskAndTryReconnect() != HAL_OK)
-        return;
-
-    char log_level[10];
-    switch (Instance->State) {
-        case NotInitialized:
-        case InitializationError:
-        case ConnectionLost:
-        case ID_Check_Error: {
-            strcpy(log_level, "[WARNING]");
-            break;
-        }
-        case Initialized:
-        default:
-        {
-            strcpy(log_level, "[LOG]");
-            break;
-        }
-    }
-    sprintf(Logger.Message,
-            "%s Instance: %s, Message: %s\n",
-            log_level,
-            Instance->Name,
-            LogStatus[Instance->State]);
-    WriteLog();
-}
-#endif
-
 void ForceDataLogging() {
     if (CheckDiskAndTryReconnect() != HAL_OK)
         return;

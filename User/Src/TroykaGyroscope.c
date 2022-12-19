@@ -17,9 +17,6 @@ void TrGyro_Init(void) {
                           TRO_GYRO_ADDR,
                           TR_GYRO_ID,
                           TR_GYRO_ID_REG);
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&TrGyro_Communicator);
-#endif
     /** Setup Section **/
     if (I2C_DeviceCheckedAndVerified(&TrGyro_Communicator)) {
         I2C_WriteData8(&TrGyro_Communicator, TR_GYRO_CR1, TR_GYR_CR1_XYZ_EN);
@@ -31,9 +28,6 @@ void TrGyro_Init(void) {
         if (TrGyro_Communicator.ConnectionStatus == HAL_OK)
             TrGyro_Communicator.State = Working;
     }
-#ifdef ENABLE_DEBUG
-    LogDeviceState(&TrGyro_Communicator);
-#endif
 }
 
 void TrGyro_ReadData(void) {
