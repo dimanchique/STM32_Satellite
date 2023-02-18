@@ -86,8 +86,8 @@ void ForceDataLogging() {
         return;
 
     NVIC_DisableIRQ(TIM17_IRQn);
-    sprintf(Logger.Message, "%lu [DATA] %s %s %s %s %s %s %s %s\n",
-            HAL_GetTick(),
+    sprintf(Logger.Message, "%f [DATA] %s %s %s %s %s %s %s %s\n",
+            (float)HAL_GetTick()/60000,
             NEO7M.PayloadMessage,
             BMP280.DataRepr,
             TrBaro.DataRepr,

@@ -38,7 +38,7 @@ void GPS_Init() {
     HAL_UART_Transmit(&huart1, (uint8_t *) Message2, 37, 100);
     HAL_UART_Transmit(&huart1, (uint8_t *) Message3, 37, 100);
     HAL_UART_Receive_DMA(&huart1, (uint8_t *) NEO7M.TempMessage, GPS_DATA_SIZE);
-    sprintf(NEO7M.PayloadMessage, "[GPS] Waiting");
+    sprintf(NEO7M.PayloadMessage, "[GPS] Waiting;");
 }
 
 void GPS_ReadData() {

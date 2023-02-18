@@ -147,6 +147,7 @@ int main(void) {
     NVIC_EnableIRQ(USART1_IRQn);
     USART1->CR1 |= USART_CR1_IDLEIE;
     DWT_Init();
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
     InitPeripheries();
     HAL_TIM_Base_Start_IT(&htim6);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
